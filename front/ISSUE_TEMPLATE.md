@@ -1,7 +1,7 @@
 <!--
  IMPORTANT: Please use the following link to create a new issue:
 
-  https://www.creative-tim.com/new-issue/vue-paper-dashboard
+  https://www.creative-tim.com/new-issue/vite-soft-ui-dashboard
 
 **If your issue was not created using the app above, it will be closed immediately.**
 -->
