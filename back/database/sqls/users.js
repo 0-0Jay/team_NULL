@@ -1,7 +1,7 @@
 // Table : users
 
 // 로그인
-const selectedByIdAndPw = `
+const selectByIdAndPw = `
 SELECT user_no, status 
 FROM users 
 WHERE id = ? AND password = ?`;
@@ -12,9 +12,13 @@ INSERT INTO users(id, password, name, email, phone, address, address_detail, zip
 VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?)`;
 
 // 아이디 찾기
-const selectedByNameAndEmail = ``;
+const selectByNameAndEmail = `
+SELECT id
+FROM users
+WHERE name = ? AND email = ?`;
 
 module.exports = {
-  selectedByIdAndPw,
+  selectByIdAndPw,
   insertUser,
+  selectByNameAndEmail,
 };

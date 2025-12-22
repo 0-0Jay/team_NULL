@@ -21,6 +21,10 @@ const query = async (selected, values, type) => {
     if (type == "users") {
       executeSql = usersSql[selected];
     }
+    // else if(type == ??) {
+    //   executeSql = ???Sql[selected];
+    // }
+    console.info(selected, executeSql);
     let result = (await conn.query(executeSql, values))[0];
     return result;
   } catch (err) {
