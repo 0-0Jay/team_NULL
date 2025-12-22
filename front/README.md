@@ -1,38 +1,64 @@
-# front
+# [Vue Paper Dashboard](https://cristijora.github.io/vue-paper-dashboard/)
 
-This template should help get you started developing with Vue 3 in Vite.
+> Admin dashboard based on paper dashboard UI template + vue-router
 
-## Recommended IDE Setup
+This project is a vue version of [Paper-dashboard](https://www.creative-tim.com/product/paper-dashboard)
+designed for vue js.The dashboard includes vue-router
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Check the [Live Demo here](https://cristijora.github.io/vue-paper-dashboard).
 
-## Recommended Browser Setup
+[Nuxt Version (outdated Bootstrap 3)](https://github.com/cristijora/vue-paper-dashboard-nuxt)
+![](http://i.imgur.com/3iC1hOs.gif)
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Deploy
 
-## Customize configuration
+:rocket: You can deploy your own version of the template to Genezio with one click:
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+[![Deploy to Genezio](https://raw.githubusercontent.com/Genez-io/graphics/main/svg/deploy-button.svg)](https://app.genez.io/start/deploy?repository=https://github.com/creativetimofficial/vue-paper-dashboard&utm_source=github&utm_medium=referral&utm_campaign=github-creativetim&utm_term=deploy-project&utm_content=button-head)
 
-## Project Setup
+## Documentation
 
-```sh
+Link to [Documentation](http://vuejs.creative-tim.com/vue-paper-dashboard/documentation/)
+
+## Build Setup
+
+### install dependencies
+
+```
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### serve with hot reload at localhost:8080
 
-```sh
+```
 npm run dev
 ```
 
-### Compile and Minify for Production
+### build for production with minification
 
-```sh
+```
 npm run build
 ```
+
+### lint
+
+```
+npm run lint
+```
+
+## Contribution guide
+
+- Fork the repository
+- `npm install` or `yarn install`
+- Make changes
+- Open Pull Request
+
+For detailed explanation on how things work, checkout the [guide](https://github.com/vuejs/vue-cli/blob/dev/docs/README.md)
+
+- [CHANGELOG](./CHANGELOG.md)
+- [version-badge](https://img.shields.io/badge/version-1.0.1-blue.svg)
+- [license-badge](https://img.shields.io/badge/license-MIT-blue.svg)
+
+## License
+
+[MIT](https://github.com/creativetimofficial/vue-paper-dashboard/blob/master/LICENSE.md)
