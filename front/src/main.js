@@ -1,29 +1,26 @@
-/*!
+/*
+=========================================================
+* Vite Soft UI Dashboard - v1.0.0
+=========================================================
+* Product Page: https://creative-tim.com/product/vite-soft-ui-dashboard
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+Coded by www.creative-tim.com
+* Licensed under MIT (https://github.com/creativetimofficial/vite-soft-ui-dashboard/blob/556f77210e261adc3ec12197dab1471a1295afd8/LICENSE.md)
+=========================================================
 
- =========================================================
- * Vue Paper Dashboard - v1.0.1
- =========================================================
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/ 
 
- * Product Page: http://www.creative-tim.com/product/paper-dashboard
- * Copyright 2023 Creative Tim (http://www.creative-tim.com)
- * Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard/blob/master/LICENSE.md)
+import { createApp } from 'vue'
+import App from './App.vue'
+import store from "./store";
+import router from "./router";
+import "./assets/css/nucleo-icons.css";
+import "./assets/css/nucleo-svg.css";
+import SoftUIDashboard from "./soft-ui-dashboard";
 
- =========================================================
-
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
- */
-import Vue from "vue";
-import App from "./App";
-import router from "./router/index";
-
-import PaperDashboard from "./plugins/paperDashboard";
-import "vue-notifyjs/themes/default.css";
-
-Vue.use(PaperDashboard);
-
-/* eslint-disable no-new */
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+createApp(App)
+    .use(store)
+    .use(router)
+    .use(SoftUIDashboard)
+    .mount('#app')
