@@ -5,3 +5,5 @@ const findByIdAndPw = async () => {
   let list = await mysql.query("selectedByIdAndPw", null, "users");
   return list;
 };
+
+module.exports = { findByIdAndPw };

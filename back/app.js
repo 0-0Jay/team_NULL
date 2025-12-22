@@ -17,4 +17,6 @@ app.get("/", (req, res) => {
 const usersRouter = require("./routers/usersRouter.js");
 app.use(`/api`, usersRouter);
 
-// ?? 라우터
+// 기관관리 라우터
+const centersRouter = require("./routers/centersRouter.js");
+app.use(`/api`, centersRouter);
