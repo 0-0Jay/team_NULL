@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const usersService = require("../services/usersSerivce");
+const usersService = require("../services/usersService");
 
 // 로그인
 router.post("/login", async (req, res) => {
