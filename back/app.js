@@ -20,3 +20,7 @@ app.use(`/api`, usersRouter);
 // 기관관리 라우터
 const centersRouter = require("./routers/centersRouter.js");
 app.use(`/api`, centersRouter);
+
+// 문의관리 라우터
+const questionsRouter = require("./routers/questionsRouter.js");
+app.use(`/api`, questionsRouter);
