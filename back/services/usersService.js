@@ -77,6 +77,8 @@ const modifyByUserNoUsers = async (userInfo, userNo) => {
   } else {
     resObj = { status: "fail" };
   }
+
+  return resObj;
 };
 
 // 비밀번호 재설정
