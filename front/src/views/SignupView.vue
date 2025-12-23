@@ -8,9 +8,11 @@ const pw = ref('');
 const pwchk = ref('');
 const email = ref('');
 const phone = ref('');
+
 const zipcode = ref('');
 const address = ref('');
 const address_detail = ref('');
+
 const center = ref('');
 const center_sido = ref('');
 const center_sigungu = ref('');
@@ -19,6 +21,8 @@ const sido = ref([
   { label: '대구광역시', value: '대구광역시' },
   { label: '서울특별시', value: '서울특별시' }
 ]);
+
+const sigungu = ref([]);
 </script>
 
 <template>
