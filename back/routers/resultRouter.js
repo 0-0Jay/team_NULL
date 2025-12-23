@@ -19,7 +19,7 @@ router.post("/result", async (req, res) => {
 });
 
 //지원결과서 조회 (일반)
-router.post("/result", async (req, res) => {
+router.get("/result", async (req, res) => {
   const { title, content, file, start, end, result_no, status, approve_date } =
     req.body;
   let list = await resultService.findResult(

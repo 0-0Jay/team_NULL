@@ -1,5 +1,4 @@
 //planRouter.js
-//sql에서 작성한 파라미터 값 그대로 들고와야함
 
 const express = require("express");
 const router = express.Router();
@@ -19,37 +18,17 @@ router.post("/plan", async (req, res) => {
   res.send(list);
 });
 
-//지원계획서 조회 (일반)
-router.post("/plan", async (req, res) => {
-  const {
-    title,
-    content,
-    file,
-    start,
-    end,
-    plan_no,
-    status,
-    approve_date,
-    plan_author,
-  } = req.body;
-  let list = await planService.findPlan(
-    title,
-    content,
-    file,
-    start,
-    end,
-    plan_no,
-    status,
-    approve_date,
-    plan_author
-  );
-  res.send(list);
+//승인된 지원계획서 조회 (일반, 관리자)
+router.post("/plan/approved", async (req, res) => {
+  const { application_no } = req.body;
+  const planList = await planService.findPlan(application_no);
+  res.send(planList);
 });
 
-//지원계획서 조회 (=승인) (관리자)
-router.post("/plan", async (req, res) => {
+//승인대기 지원계획서 조회(관리자 판단)
+router.post("/plan/pending", async (req, res) => {
   const { title, content, file, start, end, plan_no, plan_author } = req.body;
-  let list = await planService.findAdminPlan(
+  const planAdminList = await planService.findAdminPlan(
     title,
     content,
     file,
@@ -58,7 +37,7 @@ router.post("/plan", async (req, res) => {
     plan_no,
     plan_author
   );
-  res.send(list);
+  res.send(planAdminList);
 });
 
 module.exports = router;
