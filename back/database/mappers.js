@@ -5,7 +5,7 @@ const surveySql = require("./sqls/survey.js");
 const centerSql = require("./sqls/centers.js");
 const applicationSql = require("./sqls/application.js");
 const counselSql = require("./sqls/counsel.js");
-const questionSql = require("./sqls/question.js");
+const questionsSql = require("./sqls/questions.js");
 const planSql = require("./sqls/plan.js");
 const resultSql = require("./sqls/result.js");
 // const ???Sql = require("./sqls/???.js");
@@ -17,7 +17,7 @@ const sqlList = {
   center: { ...centerSql },
   application: { ...applicationSql },
   counsel: { ...counselSql },
-  question: { ...questionSql },
+  questions: { ...questionsSql },
   plan: { ...planSql },
   result: { ...resultSql },
 };
