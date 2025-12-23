@@ -1,5 +1,6 @@
 const mysql = require("mysql2/promise");
 const usersSql = require("./sqls/users.js");
+const planSql = require("./sqls/plan.js");
 // const ???Sql = require("./sqls/???.js");
 // 테이블 별로 쿼리문 페이지 따로 생성
 
@@ -20,7 +21,10 @@ const query = async (selected, values, type) => {
     // type으로 사용할 메인 테이블 구분해서 쿼리문 접근
     if (type == "users") {
       executeSql = usersSql[selected];
+    } else if (type == "plan") {
+      executeSql = planSql[selected];
     }
+
     // else if(type == ??) {
     //   executeSql = ???Sql[selected];
     // }
