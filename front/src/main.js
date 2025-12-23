@@ -1,29 +1,29 @@
-/*!
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
 
- =========================================================
- * Vue Paper Dashboard - v1.0.1
- =========================================================
+import Aura from '@primeuix/themes/aura';
+import PrimeVue from 'primevue/config';
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
 
- * Product Page: http://www.creative-tim.com/product/paper-dashboard
- * Copyright 2023 Creative Tim (http://www.creative-tim.com)
- * Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard/blob/master/LICENSE.md)
+import '@/assets/tailwind.css';
+import '@/assets/styles.scss';
 
- =========================================================
+const app = createApp(App);
 
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+app.use(createPinia());
+app.use(router);
+app.use(PrimeVue, {
+    theme: {
+        preset: Aura,
+        options: {
+            darkModeSelector: '.app-dark'
+        }
+    }
+});
+app.use(ToastService);
+app.use(ConfirmationService);
 
- */
-import Vue from "vue";
-import App from "./App";
-import router from "./router/index";
-
-import PaperDashboard from "./plugins/paperDashboard";
-import "vue-notifyjs/themes/default.css";
-
-Vue.use(PaperDashboard);
-
-/* eslint-disable no-new */
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+app.mount('#app');

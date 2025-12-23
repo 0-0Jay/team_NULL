@@ -1,35 +1,70 @@
-# Change Log
+# Changelog
 
-## [1.0.1] 2023-01-10
+## 4.3.0 (2025-02-26)
 
-- Update dependencies
-- Fix the installation issue when running `npm install`
+**Implemented New Features and Enhancements**
 
-## [2.0.0] 2018-05-01
+-   Update PrimeVue version
 
-## Vue Paper Dashboard Version 2
+## 4.2.0 (2024-12-09)
 
-- Bootstrap 4 update
-  - Migrate components to support BS4 as well as existing scss assets
-- Vue CLI 3 update
-  - Get rid of old webpack template and make use of newest vue-cli 3. The project has almost no configuration files and
-    should work out of the box if you copy paste the `src` folder into a newly scaffolded Vue CLI 3 project.
-- Overall project structure improvements
+**Implemented New Features and Enhancements**
 
-  - The project structure resembles a default [nuxt project structure](https://nuxtjs.org/)
-    We have a breakdown of
-  - `components` folder (only UI components)
-  - `pages` folder which contains pages/views
-  - `layout` folder which contains layout related components
-  - `assets` folder which contains scss, images and fonts
-  - `plugins` folder which has project related plugins
-  - `router` folder which contains routes
+-   Refactored dashboard sections to components
+-   Migrate sass from @import to @use
 
-- Component improvements
-  - Use of `vue-notifyjs` for notifications
-  - Improvements for Sidebar. Option to declare links as children inside Sidebar slot. SSR support.
-  - Minor improvements for other components and SSR support for them
+## 4.1.0 (2024-07-29)
 
-## [1.0.0] 2017-06-18
+-   Changed menu button location at topbar
+-   Add border to overlay menu
+-   Animation for mobile mask
+-   Fixed chart colors
 
-### Stable Original Release
+## 4.0.0 (2024-07-29)
+
+-   Updated to PrimeVue v4
+
+## 3.10.0 (2024-03-11)
+
+**Migration Guide**
+
+-   Update theme files.
+
+**Implemented New Features and Enhancements**
+
+-   Upgrade to PrimeVue 3.49.1
+
+## 3.9.0 (2023-11-01)
+
+**Migration Guide**
+
+-   Update theme files.
+
+**Implemented New Features and Enhancements**
+
+-   Upgrade to PrimeVue 3.39.0
+
+## 3.8.0 (2023-07-24)
+
+**Migration Guide**
+
+-   Update theme files.
+-   Update assets style files
+-   Remove code highlight
+
+**Implemented New Features and Enhancements**
+
+-   Upgrade to PrimeVue 3.30.2
+
+## 3.7.0 (2023-05-06)
+
+-   Upgrade to PrimeVue 3.28.0
+
+**Implemented New Features and Enhancements**
+
+## 3.6.0 (2023-04-12)
+
+**Implemented New Features and Enhancements**
+
+-   Upgrade to PrimeVue 3.26.1
+-   Upgrade to vite 4.2.1
