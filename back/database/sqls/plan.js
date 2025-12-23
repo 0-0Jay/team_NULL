@@ -20,3 +20,4 @@ module.exports = {
   selectPlan,
   selectAdminPlan,
 };
+module.export = {};
