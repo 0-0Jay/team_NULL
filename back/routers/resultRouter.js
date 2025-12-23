@@ -18,11 +18,11 @@ router.post("/result", async (req, res) => {
   res.send(list);
 });
 
-//지원결과서 조회
+//지원결과서 조회 (일반)
 router.post("/result", async (req, res) => {
   const { title, content, file, start, end, result_no, status, approve_date } =
     req.body;
-  let list = await resultService.findresult(
+  let list = await resultService.findResult(
     title,
     content,
     file,
@@ -34,4 +34,21 @@ router.post("/result", async (req, res) => {
   );
   res.send(list);
 });
+
+//지원결과서 조회 (=승인) (관리자)
+router.post("/result", async (req, res) => {
+  const { title, content, file, start, end, result_no, result_author } =
+    req.body;
+  let list = await resultService.findAdminResult(
+    title,
+    content,
+    file,
+    start,
+    end,
+    result_no,
+    result_author
+  );
+  res.send(list);
+});
+
 module.exports = router;

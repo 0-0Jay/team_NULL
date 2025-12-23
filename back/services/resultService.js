@@ -6,7 +6,7 @@ const mysql = require("../database/mappers.js");
 
 const addResult = async (title, content, File, application_no, start, end) => {
   let list = await mysql.query(
-    "insertresult",
+    "insertResult",
     [title, content, File, application_no, start, end],
     "result"
   );
@@ -14,7 +14,7 @@ const addResult = async (title, content, File, application_no, start, end) => {
 };
 
 //지원결과서 '조회' (관리자)
-const findresult = async (
+const findResult = async (
   title,
   content,
   file,
@@ -25,8 +25,36 @@ const findresult = async (
   approve_date
 ) => {
   let list = await mysql.query(
-    "selectresult",
-    [title, content, file, result_no, start, end, status, approve_date],
+    "selectResult",
+    [
+      title,
+      content,
+      file,
+      result_no,
+      start,
+      end,
+      status,
+      approve_date,
+      result_author,
+    ],
+    "result"
+  );
+  return list;
+};
+
+//지원결과서 '조회' (=승인) (관리자)
+const findAdminResult = async (
+  title,
+  content,
+  file,
+  start,
+  end,
+  result_no,
+  result_author
+) => {
+  let list = await mysql.query(
+    "selectAdminResult",
+    [title, content, file, start, end, result_no, result_author],
     "result"
   );
   return list;
@@ -34,5 +62,6 @@ const findresult = async (
 
 module.exports = {
   addResult,
-  findresult,
+  findResult,
+  findAdminResult,
 };

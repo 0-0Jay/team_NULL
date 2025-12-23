@@ -8,7 +8,7 @@ const planService = require("../services/planService.js");
 // 지원계획서 작성
 router.post("/plan", async (req, res) => {
   const { title, content, file, application_no, start, end } = req.body;
-  let list = await planService.addplan(
+  let list = await planService.addPlan(
     title,
     content,
     file,
@@ -19,11 +19,9 @@ router.post("/plan", async (req, res) => {
   res.send(list);
 });
 
-//지원계획서 조회
+//지원계획서 조회 (일반)
 router.post("/plan", async (req, res) => {
-  const { title, content, file, start, end, plan_no, status, approve_date } =
-    req.body;
-  let list = await planService.findplan(
+  const {
     title,
     content,
     file,
@@ -31,7 +29,34 @@ router.post("/plan", async (req, res) => {
     end,
     plan_no,
     status,
-    approve_date
+    approve_date,
+    plan_author,
+  } = req.body;
+  let list = await planService.findPlan(
+    title,
+    content,
+    file,
+    start,
+    end,
+    plan_no,
+    status,
+    approve_date,
+    plan_author
+  );
+  res.send(list);
+});
+
+//지원계획서 조회 (=승인) (관리자)
+router.post("/plan", async (req, res) => {
+  const { title, content, file, start, end, plan_no, plan_author } = req.body;
+  let list = await planService.findAdminPlan(
+    title,
+    content,
+    file,
+    start,
+    end,
+    plan_no,
+    plan_author
   );
   res.send(list);
 });

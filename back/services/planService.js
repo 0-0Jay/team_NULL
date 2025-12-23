@@ -14,7 +14,7 @@ const addPlan = async (title, content, file, application_no, start, end) => {
 };
 
 //지원계획서 '조회' (일반)
-const findplan = async (
+const findPlan = async (
   title,
   content,
   file,
@@ -25,8 +25,36 @@ const findplan = async (
   approve_date
 ) => {
   let list = await mysql.query(
-    "selectplan",
-    [title, content, file, plan_no, start, end, status, approve_date],
+    "selectPlan",
+    [
+      title,
+      content,
+      file,
+      plan_no,
+      start,
+      end,
+      status,
+      approve_date,
+      plan_author,
+    ],
+    "plan"
+  );
+  return list;
+};
+
+//지원계획서 '조회'(=승인) (관리자)
+const findAdminPlan = async (
+  title,
+  content,
+  file,
+  start,
+  end,
+  plan_no,
+  plan_author
+) => {
+  let list = await mysql.query(
+    "selectAdminPlan",
+    [title, content, file, start, end, plan_no, plan_author],
     "plan"
   );
   return list;
@@ -34,5 +62,6 @@ const findplan = async (
 
 module.exports = {
   addPlan,
-  findplan,
+  findPlan,
+  findAdminPlan,
 };

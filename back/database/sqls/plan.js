@@ -5,12 +5,18 @@ const insertPlan = `
 INSERT INTO plan(title, content, file, application_no, start, end)
 VALUES(?, ?, ?, ?, ?, ?)`;
 
-//지원 계획서 조회
-const selectedplan = `
-INESERT INTO plan(title, content, file, start, end, plan_no, status, approve_date)
-VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+//지원 계획서 조회(일반)
+const selectPlan = `
+SELECT title, content, file, 'start', 'end', plan_no, status, approve_date, plan_author
+FROM plan`;
+
+//지원 계획서 조회(=승인) (관리자)
+const selectAdminPlan = `
+SELECT title, content, file, 'start', 'end', plan_no, plan_author
+FROM plan`;
 
 module.exports = {
   insertPlan,
-  selectedplan,
+  selectPlan,
+  selectAdminPlan,
 };
