@@ -29,10 +29,17 @@ UPDATE users
 SET password = ? 
 WHERE user_no = ?`;
 
+// 회원탈퇴
+const updateStatusByUsernoUsers = `
+UPDATE users
+SET status = 2
+WHERE user_no = ?`;
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
   selectByNameAndEmailUsers,
   selectByIdAndEmailUsers,
   updatePwByUsernoUsers,
+  updateStatusByUsernoUsers,
 };
