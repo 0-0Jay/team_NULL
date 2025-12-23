@@ -1,6 +1,11 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
+import { useUsersStore } from '@/stores/users';
+import { useRouter } from 'vue-router';
+
+const store = useUsersStore();
+const router = useRouter();
 
 const id = ref('');
 const name = ref('');
@@ -42,7 +47,9 @@ function close() {
   display.value = false;
 }
 
-const signup = async () => {};
+const signup = async () => {
+  store.signUp();
+};
 
 const addressSearched = (data) => {
   zipcode.value = data.zonecode;
@@ -107,7 +114,7 @@ const addressSearched = (data) => {
             <Select id="center" type="text" placeholder="기관명" class="w-full md:w-[30rem] mb-2" v-model="center" :options="center_list" optionLabel="label"></Select>
 
             <div class="grid mt-2 mb-8 gap-y-4">
-              <Button label="회원가입" class="w-full" as="router-link" to="/" v-on:click="signup"></Button>
+              <Button label="회원가입" class="w-full" as="router-link" v-on:click="signup"></Button>
             </div>
           </div>
         </div>

@@ -9,7 +9,15 @@ export const useUsersStore = defineStore('users', {
   // getters
   // actions
   actions: {
-    //
+    // 회원가입
+    async signUp() {
+      try {
+        const response = await axios.post('/api/signUp');
+        this.user = response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
 
     // 게시글 목록
     async fetchPost() {
