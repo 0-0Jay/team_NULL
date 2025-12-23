@@ -50,6 +50,37 @@ const findByIdAndEmailUsers = async (id, email) => {
   return list;
 };
 
+// 기관 관리자 불러오기
+const findByCnoUsersCenters = async () => {
+  let list = await mysql.query("selectByCnoUsersCenters", null, "users");
+  return list;
+};
+
+// 기관 관리자 페이지 - 기관 담당자 불러오기
+const findByUserNoUsersManager = async () => {
+  let list = await mysql.query("selectByUserNoUsersManager", null, "users");
+  return list;
+};
+
+// 기관 관리자 페이지 - 기관 담당자 정보 수정
+const modifyByUserNoUsers = async (userInfo, userNo) => {
+  let { name, phone, email, password } = userInfo;
+  let result = await mysql.query(
+    "updateByUserNoUsers",
+    [name, phone, email, password, userNo],
+    "users"
+  );
+
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", no: userNo };
+  } else {
+    resObj = { status: "fail" };
+  }
+
+  return resObj;
+};
+
 // 비밀번호 재설정
 const modifyPwByUsernoUsers = async (user_no, pw) => {
   let result = await mysql.query(
@@ -84,5 +115,8 @@ module.exports = {
   addUsers,
   findByIdAndEmailUsers,
   modifyPwByUsernoUsers,
+  findByCnoUsersCenters,
+  findByUserNoUsersManager,
+  modifyByUserNoUsers,
   modifyStatusByUsernoUsers,
 };
