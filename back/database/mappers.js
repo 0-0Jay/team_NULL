@@ -2,6 +2,8 @@ const mysql = require("mysql2/promise");
 require("dotenv").config();
 const usersSql = require("./sqls/users.js");
 const surveySql = require("./sqls/survey.js");
+const centerSql = require("./sqls/centers.js");
+require("dotenv").config();
 // const ???Sql = require("./sqls/???.js");
 // 테이블 별로 쿼리문 페이지 따로 생성
 
@@ -24,6 +26,8 @@ const query = async (selected, values, type) => {
       executeSql = usersSql[selected];
     } else if ((type = "survey")) {
       executeSql = surveySql[selected];
+    } else if (type == "center") {
+      executeSql = centerSql[selected];
     }
     // else if(type == ??) {
     //   executeSql = ???Sql[selected];
