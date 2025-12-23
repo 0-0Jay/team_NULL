@@ -7,11 +7,11 @@ require("dotenv").config();
 
 const pool = mysql.createPool({
   connectionLimit: 5,
-  host: "49.50.138.136",
-  port: 3306,
-  user: "team_null",
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: "team_null",
+  database: process.env.DATABASE,
 });
 
 const query = async (selected, values, type) => {

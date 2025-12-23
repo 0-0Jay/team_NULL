@@ -29,10 +29,39 @@ UPDATE users
 SET password = ? 
 WHERE user_no = ?`;
 
+// 기관 관리자 불러오기
+const selectByCnoUsersCenters = `select u.name as user_name, u.id, c.name as center_name, 
+                                        u.phone, u.email, 
+                                        u.created_date, u.status
+                                 from users u
+                                 join center c on u.c_no = c.c_no
+                                 where u.status != 2 and u.type = 2`;
+
+// 기관 관리자 페이지 - 기관 담당자 불러오기
+const selectByUserNoUsersManager = `select u.id, u.name, u.phone, u.email,
+                                       count(m.a_no) as applicant_count,
+                                       u.created_date, u.status
+                                from users u
+                                left join manager m on u.user_no = m.user_no
+                                                       and m.unassign is null
+                                where u.type = 1
+                                group by u.user_no, u.id, u.name, u.phone,
+                                         u.email, u.created_date, u.status
+                                order by u.created_date desc`;
+
+// 기관 관리자 페이지 - 기관 담당자 정보 수정
+const updateByUserNoUsers = `update users
+                             set name = ?, phone = ?, email = ?, 
+                                 password = ?
+                             where user_no = ?`;
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
   selectByNameAndEmailUsers,
   selectByIdAndEmailUsers,
   updatePwByUsernoUsers,
+  selectByCnoUsersCenters,
+  selectByUserNoUsersManager,
+  updateByUserNoUsers,
 };
