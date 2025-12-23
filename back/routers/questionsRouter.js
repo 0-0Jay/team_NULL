@@ -8,18 +8,25 @@ router.get("/questions", async (req, res) => {
   res.send(faqList);
 });
 
-// faq 상세 조회
+// faq 단건 조회
 router.get("/questions/:faq_no", async (req, res) => {
   const fno = req.params.faq_no;
   let faqDetail = await questionsService.findByFaqnoFaq(fno);
   res.send(faqDetail);
 });
 
-// faq 등록
+// faq 단건 등록
 router.post("/question", async (req, res) => {
-  const { title, content, user_no } = req.body;
-  let list = await questionsService.addFaq(title, content, user_no);
-  res.send(list);
+  const faqInfo = req.body;
+  let result = await questionsService.addFaq(faqInfo);
+  res.send(result);
+});
+
+// faq 단건 삭제
+router.delete(`/questions/:faq_no`, async (req, res) => {
+  const fno = req.params.faq_no;
+  let faqInfo = await questionsService.removeByFaqnoFaq(fno);
+  res.send(faqInfo);
 });
 
 module.exports = router;

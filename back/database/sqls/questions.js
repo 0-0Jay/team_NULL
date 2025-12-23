@@ -13,12 +13,20 @@ const selectByFaqnoFaq = `SELECT title, u.name, faq_date, content
                           ON f.user_no = u.user_no
                           WHERE faq_no = ?`;
 
-// faq 등록
+// faq 단건 등록
 const insertFaq = `INSERT INTO faq (title, content, user_no)
                   VALUES (?, ?, ?)`;
+
+// faq 단건 수정
+// const updateByFaqnoFaq = ``
+
+// faq 단건 삭제
+const deleteByFaqnoFaq = `DELETE FROM faq
+                          WHERE faq_no = ?`;
 
 module.exports = {
   selectAllFaq,
   selectByFaqnoFaq,
   insertFaq,
+  deleteByFaqnoFaq,
 };
