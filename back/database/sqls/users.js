@@ -54,6 +54,11 @@ const updateByUserNoUsers = `update users
                              set name = ?, phone = ?, email = ?, 
                                  password = ?
                              where user_no = ?`;
+// 회원탈퇴
+const updateStatusByUsernoUsers = `
+UPDATE users
+SET status = 2
+WHERE user_no = ?`;
 
 module.exports = {
   selectByIdAndPwUsers,
@@ -64,4 +69,5 @@ module.exports = {
   selectByCnoUsersCenters,
   selectByUserNoUsersManager,
   updateByUserNoUsers,
+  updateStatusByUsernoUsers,
 };
