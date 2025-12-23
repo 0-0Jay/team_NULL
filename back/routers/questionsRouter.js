@@ -8,4 +8,18 @@ router.get("/questions", async (req, res) => {
   res.send(faqList);
 });
 
+// faq 상세 조회
+router.get("/questions/:faq_no", async (req, res) => {
+  const fno = req.params.faq_no;
+  let faqDetail = await questionsService.findByFaqnoFaq(fno);
+  res.send(faqDetail);
+});
+
+// faq 등록
+router.post("/question", async (req, res) => {
+  const { title, content, user_no } = req.body;
+  let list = await questionsService.addFaq(title, content, user_no);
+  res.send(list);
+});
+
 module.exports = router;
