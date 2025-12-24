@@ -25,6 +25,13 @@ app.use(`/api`, centersRouter);
 const questionsRouter = require("./routers/questionsRouter.js");
 app.use(`/api`, questionsRouter);
 
+// 지원계획서 라우터
+const planRouter = require("./routers/planRouter.js");
+app.use(`/api`, planRouter);
+
+// 지원결과서 라우터
+const resultRouter = require("./routers/resultRouter.js");
+app.use(`/api`, resultRouter);
 // 지원신청서 관련 라우터
 const applicationRouter = require("./routers/applicationRouter.js");
 app.use(`/api`, applicationRouter);
