@@ -6,4 +6,13 @@ const findAllCenter = async () => {
   return centerList;
 };
 
-module.exports = { findAllCenter };
+// 회원 소속 기관 불러오기
+const findByUsernoCenter = async (user_no) => {
+  const list = await mysql.query("selectByUsernoCenter", [user_no], "center");
+  return list;
+};
+
+module.exports = {
+  findAllCenter,
+  findByUsernoCenter,
+};

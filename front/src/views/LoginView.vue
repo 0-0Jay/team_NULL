@@ -1,11 +1,37 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
+import { useUsersStore } from '@/stores/users';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const store = useUsersStore();
+const router = useRouter();
 
 const id = ref('');
 const password = ref('');
 const saveId = ref(false);
 const autoLogin = ref(false);
+
+const login = async () => {
+  if (!id.value) {
+    alert('아이디를 입력해주세요!');
+    return;
+  } else if (!password.value) {
+    alert('비밀번호를 입력해주세요!');
+    return;
+  }
+  const data = {
+    id: id.value,
+    pw: password.value
+  };
+  const result = (await store.login(data))[0];
+  console.log(result);
+  if (result.status == 0) {
+    router.push({ name: 'LoginNA' });
+  } else {
+    router.push({ name: 'test' });
+  }
+};
 </script>
 
 <template>
@@ -39,11 +65,11 @@ const autoLogin = ref(false);
               </div>
             </div>
             <div class="flex items-center justify-center mt-2 mb-8 gap-8">
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">아이디 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ name: 'findId' })">아이디 찾기</span>
               <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">비밀번호 찾기</span>
             </div>
             <div class="grid mt-2 mb-8 gap-y-4">
-              <Button label="로그인" class="w-full" as="router-link" to="/"></Button>
+              <Button label="로그인" class="w-full" @click="login"></Button>
               <Button label="회원가입" class="w-full" as="router-link" to="/signup"></Button>
             </div>
           </div>

@@ -1,8 +1,20 @@
 const mysql = require("../database/mappers.js");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
+
+const mail_config = {
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_AUTH_USER,
+    pass: process.env.EMAIL_AUTH_PASS,
+  },
+};
 
 // 로그인
 const findByIdAndPwUsers = async (id, pw) => {
-  let list = await mysql.query("selectedByIdAndPwUsers", [id, pw], "users");
+  let list = await mysql.query("selectByIdAndPwUsers", [id, pw], "users");
   return list;
 };
 
@@ -18,11 +30,22 @@ const addUsers = async (data) => {
     address_detail,
     zipcode,
     type,
-    c_no,
+    center,
   } = data;
   let result = await mysql.query(
-    "insertUser",
-    [id, pw, name, email, phone, address, address_detail, zipcode, type, c_no],
+    "insertUsers",
+    [
+      id,
+      pw,
+      name,
+      email,
+      phone,
+      address,
+      address_detail,
+      zipcode,
+      type,
+      center,
+    ],
     "users"
   );
   let resObj = {};
@@ -32,6 +55,46 @@ const addUsers = async (data) => {
     resObj = { status: "fail" };
   }
   return resObj;
+};
+// 아이디 중복 확인
+const findByIdUsers = async (id) => {
+  let list = await mysql.query("selectByIdUsers", [id], "users");
+  return list;
+};
+
+// 이메일 중복 확인
+const findByEmailUsers = async (email) => {
+  let list = await mysql.query("selectByEmailUsers", [email], "users");
+  console.log(list);
+  return list;
+};
+// 인증번호 발송
+const sendCode = async (email) => {
+  return new Promise((resolve, reject) => {
+    let transport = nodemailer.createTransport(mail_config);
+    transport.sendMail(
+      {
+        from: "team_null",
+        to: "youngjin2712@naver.com",
+        subject: "발달장애인 지원 프로그램 아이디 찾기 인증번호 입니다.",
+        text: "testcode",
+      },
+      (err, info) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+          return;
+        }
+        console.log(info);
+        if (info.accepted.length >= 1) {
+          console.log("done");
+          resolve({ receiver: info.accepted[0], msg: "정상발송" });
+        } else {
+          resolve({ receiver: "없음", msg: "수신자가 없음" });
+        }
+      }
+    );
+  });
 };
 
 // 아이디 찾기
@@ -121,4 +184,6 @@ module.exports = {
   findByUserNoUsersManager,
   modifyByUserNoUsers,
   modifyStatusByUsernoUsers,
+  findByIdUsers,
+  findByEmailUsers,
 };

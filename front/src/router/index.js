@@ -27,6 +27,21 @@ const router = createRouter({
       path: '/centers',
       name: 'centers',
       component: () => import('@/views/AdminCenter.vue')
+    },
+    {
+      path: '/loginNA',
+      name: 'LoginNA',
+      component: () => import('@/views/LoginNotApprovedView.vue')
+    },
+    {
+      path: '/findId',
+      name: 'findId',
+      component: () => import('@/views/FindIdView.vue')
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('@/views/TestFile.vue')
     }
   ]
 });

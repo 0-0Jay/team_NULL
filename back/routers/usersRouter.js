@@ -5,6 +5,7 @@ const usersService = require("../services/usersService");
 // 로그인
 router.post("/login", async (req, res) => {
   const { id, pw } = req.body;
+  console.log(id, pw);
   let list = await usersService.findByIdAndPwUsers(id, pw);
   res.send(list);
 });
@@ -15,6 +16,28 @@ router.post("/signUp", async (req, res) => {
   let result = await usersService.addUsers(data);
   res.send(result);
 });
+
+// 아이디 중복 확인
+router.post("/idCheck", async (req, res) => {
+  const { id } = req.body;
+  console.log(req.body);
+  let result = await usersService.findByIdUsers(id);
+  res.send(result);
+});
+
+// 이메일 중복 확인
+router.post("/emailCheck", async (req, res) => {
+  const { email } = req.body;
+  let result = await usersService.findByEmailUsers(email);
+  res.send(result);
+});
+
+// 인증번호 발송
+router.post("/sendCode", async (req, res) => {
+  const { email } = req.body;
+  let result = await usersService.sendCode(email);
+  res.send(result)
+})
 
 // 아이디 찾기
 router.post("/findId", async (req, res) => {
@@ -60,7 +83,7 @@ router.put("/findPw", async (req, res) => {
   res.send(result);
 });
 
-// 회원탈퇴 ->
+// 회원탈퇴 -> 실제 delete가 아닌 상태값 변경
 router.put("/users", async (req, res) => {
   const { user_no } = req.body;
   let result = await usersService.modifyStatusByUsernoUsers(user_no);
