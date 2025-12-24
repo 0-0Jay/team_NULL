@@ -2,14 +2,26 @@
 
 // 로그인
 const selectByIdAndPwUsers = `
-SELECT user_no, status 
-FROM users 
-WHERE id = ? AND password = ?`;
+SELECT u.user_no, u.name AS u_name, u.status, u.type, c.name AS c_name
+FROM users u JOIN center c
+WHERE u.id = ? AND u.password = ? AND u.c_no = c.c_no`;
 
 // 회원가입
 const insertUsers = `
 INSERT INTO users(id, password, name, email, phone, address, address_detail, zipcode, type, c_no)
 VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?)`;
+
+// 아이디 중복 확인
+const selectByIdUsers = `
+SELECT id
+FROM users
+WHERE id = ?`;
+
+// 이메일 중복 확인
+const selectByEmailUsers = `
+SELECT email
+FROM users
+WHERE email = ?`;
 
 // 아이디 찾기
 const selectByNameAndEmailUsers = `
@@ -70,4 +82,6 @@ module.exports = {
   selectByUserNoUsersManager,
   updateByUserNoUsers,
   updateStatusByUsernoUsers,
+  selectByIdUsers,
+  selectByEmailUsers,
 };
