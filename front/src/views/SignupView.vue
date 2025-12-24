@@ -19,10 +19,36 @@ const center_sigungu = ref('');
 
 const sido = ref([
   { label: '대구광역시', value: '대구광역시' },
-  { label: '서울특별시', value: '서울특별시' }
+  { label: '서울특별시', value: '서울특별시' },
+  { label: '경상북도', value: '경상북도' }
 ]);
 
-const sigungu = ref([]);
+const sigungu = ref([
+  { label: '구미시', value: '구미시' },
+  { label: '칠곡군', value: '칠곡군' }
+]);
+
+const center_list = ref([
+  { label: '행복복지센터', value: '행복복지센터' },
+  { label: '불행복지센터', value: '불행복지센터' }
+]);
+
+const display = ref(false);
+function open() {
+  display.value = true;
+}
+
+function close() {
+  display.value = false;
+}
+
+const signup = async () => {};
+
+const addressSearched = (data) => {
+  zipcode.value = data.zonecode;
+  address.value = data.roadAddress;
+  close();
+};
 </script>
 
 <template>
@@ -63,22 +89,25 @@ const sigungu = ref([]);
             <label for="zipcode" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">주소</label>
             <div class="flex flex-col gap-2">
               <div class="flex gap-2">
-                <InputText id="zipcode" type="text" placeholder="우편번호" class="w-full md:w-[15rem]" v-model="zipcode" />
-                <Button label="주소검색" class=""></Button>
+                <InputText id="zipcode" type="text" placeholder="우편번호" class="w-full md:w-[15rem]" v-model="zipcode" disabled />
+                <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                  <VueDaumPostcode @complete="addressSearched" />
+                </Dialog>
+                <Button label="Show" style="width: auto" @click="open"></Button>
               </div>
-              <InputText id="address" type="text" placeholder="도로명주소" class="w-full md:w-[30rem]" v-model="address" />
+              <InputText id="address" type="text" placeholder="도로명주소" class="w-full md:w-[30rem]" v-model="address" disabled />
               <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full md:w-[30rem] mb-4" v-model="address_detail" />
             </div>
 
             <label for="center" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">기관</label>
             <div class="flex gap-x-2">
-              <Select id="sido" placeholder="광역시/도" class="w-full md:w-[14.75rem] mb-2" v-model="center_sido"></Select>
-              <Select id="sigungu" placeholder="시/군/구" class="w-full md:w-[14.75rem] mb-2" v-model="center_sigungu"></Select>
+              <Select id="sido" placeholder="광역시/도" class="w-full md:w-[14.75rem] mb-2" v-model="center_sido" :options="sido" optionLabel="label"></Select>
+              <Select id="sigungu" placeholder="시/군/구" class="w-full md:w-[14.75rem] mb-2" v-model="center_sigungu" :options="sigungu" optionLabel="label"></Select>
             </div>
-            <Select id="center" type="text" placeholder="기관명" class="w-full md:w-[30rem] mb-2" v-model="center"></Select>
+            <Select id="center" type="text" placeholder="기관명" class="w-full md:w-[30rem] mb-2" v-model="center" :options="center_list" optionLabel="label"></Select>
 
             <div class="grid mt-2 mb-8 gap-y-4">
-              <Button label="회원가입" class="w-full" as="router-link" to="/"></Button>
+              <Button label="회원가입" class="w-full" as="router-link" to="/" v-on:click="signup"></Button>
             </div>
           </div>
         </div>
