@@ -32,3 +32,6 @@ app.use(`/api`, planRouter);
 // 지원결과서 라우터
 const resultRouter = require("./routers/resultRouter.js");
 app.use(`/api`, resultRouter);
+// 지원신청서 관련 라우터
+const applicationRouter = require("./routers/applicationRouter.js");
+app.use(`/api`, applicationRouter);
