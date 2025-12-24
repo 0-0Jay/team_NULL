@@ -1,7 +1,7 @@
 // Table : faq
 
 // faq 목록 조회
-const selectAllFaq = `SELECT title, content, faq_date 
+const selectAllFaq = `SELECT faq_no, title, content, faq_date 
                       FROM faq`;
 
 // faq 등록

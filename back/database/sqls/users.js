@@ -60,6 +60,8 @@ UPDATE users
 SET status = 2
 WHERE user_no = ?`;
 
+// 일반회원 마이페이지 - 정보 조회
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
