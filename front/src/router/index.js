@@ -22,6 +22,11 @@ const router = createRouter({
       path: '/faq/create',
       name: 'faq-create',
       component: () => import('@/views/FaqCreate.vue')
+    },
+    {
+      path: '/centers',
+      name: 'centers',
+      component: () => import('@/views/AdminCenter.vue')
     }
   ]
 });

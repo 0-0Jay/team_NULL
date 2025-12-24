@@ -24,3 +24,7 @@ app.use(`/api`, centersRouter);
 // 문의관리 라우터
 const questionsRouter = require("./routers/questionsRouter.js");
 app.use(`/api`, questionsRouter);
+
+// 지원신청서 관련 라우터
+const applicationRouter = require("./routers/applicationRouter.js");
+app.use(`/api`, applicationRouter);

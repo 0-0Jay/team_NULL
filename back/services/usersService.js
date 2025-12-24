@@ -65,6 +65,7 @@ const findByUserNoUsersManager = async () => {
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
 const modifyByUserNoUsers = async (userInfo, userNo) => {
   let { name, phone, email, password } = userInfo;
+
   let result = await mysql.query(
     "updateByUserNoUsers",
     [name, phone, email, password, userNo],
@@ -72,6 +73,7 @@ const modifyByUserNoUsers = async (userInfo, userNo) => {
   );
 
   let resObj = {};
+
   if (result.affectedRows > 0) {
     resObj = { status: "success", no: userNo };
   } else {
