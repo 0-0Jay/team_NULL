@@ -9,7 +9,9 @@ const insertFaq = `INSERT INTO faq (title, content, user_no)
                   VALUES (?, ?, ?)`;
 
 // faq 수정
-// const updateByFaqnoFaq = ``
+const updateByFaqnoFaq = `UPDATE faq
+                          SET title = ?, content = ?, user_no = ?, faq_date = CURDATE()
+                          WHERE faq_no = ?`;
 
 // faq 삭제
 const deleteByFaqnoFaq = `DELETE FROM faq
@@ -18,5 +20,6 @@ const deleteByFaqnoFaq = `DELETE FROM faq
 module.exports = {
   selectAllFaq,
   insertFaq,
+  updateByFaqnoFaq,
   deleteByFaqnoFaq,
 };

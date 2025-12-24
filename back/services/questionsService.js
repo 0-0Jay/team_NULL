@@ -6,7 +6,7 @@ const findAllFaq = async () => {
   return faqList;
 };
 
-// faq 단건 등록
+// faq 등록
 const addFaq = async ({ title, content, user_no } = {}) => {
   if (!title?.trim() || !content?.trim() || user_no == null) {
     return { status: "error", message: "invalid input" };
@@ -25,7 +25,26 @@ const addFaq = async ({ title, content, user_no } = {}) => {
   return resObj;
 };
 
-// faq 단건 삭제
+// faq 수정
+const modifyByFaqnoFaq = async ({ title, content, user_no, faq_no } = {}) => {
+  if (!title?.trim() || !content?.trim() || user_no == null || faq_no == null) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "updateByFaqnoFaq",
+    [title, content, user_no, faq_no],
+    "questions"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", faq_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// faq 삭제
 const removeByFaqnoFaq = async (faqNo) => {
   let faqInfo = await mysql.query("deleteByFaqnoFaq", [faqNo], "questions");
   let resObj = {};
@@ -37,4 +56,4 @@ const removeByFaqnoFaq = async (faqNo) => {
   return resObj;
 };
 
-module.exports = { findAllFaq, addFaq, removeByFaqnoFaq };
+module.exports = { findAllFaq, addFaq, modifyByFaqnoFaq, removeByFaqnoFaq };
