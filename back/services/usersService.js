@@ -1,5 +1,6 @@
 const mysql = require("../database/mappers.js");
 const nodemailer = require("nodemailer");
+const crypto = require('crypto');
 require("dotenv").config();
 
 const mail_config = {
@@ -70,14 +71,15 @@ const findByEmailUsers = async (email) => {
 };
 // 인증번호 발송
 const sendCode = async (email) => {
+  const code = crypto.randomInt(100000, 1000000);
   return new Promise((resolve, reject) => {
     let transport = nodemailer.createTransport(mail_config);
     transport.sendMail(
       {
-        from: "team_null",
-        to: "youngjin2712@naver.com",
+        from: `"team_null" <${process.env.EMAIL_AUTH_USER}>`,
+        to: email,
         subject: "발달장애인 지원 프로그램 아이디 찾기 인증번호 입니다.",
-        text: "testcode",
+        text: `${code}`,
       },
       (err, info) => {
         if (err) {
@@ -87,8 +89,7 @@ const sendCode = async (email) => {
         }
         console.log(info);
         if (info.accepted.length >= 1) {
-          console.log("done");
-          resolve({ receiver: info.accepted[0], msg: "정상발송" });
+          resolve({ receiver: info.accepted[0], msg: "정상발송", code: code });
         } else {
           resolve({ receiver: "없음", msg: "수신자가 없음" });
         }
@@ -186,4 +187,5 @@ module.exports = {
   modifyStatusByUsernoUsers,
   findByIdUsers,
   findByEmailUsers,
+  sendCode,
 };

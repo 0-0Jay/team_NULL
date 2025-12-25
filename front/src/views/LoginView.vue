@@ -65,8 +65,8 @@ const login = async () => {
               </div>
             </div>
             <div class="flex items-center justify-center mt-2 mb-8 gap-8">
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ name: 'findId' })">아이디 찾기</span>
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">비밀번호 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path:'/find/id' })">아이디 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path:'/find/pw' })">비밀번호 찾기</span>
             </div>
             <div class="grid mt-2 mb-8 gap-y-4">
               <Button label="로그인" class="w-full" @click="login"></Button>

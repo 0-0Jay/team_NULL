@@ -35,9 +35,14 @@ const router = createRouter({
       component: () => import('@/views/LoginNotApprovedView.vue')
     },
     {
-      path: '/findId',
-      name: 'findId',
+      path: '/find/:type',
+      name: 'findInfo',
       component: () => import('@/views/FindIdView.vue')
+    },
+    {
+      path: '/changePw',
+      name: 'changePw',
+      component: () => import('@/views/ChangePwView.vue')
     },
     {
       path: '/test',

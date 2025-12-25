@@ -36,7 +36,8 @@ router.post("/emailCheck", async (req, res) => {
 router.post("/sendCode", async (req, res) => {
   const { email } = req.body;
   let result = await usersService.sendCode(email);
-  res.send(result)
+  console.log(result);
+  res.send(result);
 })
 
 // 아이디 찾기

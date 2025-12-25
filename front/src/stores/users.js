@@ -65,12 +65,23 @@ export const useUsersStore = defineStore('users', {
       this.user = null;
     },
 
+    // 아이디 찾기
     async findId(data) {
       try {
         const response = await axios.post(`/api/findId`, data);
         console.log(response.data[0]);
         return response.data[0];
       } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 인증코드 수신
+    async sendCode(email) {
+      try {
+        const response = await axios.post(`/api/sendCode`, email);
+        return response;
+      } catch (Err) {
         console.log(err);
       }
     }
