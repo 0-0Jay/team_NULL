@@ -1,7 +1,7 @@
 // Table : center
 
 // 기관 목록 불러오기
-const selectAllCenter = `select name, address,
+const selectAllCenter = `select c_no, name, address,
                                 phone, email, manage,
                                 created_date, closed_date
                          from center`;
