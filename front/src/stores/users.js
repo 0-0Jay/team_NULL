@@ -4,7 +4,7 @@ import axios from 'axios';
 export const useUsersStore = defineStore('users', {
   // state
   state: () => ({
-    user: {}
+    user: null
   }),
   // getters
   // actions
@@ -62,7 +62,8 @@ export const useUsersStore = defineStore('users', {
 
     // 로그아웃
     async logout() {
-      this.user = null;
+      this.user = undefined;
+      localStorage.removeItem('user');
     },
 
     // 아이디 찾기

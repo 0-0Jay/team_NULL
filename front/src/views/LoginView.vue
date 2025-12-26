@@ -7,10 +7,10 @@ import { useRouter } from 'vue-router';
 const store = useUsersStore();
 const router = useRouter();
 
-const id = ref('');
+const savedId = localStorage.getItem('id');
+const id = ref(savedId ? savedId : '');
 const password = ref('');
-const saveId = ref(false);
-const autoLogin = ref(false);
+const saveId = ref(savedId ? true : false);
 
 const login = async () => {
   if (!id.value) {
@@ -24,9 +24,17 @@ const login = async () => {
     id: id.value,
     pw: password.value
   };
-  const result = (await store.login(data))[0];
-  console.log(result);
-  if (result.status == 0) {
+  const result = await store.login(data);
+  if (result.length == 0) {
+    alert('아이디 또는 비밀번호가 틀렸습니다.');
+    return;
+  }
+  if (saveId.value) {
+    localStorage.setItem('id', id.value);
+  } else {
+    localStorage.removeItem('id');
+  }
+  if (result[0].status == 0) {
     router.push({ name: 'LoginNA' });
   } else {
     router.push({ name: 'test' });
@@ -58,15 +66,11 @@ const login = async () => {
                   <Checkbox v-model="saveId" id="rememberme1" binary class="mr-2"></Checkbox>
                   <label for="rememberme1">아이디 저장</label>
                 </div>
-                <div>
-                  <Checkbox v-model="autoLogin" id="autologin" binary class="mr-2"></Checkbox>
-                  <label for="autologin">자동 로그인</label>
-                </div>
               </div>
             </div>
             <div class="flex items-center justify-center mt-2 mb-8 gap-8">
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path:'/find/id' })">아이디 찾기</span>
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path:'/find/pw' })">비밀번호 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path: '/find/id' })">아이디 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path: '/find/pw' })">비밀번호 찾기</span>
             </div>
             <div class="grid mt-2 mb-8 gap-y-4">
               <Button label="로그인" class="w-full" @click="login"></Button>

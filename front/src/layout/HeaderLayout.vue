@@ -1,21 +1,45 @@
 <script setup>
+import { computed } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
+import { useRouter } from 'vue-router';
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
-const user = JSON.parse(localStorage.getItem('users')).user[0];
+const router = useRouter();
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const usertype = computed(() => {
+  switch (user.type) {
+    case 1:
+      return user.c_name + ' 담당자';
+    case 2:
+      return user.c_name + ' 관리자';
+    default:
+      return '';
+  }
+});
+
+const logout = () => {
+  localStorage.removeItem('users');
+  router.replace({ path: '/' });
+};
 </script>
 
 <template>
-  <div class="layout-topbar">
-    <div class="layout-topbar-logo-container">
-      <router-link to="/" class="layout-topbar-logo">
-        <span>발달장애인 지원 프로그램</span>
+  <div class="layout-topbar relative">
+    <div class="layout-topbar-logo-container flex items-center gap-10">
+      <router-link to="/test" class="layout-topbar-logo">
+        <span class="w-80">발달장애인 지원 프로그램</span>
       </router-link>
+      <div class="topbar-menu flex items-center gap-8 whitespace-nowrap">
+        <router-link to="/test">지원신청내역</router-link>
+        <router-link to="/test">문의</router-link>
+        <router-link v-if="user.type == 0" to="/welfareMap">복지지도</router-link>
+        <router-link v-if="user.type == 2" to="/test">담당자관리</router-link>
+      </div>
     </div>
 
     <div class="layout-topbar-actions">
-      <div class="content-center">{{ user?.u_name }} 님 환영합니다.</div>
+      <div class="content-center">{{ usertype }} {{ user.u_name }} 님 환영합니다.</div>
       <div class="layout-config-menu">
         <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
@@ -44,7 +68,7 @@ const user = JSON.parse(localStorage.getItem('users')).user[0];
           <Button type="button" class="min-w-[100px]">
             <i class="pi pi-user"> 내 정보 </i>
           </Button>
-          <Button type="button" class="min-w-[100px]">
+          <Button type="button" class="min-w-[100px]" @click="logout">
             <i class="pi pi-sign-out"> 로그아웃 </i>
           </Button>
         </div>
