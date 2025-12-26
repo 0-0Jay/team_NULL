@@ -1,17 +1,27 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
+const route = useRoute();
 const router = useRouter();
 const visible = ref(false);
 
+const faqNo = route.params.faq_no;
 const title = ref('');
 const content = ref('');
 const name = ref('1');
 
-function addFaq() {
+onMounted(async () => {
+  const res = await axios.get(`/api/questions/${faqNo}`);
+  const faq = res.data[0];
+  name.value = faq.name;
+  title.value = faq.title;
+  content.value = faq.content;
+});
+
+function modifyFaq() {
   // 1. 입력값 유효성 체크
   if (!title.value.trim() || !content.value.trim()) {
     alert('제목과 내용을 입력하세요');
@@ -20,9 +30,9 @@ function addFaq() {
   // 2. 파라미터 정리
   const param = { title: title.value, content: content.value, user_no: name.value };
   // 3. 서버 요청
-  axios.post('/api/questions', param).then((response) => {
+  axios.put(`/api/questions/${faqNo}`, param).then((response) => {
     console.log(response.data);
-    alert('등록되었습니다.');
+    alert('수정되었습니다.');
     // 4. 목록 이동
     router.push({ name: 'faq' });
   });
@@ -30,7 +40,7 @@ function addFaq() {
 
 function handleConfirm() {
   visible.value = false;
-  addFaq();
+  modifyFaq();
 }
 </script>
 <template>
@@ -43,7 +53,7 @@ function handleConfirm() {
   </Tabs>
   <div class="card">
     <div class="card flex flex-col gap-4">
-      <div class="font-bold text-2xl text-center">FAQ 등록</div>
+      <div class="font-bold text-2xl text-center">FAQ 수정</div>
       <div class="flex flex-col grow basis-0 gap-2">
         <label for="name">작성자</label>
         <InputText v-model="name" id="name" type="text" />
@@ -57,10 +67,10 @@ function handleConfirm() {
         <Textarea v-model="content" placeholder="답변 내용을 입력하세요." :autoResize="true" rows="3" cols="30" />
       </div>
       <div class="flex flex-wrap gap-2 justify-center">
-        <Button label="등록" style="width: auto" @click="visible = true" />
+        <Button label=" 수정" style="width: auto" @click="visible = true" />
         <RouterLink :to="{ name: 'faq' }"><Button label="목록" severity="danger" /></RouterLink>
       </div>
     </div>
   </div>
-  <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm()"> FAQ를 등록하시겠습니까? </ConfirmDialog>
+  <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm()"> FAQ를 수정하시겠습니까? </ConfirmDialog>
 </template>

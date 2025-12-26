@@ -8,6 +8,13 @@ router.get("/questions", async (req, res) => {
   res.send(faqList);
 });
 
+// faq 단건 조회
+router.get("/questions/:faq_no", async (req, res) => {
+  const fno = req.params.faq_no;
+  let result = await questionsService.findByFaqnoFaq(fno);
+  res.send(result);
+});
+
 // faq 등록
 router.post("/questions", async (req, res) => {
   const faqInfo = req.body;
