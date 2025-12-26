@@ -6,6 +6,12 @@ const findAllFaq = async () => {
   return faqList;
 };
 
+// faq 단건 조회
+const findByFaqnoFaq = async (faqNo) => {
+  let result = await mysql.query("selectByFaqnoFaq", [faqNo], "questions");
+  return result;
+};
+
 // faq 등록
 const addFaq = async ({ title, content, user_no } = {}) => {
   if (!title?.trim() || !content?.trim() || user_no == null) {
@@ -56,4 +62,10 @@ const removeByFaqnoFaq = async (faqNo) => {
   return resObj;
 };
 
-module.exports = { findAllFaq, addFaq, modifyByFaqnoFaq, removeByFaqnoFaq };
+module.exports = {
+  findAllFaq,
+  findByFaqnoFaq,
+  addFaq,
+  modifyByFaqnoFaq,
+  removeByFaqnoFaq,
+};
