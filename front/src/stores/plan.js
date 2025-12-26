@@ -12,7 +12,7 @@ export const usePlanStore = defineStore('plan', {
   //actions
 
   actions: {
-    //
+    // 지원계획서 입력
     async fetchPlan(formData) {
       try {
         const res = await axios.post(`/api/plan/`, formData);
