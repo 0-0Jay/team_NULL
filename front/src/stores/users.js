@@ -93,7 +93,9 @@ export const useUsersStore = defineStore('users', {
       try {
         const response = await axios.post(`/api/sendCode`, email);
         return response;
-      } catch (Err) {
+      } catch (Err) {}
+    },
+
     // 기관 관리자 불러오기
     async fetchManager() {
       try {
