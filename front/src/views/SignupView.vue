@@ -1,10 +1,12 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUsersStore } from '@/stores/users';
+import { useCentersStore } from '@/stores/centers';
 import { useRouter } from 'vue-router';
 
 const store = useUsersStore();
+const cstore = useCentersStore();
 const router = useRouter();
 
 const id = ref('');
@@ -31,21 +33,44 @@ const userTypes = ref([
   { name: '기관관리자', value: '2' }
 ]);
 
-const sido = ref([
-  { label: '대구광역시', value: '대구광역시' },
-  { label: '서울특별시', value: '서울특별시' },
-  { label: '경상북도', value: '경상북도' }
-]);
+let list = {};
+let sido = ref([]);
+let sigungu = ref([]);
+let center_list = ref([]);
 
-const sigungu = ref([
-  { label: '구미시', value: '구미시' },
-  { label: '칠곡군', value: '칠곡군' }
-]);
+onMounted(async () => {
+  const result = await cstore.centerAddress();
+  list = result.reduce((acc, cur) => {
+    const { sido, sigungu, name, c_no } = cur;
+    if (!acc[sido]) {
+      acc[sido] = [];
+    }
+    const sigunguKey = sigungu ?? '';
+    if (!acc[sido][sigunguKey]) {
+      acc[sido][sigunguKey] = [];
+    }
 
-const center_list = ref([
-  { label: '행복복지센터', value: '3' },
-  { label: '불행복지센터', value: '4' }
-]);
+    acc[sido][sigunguKey].push({ label: name, value: c_no });
+
+    return acc;
+  }, {});
+  sido.value = Object.keys(list).map((sido) => ({
+    label: sido,
+    value: sido
+  }));
+});
+
+const changeSido = () => {
+  console.log(list[center_sido.value]);
+  sigungu.value = Object.keys(list[center_sido.value]).map((sigungu) => ({
+    label: sigungu,
+    value: sigungu
+  }));
+};
+
+const changeSigungu = () => {
+  center_list.value = list?.[center_sido.value]?.[center_sigungu.value] ?? [];
+};
 
 const display = ref(false);
 function open() {
@@ -190,8 +215,8 @@ const emailCheck = async () => {
 
             <label for="center" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">기관</label>
             <div class="flex gap-x-2">
-              <Select id="sido" placeholder="광역시/도" class="w-full md:w-[14.75rem] mb-2" v-model="center_sido" :options="sido" optionLabel="label" optionValue="value"></Select>
-              <Select id="sigungu" placeholder="시/군/구" class="w-full md:w-[14.75rem] mb-2" v-model="center_sigungu" :options="sigungu" optionLabel="label" optionValue="value"></Select>
+              <Select id="sido" placeholder="광역시/도" class="w-full md:w-[14.75rem] mb-2" v-model="center_sido" :options="sido" optionLabel="label" optionValue="value" @change="changeSido"></Select>
+              <Select id="sigungu" placeholder="시/군/구" class="w-full md:w-[14.75rem] mb-2" v-model="center_sigungu" :options="sigungu" optionLabel="label" optionValue="value" @change="changeSigungu"></Select>
             </div>
             <Select id="center" type="text" placeholder="기관명" class="w-full md:w-[30rem] mb-2" v-model="center" :options="center_list" optionLabel="label" optionValue="value"></Select>
 

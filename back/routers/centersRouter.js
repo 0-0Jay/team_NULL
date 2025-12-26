@@ -15,4 +15,10 @@ router.get(`/userCenter/:user_no`, async (req, res) => {
   res.send(list);
 });
 
+// 기관 주소 불러오기
+router.get(`/address`, async (req, res) => {
+  let list = await centersService.findAllAddressCenter();
+  res.send(list);
+});
+
 module.exports = router;

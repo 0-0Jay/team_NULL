@@ -1,7 +1,10 @@
-<script setup></script>
+<script setup>
+import Header from '@/layout/HeaderLayout.vue';
+</script>
 
 <template>
-    <router-view />
+  <Header v-if="!$route.meta.hideHeader" />
+  <router-view />
 </template>
 
 <style scoped></style>

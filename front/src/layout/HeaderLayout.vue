@@ -15,7 +15,7 @@ const user = JSON.parse(localStorage.getItem('users')).user[0];
     </div>
 
     <div class="layout-topbar-actions">
-      <div class="content-center">{{ user.u_name }} 님 환영합니다.</div>
+      <div class="content-center">{{ user?.u_name }} 님 환영합니다.</div>
       <div class="layout-config-menu">
         <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>

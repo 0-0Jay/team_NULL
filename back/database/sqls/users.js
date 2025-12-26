@@ -25,7 +25,7 @@ WHERE email = ?`;
 
 // 아이디 찾기
 const selectByNameAndEmailUsers = `
-SELECT id
+SELECT id, name
 FROM users
 WHERE name = ? AND email = ?`;
 

@@ -12,7 +12,15 @@ SELECT c.name, c.phone
 FROM center c JOIN users u
 WHERE u.c_no = c.c_no AND u.user_no = ?`;
 
+// 기관 주소 불러오기
+const selectAllAddressCenter = `
+SELECT sido, sigungu, name, c_no
+FROM center
+WHERE closed_date IS NULL;
+`;
+
 module.exports = {
   selectAllCenter,
   selectByUsernoCenter,
+  selectAllAddressCenter,
 };

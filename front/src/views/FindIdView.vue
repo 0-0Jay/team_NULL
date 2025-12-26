@@ -18,26 +18,44 @@ const codespace = ref(false);
 
 const sendCode = async () => {
   codespace.value = true;
-  const result = await store.sendCode({email : email.value});
+  const result = await store.sendCode({ email: email.value });
   realcode.value = result.data.code;
 };
 
 const findId = async () => {
-  if (realcode.value != usercode.value) {
-    alert('인증번호가 일치하지 않습니다!');
+  if (!name.value || !email.value) {
+    alert('이름과 이메일을 모두 입력해주세요!');
     return;
   }
-  const result = await store.findId();
+  if (realcode.value == '' || realcode.value != usercode.value) {
+    alert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
+    return;
+  }
+  const result = await store.findId({ name: name.value, email: email.value });
+  console.log(result);
+  if (result.length > 0) {
+    router.push({ name: 'resultId' });
+  } else {
+    alert('가입하지 않은 이름/이메일 입니다.');
+  }
 };
 
 const changePw = async () => {
-    console.log(realcode);
-  if (realcode.value != usercode.value) {
-    alert('인증번호가 일치하지 않습니다!');
+  if (!id.value || !email.value) {
+    alert('아이디와 이메일을 모두 입력해주세요!');
     return;
   }
-  router.push({ name: 'changePw' })
-}
+  if (realcode.value == '' || realcode.value != usercode.value) {
+    alert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
+    return;
+  }
+  const result = await store.findPw({ id: id.value, email: email.value });
+  if (result.length > 0) {
+    router.push({ name: 'changePw' });
+  } else {
+    alert('가입하지 않은 아이디/이메일 입니다.');
+  }
+};
 </script>
 
 <template>
@@ -59,7 +77,7 @@ const changePw = async () => {
             </div>
             <div v-else-if="type == 'pw'">
               <label for="id" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">아이디</label>
-              <InputText id="id" type="text" placeholder="아이디" class="w-full md:w-[30rem] mb-4" v-model="name" />
+              <InputText id="id" type="text" placeholder="아이디" class="w-full md:w-[30rem] mb-4" v-model="id" />
             </div>
 
             <label for="email" class="block text-surface-900 dark:text-surface-0 font-medium text-xl">이메일</label>

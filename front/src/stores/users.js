@@ -69,8 +69,18 @@ export const useUsersStore = defineStore('users', {
     async findId(data) {
       try {
         const response = await axios.post(`/api/findId`, data);
-        console.log(response.data[0]);
-        return response.data[0];
+        this.user = response.data[0];
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 비밀번호 찾기
+    async findPw(data) {
+      try {
+        const response = await axios.post(`/api/findPw`, data);
+        return response.data;
       } catch (err) {
         console.log(err);
       }

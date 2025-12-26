@@ -17,6 +17,16 @@ export const useCentersStore = defineStore('centers', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 기관 주소
+    async centerAddress() {
+      try {
+        const response = await axios.get(`/api/address`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 });

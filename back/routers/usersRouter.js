@@ -36,9 +36,8 @@ router.post("/emailCheck", async (req, res) => {
 router.post("/sendCode", async (req, res) => {
   const { email } = req.body;
   let result = await usersService.sendCode(email);
-  console.log(result);
   res.send(result);
-})
+});
 
 // 아이디 찾기
 router.post("/findId", async (req, res) => {
