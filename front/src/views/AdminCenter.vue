@@ -1,5 +1,6 @@
 <script setup>
 import { useCentersStore } from '@/stores/centers';
+import { KeyFilter } from 'primevue';
 import { onBeforeMount, computed, ref, watch } from 'vue';
 
 const store = useCentersStore();
@@ -14,6 +15,7 @@ const selectedRows = ref([]);
 // 검색
 const inputCenter = ref('');
 const searchCenter = ref('');
+const searchError = ref('');
 
 onBeforeMount(() => {
   store.fetchCenter();
@@ -44,14 +46,23 @@ const onPageChange = (e) => {
 
 // 검색 이벤트
 const onSearch = () => {
+  searchError.value = '';
+
+  if (!inputCenter.value.trim()) {
+    searchError.value = '기관명을 입력해주세요.';
+    return;
+  }
+
   searchCenter.value = inputCenter.value.trim();
   page.value = 1;
   selectedRows.value = [];
 };
 
 // 검색 초기화
-watch(inputCenter, (newVal) => {
-  if (newVal === '') {
+watch(inputCenter, (keyword) => {
+  searchError.value = ''; // 검색어 입력 시 에러 제거
+
+  if (!keyword.trim()) {
     searchCenter.value = '';
     page.value = 1;
     selectedRows.value = [];
@@ -72,10 +83,13 @@ const filterCenter = computed(() => {
       <h3 class="font-bold mb-3">검색</h3>
       <IconField iconPosition="left">
         <InputIcon class="pi pi-search" />
-        <InputText class="w-full" type="text" v-model="inputCenter" placeholder="기관명 입력" />
+        <InputText class="w-full" type="text" v-model="inputCenter" placeholder="기관명 입력" @keyup.enter="onSearch" />
       </IconField>
 
-      <Button type="button" class="w-full mt-3" label="검색" @click="onSearch" />
+      <Button type="button" class="w-full mt-3 mb-3" label="검색" @click="onSearch" />
+      <p v-if="searchError" class="text-red-500 text-center">
+        {{ searchError }}
+      </p>
     </aside>
 
     <div class="border-l-2 border-gray-300 mx-4"></div>
@@ -104,8 +118,11 @@ const filterCenter = computed(() => {
 
         <Column field="name" header="기관명" headerClass="center-header" sortable style="width: 200px" />
 
-        <Column field="address" header="주소" headerClass="center-header" style="width: 300px" />
-
+        <Column header="주소" headerClass="center-header" style="width: 300px">
+          <template #body="{ data }">
+            {{ data.address ?? '-' }}
+          </template>
+        </Column>
         <Column header="대표 번호" headerClass="center-header" bodyClass="center-body" style="width: 140px">
           <template #body="{ data }">
             {{ data.phone ?? '-' }}
