@@ -36,8 +36,8 @@ router.post("/emailCheck", async (req, res) => {
 router.post("/sendCode", async (req, res) => {
   const { email } = req.body;
   let result = await usersService.sendCode(email);
-  res.send(result)
-})
+  res.send(result);
+});
 
 // 아이디 찾기
 router.post("/findId", async (req, res) => {
@@ -47,25 +47,41 @@ router.post("/findId", async (req, res) => {
 });
 
 // 기관 관리자 불러오기
-router.get("/users-manager", async (req, res) => {
+router.get("/usersManager", async (req, res) => {
   let list = await usersService.findByCnoUsersCenters();
   res.send(list);
 });
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
 // pic : the person in charge
-router.get("/users-pic", async (req, res) => {
+router.get("/usersPic", async (req, res) => {
   let list = await usersService.findByUserNoUsersManager();
   res.send(list);
 });
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
-router.put("/users-pic/:userNo", async (req, res) => {
+router.put("/usersPic/:userNo", async (req, res) => {
   const userInfo = req.body;
   const userNo = req.params.userNo;
 
   let list = await usersService.modifyByUserNoUsers(userInfo, userNo);
 
+  res.send(list);
+});
+
+// 회원상태(사용승인 및 비활성화)
+router.put("/users/status", async (req, res) => {
+  const { userNos, status } = req.body;
+
+  if (
+    !Array.isArray(userNos) ||
+    userNos.length == 0 ||
+    ![1, 2].includes(status)
+  ) {
+    return res.status(400).send({ status: "fail", message: "invalid request" });
+  }
+
+  let list = await usersService.modifyStatusUsers(userNos, status);
   res.send(list);
 });
 

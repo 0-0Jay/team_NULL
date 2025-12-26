@@ -6,12 +6,14 @@ const router = createRouter({
     {
       path: '/',
       name: 'Login',
-      component: () => import('@/views/LoginView.vue')
+      component: () => import('@/views/LoginView.vue'),
+      meta: { showHeader: false }
     },
     {
       path: '/signup',
       name: 'signup',
-      component: () => import('@/views/SignupView.vue')
+      component: () => import('@/views/SignupView.vue'),
+      meta: { showHeader: false }
     },
     {
       path: '/planinsert',
@@ -30,14 +32,39 @@ const router = createRouter({
       component: () => import('@/views/AdminCenter.vue')
     },
     {
-      path: '/loginNA',
-      name: 'LoginNA',
-      component: () => import('@/views/LoginNotApprovedView.vue')
+      path: '/centers/managers',
+      name: 'managers',
+      component: () => import('@/views/AdminManager.vue')
     },
     {
-      path: '/findId',
-      name: 'findId',
-      component: () => import('@/views/FindIdView.vue')
+      path: '/loginNA',
+      name: 'LoginNA',
+      component: () => import('@/views/LoginNotApprovedView.vue'),
+      meta: { showHeader: false }
+    },
+    {
+      path: '/find/:type',
+      name: 'findInfo',
+      component: () => import('@/views/FindIdView.vue'),
+      meta: { showHeader: false }
+    },
+    {
+      path: '/resultId',
+      name: 'resultId',
+      component: () => import('@/views/FindIdResultView.vue'),
+      meta: { showHeader: false }
+    },
+    {
+      path: '/changePw',
+      name: 'changePw',
+      component: () => import('@/views/ChangePwView.vue'),
+      meta: { showHeader: false }
+    },
+    {
+      path: '/welfareMap',
+      name: 'welfareMap',
+      component: () => import('@/views/WelfareMapView.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/test',
@@ -48,6 +75,7 @@ const router = createRouter({
       path: '/planDetail',
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue')
+      meta: { showHeader: true }
     }
   ]
 });
