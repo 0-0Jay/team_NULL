@@ -12,7 +12,14 @@ const findByUsernoCenter = async (user_no) => {
   return list;
 };
 
+// 기관 주소 불러오기
+const findAllAddressCenter = async () => {
+  const list = await mysql.query("selectAllAddressCenter", null, "center");
+  return list;
+};
+
 module.exports = {
   findAllCenter,
   findByUsernoCenter,
+  findAllAddressCenter,
 };

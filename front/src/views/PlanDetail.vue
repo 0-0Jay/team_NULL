@@ -1,62 +1,26 @@
-<!-- 지원계획서 입력 창입니다 (12.26기준 작성중) -->
+<!-- 지원계획서 상세 조회창 12.26기준 작성중 -->
 
 <script setup>
-//11.26 작업
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { usePlanStore } from '@/stores/plan';
+import { onBeforeMount, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 
-const router = useRouter();
+const store = usePlanStore();
+const route = useRoute();
 
-const title = ref('');
-const startDate = ref(null);
-const endDate = ref(null);
-const content = ref('');
-const plan_author = ref('');
-const file = ref(null);
+const applicationNo = route.params.application_no;
 
-const displayConfirmation = ref(false);
-const openConfirmation = () => (displayConfirmation.value = true);
-const closeConfirmation = () => (displayConfirmation.value = false);
+onBeforeMount(() => {
+  store.fetchPlanDetail(applicationNo);
+});
 
-const onFilechange = (e) => {
-  //첨부파일 선택
-  file.value = e.target.files[0];
-};
-
-const submit = async () => {
-  if (!title.value || !content.value) {
-    alert('제목과 내용을 입력해주세요');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('title', title.value);
-  formData.append('startDate', startDate.value ? startDate.value.toISOString().slice(0, 10) : null);
-  formData.append('endDate', endDate.value ? endDate.value.toISOString().slice(0, 10) : null);
-  formData.append('content', content.value);
-  formData.append('plan_author', plan_author.value);
-
-  if (file.value) {
-    formData.append('file', file.value);
-  }
-
-  try {
-    const res = await axios.post('/api/plan', formData);
-    console.log('저장 성공', res.data);
-
-    router.push(`/plan/detail/${res.data.application_no}`);
-  } catch (err) {
-    console.error('저장실패', err);
-  }
-};
-
-//
+axios.get(`/api/plan/pending/${application_no}`).then((response) => {
+  console.log(response.data); //지원신청서 번호를 받아서 지원계획서 조회를
+});
 </script>
 
 <template>
-  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
-
   <!---------------------------------------------------------->
   <Tabs value="0">
     <!-- 상위 탭 -->
@@ -134,15 +98,24 @@ const submit = async () => {
   </Tabs>
 
   <!----------------------------------------------------------->
+  <div v-if="store.planDetail">
+    <h2>지원계획서 상세</h2>
+
+    <p>신청번호: {{ store.planDetail.application_no }}</p>
+    <p>내용: {{ store.planDetail.content }}</p>
+  </div>
+
+  <div v-else>로딩중...</div>
+
   <div class="flex mt-8">
     <div class="card flex flex-col gap-4 w-full">
       <!----------------------------------------------->
       <div class="card">
         <div class="card flex flex-col gap-4">
-          <div class="font-bold text-2xl text-center">지원계획서 작성</div>
+          <div class="font-bold text-2xl text-center">{{ plan_no }}지원계획서 조회</div>
           <div class="flex flex-col grow basis-0 gap-2">
             <label for="name">작성자</label>
-            <InputText v-model="plan_author" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+            <InputText v-model="name" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
           </div>
 
           <div class="flex flex-col gap-2">
@@ -183,7 +156,7 @@ const submit = async () => {
                 <span>Are you sure you want to proceed?</span>
               </div>
               <template #footer>
-                <Button label="Yes" icon="pi pi-check" @click="submit" severity="danger" outlined autofocus />
+                <Button label="Yes" icon="pi pi-check" @click="addFaq" severity="danger" outlined autofocus />
                 <Button label="No" icon="pi pi-times" @click="closeConfirmation" text severity="secondary" />
               </template>
             </Dialog>
@@ -194,10 +167,3 @@ const submit = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.insert-plan {
-  display: flex;
-  align-items: center;
-}
-</style>
