@@ -69,7 +69,12 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: () => import('@/views/TestFile.vue'),
+      component: () => import('@/views/TestFile.vue')
+    },
+    {
+      path: '/planDetail',
+      name: 'planDetail',
+      component: () => import('@/views/PlanDetail.vue')
       meta: { showHeader: true }
     }
   ]
