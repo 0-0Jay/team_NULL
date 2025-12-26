@@ -32,6 +32,11 @@ const router = createRouter({
       component: () => import('@/views/AdminCenter.vue')
     },
     {
+      path: '/centers/managers',
+      name: 'managers',
+      component: () => import('@/views/AdminManager.vue')
+    },
+    {
       path: '/loginNA',
       name: 'LoginNA',
       component: () => import('@/views/LoginNotApprovedView.vue'),

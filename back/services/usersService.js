@@ -147,6 +147,22 @@ const modifyByUserNoUsers = async (userInfo, userNo) => {
   return resObj;
 };
 
+// 회원상태(사용승인 및 비활성화)
+const modifyStatusUsers = async (userNos, status) => {
+  let result = await mysql.query(
+    "updateStatusUsers",
+    [status, userNos],
+    "users"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", userNos: userNos };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 // 비밀번호 재설정
 const modifyPwByUsernoUsers = async (user_no, pw) => {
   let result = await mysql.query(
@@ -188,4 +204,5 @@ module.exports = {
   findByIdUsers,
   findByEmailUsers,
   sendCode,
+  modifyStatusUsers,
 };

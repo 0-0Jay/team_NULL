@@ -42,7 +42,7 @@ SET password = ?
 WHERE user_no = ?`;
 
 // 기관 관리자 불러오기
-const selectByCnoUsersCenters = `select u.name as user_name, u.id, c.name as center_name, 
+const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.name as center_name, 
                                         u.phone, u.email, 
                                         u.created_date, u.status
                                  from users u
@@ -66,6 +66,10 @@ const updateByUserNoUsers = `update users
                              set name = ?, phone = ?, email = ?, 
                                  password = ?
                              where user_no = ?`;
+
+// 회원상태(사용승인 및 비활성화)
+const updateStatusUsers = `update users set status = ? where user_no in (?)`;
+
 // 회원탈퇴
 const updateStatusByUsernoUsers = `
 UPDATE users
@@ -86,4 +90,5 @@ module.exports = {
   updateStatusByUsernoUsers,
   selectByIdUsers,
   selectByEmailUsers,
+  updateStatusUsers,
 };

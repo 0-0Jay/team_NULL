@@ -4,7 +4,8 @@ import axios from 'axios';
 export const useUsersStore = defineStore('users', {
   // state
   state: () => ({
-    user: null
+    user: {},
+    manager: []
   }),
   // getters
   // actions
@@ -93,6 +94,22 @@ export const useUsersStore = defineStore('users', {
         const response = await axios.post(`/api/sendCode`, email);
         return response;
       } catch (Err) {
+    // 기관 관리자 불러오기
+    async fetchManager() {
+      try {
+        const response = await axios.get('/api/usersManager');
+        this.manager = response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 회원상태(사용승인 및 비활성화)
+    async modifyStatus(userNos, status) {
+      try {
+        const response = await axios.put('/api/users/status', { userNos, status });
+        return response.data;
+      } catch (err) {
         console.log(err);
       }
     }
