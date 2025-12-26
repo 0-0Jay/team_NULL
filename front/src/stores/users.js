@@ -63,19 +63,37 @@ export const useUsersStore = defineStore('users', {
 
     // 로그아웃
     async logout() {
-      this.user = null;
+      this.user = undefined;
+      localStorage.removeItem('user');
     },
 
+    // 아이디 찾기
     async findId(data) {
       try {
         const response = await axios.post(`/api/findId`, data);
-        console.log(response.data[0]);
-        return response.data[0];
+        this.user = response.data[0];
+        return response.data;
       } catch (err) {
         console.log(err);
       }
     },
 
+    // 비밀번호 찾기
+    async findPw(data) {
+      try {
+        const response = await axios.post(`/api/findPw`, data);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 인증코드 수신
+    async sendCode(email) {
+      try {
+        const response = await axios.post(`/api/sendCode`, email);
+        return response;
+      } catch (Err) {
     // 기관 관리자 불러오기
     async fetchManager() {
       try {

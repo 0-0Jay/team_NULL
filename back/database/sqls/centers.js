@@ -15,7 +15,15 @@ const selectByUsernoCenter = ` select c.name, c.phone
 // 기관 삭제(보류)
 // const deleteByCnoCenter = `delete from center where c_no = ?`;
 
+// 기관 주소 불러오기
+const selectAllAddressCenter = `
+SELECT sido, sigungu, name, c_no
+FROM center
+WHERE closed_date IS NULL;
+`;
+
 module.exports = {
   selectAllCenter,
   selectByUsernoCenter,
+  selectAllAddressCenter,
 };
