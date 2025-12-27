@@ -9,6 +9,7 @@ import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
+import { useKakao } from 'vue3-kakao-maps';
 
 import '@/assets/tailwind.css';
 import '@/assets/styles.scss';
@@ -16,6 +17,8 @@ import '@/assets/styles.scss';
 const app = createApp(App);
 const pinia = createPinia();
 pinia.use(piniaPlugin);
+
+useKakao(import.meta.env.VITE_MAP_KEY, ['services']);
 
 app.use(pinia);
 app.use(router);
