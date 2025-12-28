@@ -1,57 +1,44 @@
-<!-- 지원계획서 입력 창입니다 (12.26기준 작성중) -->
+<!-- 지원계획서 입력 창입니다 (12.28기준 작성중) -->
 
 <script setup>
-//11.26 작업
+//11.28 작업
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';  // 
 import axios from 'axios';
 
-const router = useRouter();
+const router = useRouter(); 
 
 const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
 const plan_author = ref('');
-const file = ref(null);
 
 const displayConfirmation = ref(false);
 const openConfirmation = () => (displayConfirmation.value = true);
 const closeConfirmation = () => (displayConfirmation.value = false);
 
-const onFilechange = (e) => {
-  //첨부파일 선택
-  file.value = e.target.files[0];
+const submitPlan = async () => { // 여기 수정 해야함
+  console.log(title.value, content.value, plan_author.value);
+  const data = {
+    title: title.value,
+    content: content.value,
+    author: plan_author.value,
+
+  };
+
+  await axios.post('/api/plan', data);
 };
 
-const submit = async () => {
-  if (!title.value || !content.value) {
-    alert('제목과 내용을 입력해주세요');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('title', title.value);
-  formData.append('startDate', startDate.value ? startDate.value.toISOString().slice(0, 10) : null);
-  formData.append('endDate', endDate.value ? endDate.value.toISOString().slice(0, 10) : null);
-  formData.append('content', content.value);
-  formData.append('plan_author', plan_author.value);
-
-  if (file.value) {
-    formData.append('file', file.value);
-  }
-
-  try {
+try {
     const res = await axios.post('/api/plan', formData);
     console.log('저장 성공', res.data);
 
-    router.push(`/plan/detail/${res.data.application_no}`);
+    router.push(`/plan/detail/${res.data.application_no}`); //작성후 세부 목록으로 이동?
   } catch (err) {
     console.error('저장실패', err);
-  }
-};
+  };
 
-//
 </script>
 
 <template>
@@ -143,7 +130,7 @@ const submit = async () => {
           <div class="flex flex-col grow basis-0 gap-2">
             <label for="name">작성자</label>
             <InputText v-model="plan_author" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
-          </div>
+          </div> <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
 
           <div class="flex flex-col gap-2">
             <label for="title">목표</label>
