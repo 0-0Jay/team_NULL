@@ -1,6 +1,6 @@
 const mysql = require("../database/mappers.js");
 const nodemailer = require("nodemailer");
-const crypto = require('crypto');
+const crypto = require("crypto");
 require("dotenv").config();
 
 const mail_config = {
@@ -128,22 +128,32 @@ const findByUserNoUsersManager = async () => {
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
 const modifyByUserNoUsers = async (userInfo, userNo) => {
-  let { name, phone, email, password } = userInfo;
+  const { name, phone, email, password } = userInfo;
 
-  let result = await mysql.query(
-    "updateByUserNoUsers",
-    [name, phone, email, password, userNo],
-    "users"
-  );
+  let sql = `
+    update users
+    set name = ?, phone = ?, email = ?
+  `;
+  const params = [name, phone, email];
+
+  // 비밀번호는 있을 때만
+  if (password) {
+    sql += `, password = ?`;
+    params.push(password);
+  }
+
+  sql += ` where user_no = ?`;
+  params.push(userNo);
+
+  const result = await mysql.queryRaw(sql, params);
+  //console.log("result:", result);
 
   let resObj = {};
-
   if (result.affectedRows > 0) {
-    resObj = { status: "success", no: userNo };
+    resObj = { status: "success", userNo: userNo };
   } else {
     resObj = { status: "fail" };
   }
-
   return resObj;
 };
 

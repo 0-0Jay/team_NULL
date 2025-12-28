@@ -1,10 +1,13 @@
+<!-- 비밀번호 유효성 검사 관련 주석 풀고 메시지 추가하기 -->
 <script setup>
 import { useUsersStore } from '@/stores/users';
-import { onBeforeMount, computed, ref, watch } from 'vue';
+import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 const store = useUsersStore();
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
 
 // 페이지네이션
 const page = ref(1);
@@ -18,9 +21,8 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const dropdownValues = ref([
-  { name: '관리자명', code: 'CM' },
-  { name: '아이디', code: 'ID' },
-  { name: '기관명', code: 'CN' }
+  { name: '담당자명', code: 'CM' },
+  { name: '아이디', code: 'ID' }
 ]);
 const dropdownValue = ref(null);
 
@@ -37,8 +39,20 @@ const visible = ref(false);
 const pendingStatus = ref(null); // 1: 승인, 2: 비활성
 const confirmMessage = ref('');
 
+// 수정
+const editDialog = ref(false);
+const editUser = ref({});
+const msg = ref({
+  name: false,
+  phone: false,
+  email: false,
+  passwordConfirm: false
+});
+
+const toast = useToast();
+
 onBeforeMount(() => {
-  store.fetchManager();
+  store.fetchStaff();
 });
 
 // 날짜 포맷 함수
@@ -70,14 +84,22 @@ const globalFilterFields = computed(() => {
 
   switch (dropdownValue.value.code) {
     case 'CM':
-      return ['user_name'];
+      return ['name'];
     case 'ID':
       return ['id'];
-    case 'CN':
-      return ['center_name'];
     default:
       return [];
   }
+});
+
+const nameMsg = computed(() => msg.value.name && editUser.value.name === '');
+const phoneMsg = computed(() => msg.value.phone && editUser.value.phone === '');
+const emailMsg = computed(() => msg.value.email && editUser.value.email === '');
+
+const passwordMismatch = computed(() => {
+  if (!msg.value.passwordConfirm) return false;
+  if (!editUser.value.password) return false;
+  return editUser.value.password !== editUser.value.passwordConfirm;
 });
 
 // 회원 상태 변경(사용승인, 비활성화)
@@ -90,7 +112,7 @@ const changeStatus = async (status) => {
     const result = await store.modifyStatus(userNos, status);
 
     if (result.status === 'success') {
-      await store.fetchManager(); // 화면 자동 갱신
+      await store.fetchStaff(); // 화면 자동 갱신
       selectedRows.value = [];
     }
   } catch (err) {
@@ -128,9 +150,52 @@ const handleConfirm = async () => {
   await changeStatus(pendingStatus.value);
   pendingStatus.value = null;
 };
+
+// 수정 버튼 클릭
+const openEdit = (data) => {
+  editUser.value = { ...data }; // 기존 값 그대로 복사
+  msg.value = {
+    name: false,
+    phone: false,
+    email: false,
+    passwordConfirm: false
+  };
+  editDialog.value = true;
+};
+
+const submitEdit = async () => {
+  if (nameMsg.value || phoneMsg.value || emailMsg.value || passwordMismatch.value) {
+    return;
+  }
+
+  const info = { ...editUser.value };
+
+  // 비밀번호 변경 안 했으면 제거
+  if (!info.password) {
+    delete info.password;
+  }
+
+  delete info.passwordConfirm; //서버로 보내지 않음
+
+  const result = await store.modifyStaff(editUser.value.user_no, info);
+
+  if (result.status === 'success') {
+    toast.add({
+      severity: 'success',
+      summary: '수정 완료',
+      detail: '정보가 수정되었습니다.',
+      life: 2000
+    });
+
+    await store.fetchStaff();
+    editDialog.value = false;
+    editUser.value = {};
+  }
+};
 </script>
 
 <template>
+  <Toast />
   <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
     <!-- 검색 -->
     <aside class="w-[260px] px-6 pt-13 pb-13 rounded">
@@ -147,14 +212,13 @@ const handleConfirm = async () => {
 
     <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">기관 관리자 정보</h2>
+        <h2 class="text-xl font-bold">{{ user.c_name }} 담당자 정보</h2>
         <div class="flex items-center justify-end gap-4">
           <span v-if="statusMessage" class="text-red-500 whitespace-nowrap">
             {{ statusMessage }}
           </span>
 
           <div class="flex items-center">
-            <Button label="기관 관리자 등록" icon="pi pi-user" class="mr-5" />
             <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
             <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
           </div>
@@ -162,10 +226,10 @@ const handleConfirm = async () => {
       </div>
       <div class="flex-1 overflow-auto">
         <DataTable
-          :value="store.manager"
+          :value="store.staff"
           v-model:selection="selectedRows"
           dataKey="user_no"
-          sortField="center_name"
+          sortField="name"
           :sortOrder="1"
           :paginator="true"
           :rows="rows"
@@ -189,32 +253,33 @@ const handleConfirm = async () => {
             </template>
           </Column>
 
-          <Column field="user_name" header="관리자명" headerClass="table-header" bodyClass="table-body" style="width: 100px" />
+          <Column field="name" header="담당자명" headerClass="table-header" bodyClass="table-body" sortable style="width: 120px" />
 
-          <Column header="아이디" headerClass="table-header" bodyClass="table-body" style="width: 150px">
+          <Column header="아이디" headerClass="table-header" bodyClass="table-body" style="width: 180px">
             <template #body="{ data }">
               {{ data.id }}
             </template>
           </Column>
-          <Column header="기관명" field="center_name" headerClass="table-header" sortable style="width: 200px">
-            <template #body="{ data }">
-              {{ data.center_name ?? '-' }}
-            </template>
-          </Column>
 
-          <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 130px">
             <template #body="{ data }">
               {{ data.phone ?? '-' }}
             </template>
           </Column>
 
-          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 200px">
+          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 260px">
             <template #body="{ data }">
               {{ data.email ?? '-' }}
             </template>
           </Column>
 
-          <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column header="지원자 수" field="center_name" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+            <template #body="{ data }">
+              {{ data.applicant_count ?? '-' }}
+            </template>
+          </Column>
+
+          <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 120px">
             <template #body="{ data }">
               {{ formatDate(data.created_date) }}
             </template>
@@ -228,12 +293,55 @@ const handleConfirm = async () => {
 
           <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
+              <i class="pi pi-pen-to-square edit-icon" @click="openEdit(data)" />
             </template>
           </Column>
         </DataTable>
       </div>
     </section>
+
+    <Dialog v-model:visible="editDialog" :style="{ width: '450px' }" header="담당자 정보 수정" :modal="true">
+      <div class="flex flex-col gap-6">
+        <div>
+          <label class="block font-bold mb-3">아이디</label>
+          <div class="p-2 bg-gray-100 rounded text-gray-600">
+            {{ editUser.id }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-3">담당자명</label>
+          <InputText v-model.trim="editUser.name" @input="msg.name = true" :invalid="nameMsg" fluid />
+          <small v-if="nameMsg" class="text-red-500"> 담당자명을 입력해주세요. </small>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-3">연락처</label>
+          <InputText v-model.trim="editUser.phone" @input="msg.phone = true" :invalid="phoneMsg" fluid />
+          <small v-if="phoneMsg" class="text-red-500"> 연락처를 입력해주세요. </small>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-3">이메일</label>
+          <InputText v-model.trim="editUser.email" @input="msg.email = true" :invalid="emailMsg" fluid />
+          <small v-if="emailMsg" class="text-red-500"> 이메일을 입력해주세요. </small>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-3">비밀번호 변경</label>
+
+          <InputText v-model="editUser.password" type="password" placeholder="새 비밀번호 입력" fluid class="mb-2" />
+
+          <InputText v-model="editUser.passwordConfirm" type="password" placeholder="비밀번호 재확인" @input="msg.passwordConfirm = true" fluid />
+          <small v-if="passwordMismatch" class="text-red-500"> 비밀번호가 일치하지 않습니다. </small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button label="취소" icon="pi pi-times" text @click="editDialog = false" />
+        <Button label="수정" icon="pi pi-check" @click="submitEdit" />
+      </template>
+    </Dialog>
   </div>
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">

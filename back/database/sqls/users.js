@@ -50,22 +50,16 @@ const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.
                                  where u.status != 2 and u.type = 2`;
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
-const selectByUserNoUsersManager = `select u.id, u.name, u.phone, u.email,
+const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
                                        count(m.a_no) as applicant_count,
                                        u.created_date, u.status
                                 from users u
                                 left join manager m on u.user_no = m.user_no
                                                        and m.unassign is null
-                                where u.type = 1
+                                where u.type = 1 and u.status in (0, 1)
                                 group by u.user_no, u.id, u.name, u.phone,
                                          u.email, u.created_date, u.status
                                 order by u.created_date desc`;
-
-// 기관 관리자 페이지 - 기관 담당자 정보 수정
-const updateByUserNoUsers = `update users
-                             set name = ?, phone = ?, email = ?, 
-                                 password = ?
-                             where user_no = ?`;
 
 // 회원상태(사용승인 및 비활성화)
 const updateStatusUsers = `update users set status = ? where user_no in (?)`;
@@ -86,7 +80,6 @@ module.exports = {
   updatePwByUsernoUsers,
   selectByCnoUsersCenters,
   selectByUserNoUsersManager,
-  updateByUserNoUsers,
   updateStatusByUsernoUsers,
   selectByIdUsers,
   selectByEmailUsers,

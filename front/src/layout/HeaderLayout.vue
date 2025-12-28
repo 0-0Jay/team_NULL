@@ -34,12 +34,12 @@ const logout = () => {
         <router-link to="/test">지원신청내역</router-link>
         <router-link to="/test">문의</router-link>
         <router-link v-if="user.type == 0" to="/welfareMap">복지지도</router-link>
-        <router-link v-if="user.type == 2" to="/test">담당자관리</router-link>
+        <router-link v-if="user.type == 2" to="/staff">담당자관리</router-link>
       </div>
     </div>
 
     <div class="layout-topbar-actions">
-      <div class="content-center">{{ usertype }} {{ user.u_name }} 님 환영합니다.</div>
+      <div class="content-center">{{ usertype }} {{ user.u_name }}님 환영합니다.</div>
       <div class="layout-config-menu">
         <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
