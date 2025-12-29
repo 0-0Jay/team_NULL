@@ -29,6 +29,7 @@ const makeTableRows = (secValue) => {
   const rows = [];
 
   Object.entries(secValue).forEach(([detailKey, items]) => {
+    if (!Array.isArray(items)) return;
     const [detail, info] = detailKey.split(',');
     items.forEach((item, idx) => {
       rows.push({
@@ -53,13 +54,18 @@ const openSectionEditor = (section) => {
 
 const openDetailEditor = (detail) => {
   editMode.value = 'detail';
-  detailData.value = { ...detail };
+  detailData.value = {
+    oldKey: `${detail.detail},${detail.info}` || 'null',
+    detail: detail.detail,
+    info: detail.info,
+    section: activeTab.value
+  };
   display.value = true;
 };
 
 const openRowEditor = (row) => {
   editMode.value = 'row';
-  rowData.value = row;
+  rowData.value = row._origin;
   display.value = true;
 };
 
@@ -68,8 +74,12 @@ const handleSave = (payload) => {
     rowData.value.question = payload.question;
     rowData.value.type = payload.type;
   } else if (editMode.value == 'detail') {
-    detailData.value.detail = payload.detail;
-    detailData.value.info = payload.info;
+    const { oldKey, detail, info, section } = payload;
+    const newKey = `${detail},${info}` || 'null';
+    if (oldKey == newKey) return;
+    const sectionData = data.value[section];
+    sectionData[newKey] = sectionData[oldKey];
+    delete sectionData[oldKey];
   } else {
     const oldKey = sectionData.value.key;
     const newKey = payload.section;
@@ -86,8 +96,8 @@ const handleSave = (payload) => {
       <div class="flex justify-between">
         <div class="font-semibold text-xl mb-4">조사지 수정</div>
         <div class="flex gap-4">
-          <Button label="전체 저장" as="router-link" to="/editSurvey" />
-          <Button label="취소" as="router-link" to="/editSurvey" />
+          <Button label="전체 저장" />
+          <Button label="취소" severity="danger" as="router-link" to="/survey" />
         </div>
       </div>
       <Tabs :value="activeTab">

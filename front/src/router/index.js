@@ -101,6 +101,7 @@ const router = createRouter({
       path: '/editSurvey',
       name: 'editSurvey',
       component: () => import('@/views/EditSurveyView.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/myPage',

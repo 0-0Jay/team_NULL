@@ -40,7 +40,11 @@ const close = () => {
 };
 
 const save = () => {
-  emit('save', { ...form });
+  if (form.type == 0) {
+    alert('반드시 하나의 답변 유형은 선택해야 합니다!');
+    return;
+  }
+  emit('save', { ...form, oldKey: props.detail?.oldKey, section: props.detail?.section });
   close();
 };
 
