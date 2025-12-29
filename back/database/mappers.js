@@ -49,21 +49,6 @@ const query = async (selected, values, type) => {
   }
 };
 
-const queryRaw = async (sql, values) => {
-  let conn = null;
-  try {
-    conn = await pool.getConnection();
-    const result = (await conn.query(sql, values))[0];
-    return result;
-  } catch (err) {
-    console.log(err);
-    throw err;
-  } finally {
-    if (conn) conn.release();
-  }
-};
-
 module.exports = {
   query,
-  queryRaw,
 };

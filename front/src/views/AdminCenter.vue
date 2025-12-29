@@ -9,7 +9,7 @@ const store = useCentersStore();
 const page = ref(1);
 const rows = ref(10);
 
-// selection
+// checkbox
 const selectedRows = ref([]);
 
 // 검색

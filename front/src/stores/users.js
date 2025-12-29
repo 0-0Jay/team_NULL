@@ -94,7 +94,9 @@ export const useUsersStore = defineStore('users', {
       try {
         const response = await axios.post(`/api/sendCode`, email);
         return response;
-      } catch (Err) {}
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     // 기관 관리자 불러오기
@@ -122,6 +124,7 @@ export const useUsersStore = defineStore('users', {
       try {
         const response = await axios.get(`/api/usersStaff`);
         this.staff = response.data;
+        console.log(response.data);
       } catch (err) {
         console.log(err);
       }

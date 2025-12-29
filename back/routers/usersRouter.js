@@ -61,6 +61,8 @@ router.get("/usersStaff", async (req, res) => {
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
 router.put("/usersStaff/:userNo", async (req, res) => {
+  console.log("params.userNo:", req.params.userNo);
+  console.log("body:", req.body);
   const userInfo = req.body;
   const userNo = req.params.userNo;
 

@@ -1,41 +1,39 @@
 <script setup>
 import { useUsersStore } from '@/stores/users';
-import { onBeforeMount, computed, ref, watch } from 'vue';
+import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import SearchTable from '@/components/SearchTable.vue';
 
 const store = useUsersStore();
+const toast = useToast();
 
 // 페이지네이션
 const page = ref(1);
 const rows = ref(10);
 
-// selection 관련
+// checkbox
 const selectedRows = ref([]);
 
-// 검색 + 드롭다운
+// 검색 + 드롭다운(사이드 바)
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
-const dropdownValues = ref([
+const dropdownValue = ref(null);
+const dropdownValues = [
   { name: '관리자명', code: 'CM' },
   { name: '아이디', code: 'ID' },
   { name: '기관명', code: 'CN' }
-]);
-const dropdownValue = ref(null);
-
-// 회원 상태
-const statusMap = {
-  0: { label: '대기', severity: 'secondary' },
-  1: { label: '승인', severity: 'info' },
-  2: { label: '비활성', severity: 'danger' }
-};
-const statusMessage = ref('');
+];
+const radioValue = ref(-1);
+const globalFilterFields = ref([]);
 
 // Confirm
 const visible = ref(false);
 const pendingStatus = ref(null); // 1: 승인, 2: 비활성
-const confirmMessage = ref('');
+const ConfirmMsg = ref('');
 
 onBeforeMount(() => {
   store.fetchManager();
@@ -53,7 +51,7 @@ const formatDate = (v) => {
 };
 
 // 번호
-const rowNumber = (index) => {
+const rowNum = (index) => {
   return (page.value - 1) * rows.value + index + 1;
 };
 
@@ -64,20 +62,15 @@ const onPageChange = (e) => {
   selectedRows.value = [];
 };
 
-//검색 필터
-const globalFilterFields = computed(() => {
-  if (!dropdownValue.value) return [];
-
-  switch (dropdownValue.value.code) {
-    case 'CM':
-      return ['user_name'];
-    case 'ID':
-      return ['id'];
-    case 'CN':
-      return ['center_name'];
-    default:
-      return [];
+// 라디오
+const filterManager = computed(() => {
+  // 전체
+  if (radioValue.value === -1) {
+    return store.manager;
   }
+
+  // 승인 / 대기
+  return store.manager.filter((row) => row.status === radioValue.value);
 });
 
 // 회원 상태 변경(사용승인, 비활성화)
@@ -100,22 +93,26 @@ const changeStatus = async (status) => {
 
 // Confirm
 const openConfirm = (status) => {
-  statusMessage.value = '';
-
   if (selectedRows.value.length === 0) return;
 
   if (status === 1) {
     const hasApproved = selectedRows.value.some((row) => row.status === 1);
 
     if (hasApproved) {
-      statusMessage.value = '이미 승인된 회원이 포함되어 있습니다.';
+      toast.add({
+        severity: 'error',
+        summary: '승인 실패',
+        detail: '이미 승인된 회원이 포함되어 있습니다.',
+        closable: false,
+        life: 2000
+      });
       selectedRows.value = [];
       return;
     }
   }
 
   pendingStatus.value = status;
-  confirmMessage.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
+  ConfirmMsg.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
 
   visible.value = true;
 };
@@ -131,38 +128,25 @@ const handleConfirm = async () => {
 </script>
 
 <template>
+  <Toast />
   <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
     <!-- 검색 -->
-    <aside class="w-[260px] px-6 pt-13 pb-13 rounded">
-      <h3 class="font-bold mb-3">검색</h3>
-
-      <Select v-model="dropdownValue" :options="dropdownValues" optionLabel="name" class="w-full mb-3" placeholder="검색 항목 선택" />
-      <IconField iconPosition="left">
-        <InputIcon class="pi pi-search" />
-        <InputText class="w-full" type="text" v-model="filters.global.value" :disabled="!dropdownValue" placeholder="검색어 입력" />
-      </IconField>
-    </aside>
+    <SearchTable v-model:filters="filters" v-model:dropdownValue="dropdownValue" v-model:radioValue="radioValue" :dropdownValues="dropdownValues" :useRadio="true" @update:filterFields="globalFilterFields = $event" />
 
     <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
 
     <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-xl font-bold">기관 관리자 정보</h2>
-        <div class="flex items-center justify-end gap-4">
-          <span v-if="statusMessage" class="text-red-500 whitespace-nowrap">
-            {{ statusMessage }}
-          </span>
-
-          <div class="flex items-center">
-            <Button label="기관 관리자 등록" icon="pi pi-user" class="mr-5" />
-            <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
-            <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
-          </div>
+        <div class="flex items-center">
+          <Button label="기관 관리자 등록" icon="pi pi-user" class="mr-5" />
+          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
         </div>
       </div>
       <div class="flex-1 overflow-auto">
         <DataTable
-          :value="store.manager"
+          :value="filterManager"
           v-model:selection="selectedRows"
           dataKey="user_no"
           sortField="center_name"
@@ -185,7 +169,7 @@ const handleConfirm = async () => {
 
           <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ index }">
-              {{ rowNumber(index) }}
+              {{ rowNum(index) }}
             </template>
           </Column>
 
@@ -222,7 +206,7 @@ const handleConfirm = async () => {
 
           <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <Tag :value="statusMap[data.status]?.label ?? '알 수 없음'" :severity="statusMap[data.status]?.severity ?? 'secondary'" rounded class="status-tag" />
+              <Tag :value="data.status === 1 ? '승인' : '대기'" :severity="data.status === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
             </template>
           </Column>
 
@@ -237,7 +221,7 @@ const handleConfirm = async () => {
   </div>
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">
-    {{ confirmMessage }}
+    {{ ConfirmMsg }}
   </ConfirmDialog>
 </template>
 

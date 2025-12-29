@@ -1,55 +1,55 @@
 <!-- 비밀번호 유효성 검사 관련 주석 풀고 메시지 추가하기 -->
 <script setup>
 import { useUsersStore } from '@/stores/users';
+import { useCentersStore } from '@/stores/centers';
 import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 const store = useUsersStore();
+const centerStore = useCentersStore();
 const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const toast = useToast();
 
 // 페이지네이션
 const page = ref(1);
 const rows = ref(10);
 
-// selection 관련
+// checkbox
 const selectedRows = ref([]);
 
-// 검색 + 드롭다운
+// 검색 + 드롭다운(사이드 바)
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
-const dropdownValues = ref([
+const dropdownValue = ref(null);
+const dropdownValues = [
   { name: '담당자명', code: 'CM' },
   { name: '아이디', code: 'ID' }
-]);
-const dropdownValue = ref(null);
+];
+const radioValue = ref(-1);
+const globalFilterFields = ref([]);
 
-// 회원 상태
-const statusMap = {
-  0: { label: '대기', severity: 'secondary' },
-  1: { label: '승인', severity: 'info' },
-  2: { label: '비활성', severity: 'danger' }
-};
-const statusMessage = ref('');
+// 검색 + 자동완성(담당자 수정할 때 기관명 검색)
+const selectedAutoValue = ref(null);
+const autoFilteredValue = ref([]);
 
 // Confirm
 const visible = ref(false);
 const pendingStatus = ref(null); // 1: 승인, 2: 비활성
-const confirmMessage = ref('');
+const ConfirmMsg = ref('');
 
 // 수정
 const editDialog = ref(false);
 const editUser = ref({});
 const msg = ref({
   name: false,
+  centerName: false,
   phone: false,
   email: false,
-  passwordConfirm: false
+  pwConfirm: false
 });
-
-const toast = useToast();
 
 onBeforeMount(() => {
   store.fetchStaff();
@@ -67,7 +67,7 @@ const formatDate = (v) => {
 };
 
 // 번호
-const rowNumber = (index) => {
+const rowNum = (index) => {
   return (page.value - 1) * rows.value + index + 1;
 };
 
@@ -78,28 +78,25 @@ const onPageChange = (e) => {
   selectedRows.value = [];
 };
 
-//검색 필터
-const globalFilterFields = computed(() => {
-  if (!dropdownValue.value) return [];
-
-  switch (dropdownValue.value.code) {
-    case 'CM':
-      return ['name'];
-    case 'ID':
-      return ['id'];
-    default:
-      return [];
+// 라디오
+const filterStaff = computed(() => {
+  // 전체
+  if (radioValue.value === -1) {
+    return store.staff;
   }
+
+  // 승인 / 대기
+  return store.staff.filter((row) => row.status === radioValue.value);
 });
 
 const nameMsg = computed(() => msg.value.name && editUser.value.name === '');
+// const centerNameMsg = computed(() => user.type === 3 && !editUser.value.c_no);
 const phoneMsg = computed(() => msg.value.phone && editUser.value.phone === '');
 const emailMsg = computed(() => msg.value.email && editUser.value.email === '');
-
-const passwordMismatch = computed(() => {
-  if (!msg.value.passwordConfirm) return false;
+const pwMismatch = computed(() => {
+  if (!msg.value.pwConfirm) return false;
   if (!editUser.value.password) return false;
-  return editUser.value.password !== editUser.value.passwordConfirm;
+  return editUser.value.password !== editUser.value.pwConfirm;
 });
 
 // 회원 상태 변경(사용승인, 비활성화)
@@ -122,22 +119,26 @@ const changeStatus = async (status) => {
 
 // Confirm
 const openConfirm = (status) => {
-  statusMessage.value = '';
-
   if (selectedRows.value.length === 0) return;
 
   if (status === 1) {
     const hasApproved = selectedRows.value.some((row) => row.status === 1);
 
     if (hasApproved) {
-      statusMessage.value = '이미 승인된 회원이 포함되어 있습니다.';
+      toast.add({
+        severity: 'error',
+        summary: '승인 실패',
+        detail: '이미 승인된 회원이 포함되어 있습니다.',
+        closable: false,
+        life: 2000
+      });
       selectedRows.value = [];
       return;
     }
   }
 
   pendingStatus.value = status;
-  confirmMessage.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
+  ConfirmMsg.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
 
   visible.value = true;
 };
@@ -154,42 +155,77 @@ const handleConfirm = async () => {
 // 수정 버튼 클릭
 const openEdit = (data) => {
   editUser.value = { ...data }; // 기존 값 그대로 복사
+  console.log('수정 창 : ', editUser.value);
+
+  if (data.c_no && data.center_name) {
+    selectedAutoValue.value = {
+      c_no: data.c_no,
+      name: data.center_name
+    };
+  } else {
+    selectedAutoValue.value = null;
+  }
+
   msg.value = {
     name: false,
+    centerName: false,
     phone: false,
     email: false,
-    passwordConfirm: false
+    pwConfirm: false
   };
   editDialog.value = true;
 };
 
-const submitEdit = async () => {
-  if (nameMsg.value || phoneMsg.value || emailMsg.value || passwordMismatch.value) {
+// 기관 검색(자동완성)
+const searchCenter = async (e) => {
+  const name = e.query;
+
+  // 전체 목록
+  if (!name) {
+    autoFilteredValue.value = await centerStore.searchCenter('');
     return;
   }
+  autoFilteredValue.value = await centerStore.searchCenter(name);
+};
+const selectCenter = (e) => {
+  selectedAutoValue.value = e.value;
+  editUser.value.c_no = e.value.c_no;
+};
 
-  const info = { ...editUser.value };
+const submitEdit = async () => {
+  const info = {
+    name: editUser.value.name,
+    phone: editUser.value.phone,
+    email: editUser.value.email
+  };
 
-  // 비밀번호 변경 안 했으면 제거
-  if (!info.password) {
-    delete info.password;
+  // 비밀번호 입력한 경우만
+  if (editUser.value.password) {
+    info.password = editUser.value.password;
   }
 
-  delete info.passwordConfirm; //서버로 보내지 않음
+  // 기관 변경한 경우만
+  if (selectedAutoValue.value) {
+    info.c_no = selectedAutoValue.value.c_no;
+  }
 
-  const result = await store.modifyStaff(editUser.value.user_no, info);
+  try {
+    const result = await store.modifyStaff(editUser.value.user_no, info);
+    console.log('modifyStaff 결과', result);
 
-  if (result.status === 'success') {
-    toast.add({
-      severity: 'success',
-      summary: '수정 완료',
-      detail: '정보가 수정되었습니다.',
-      life: 2000
-    });
+    if (result?.status === 'success') {
+      toast.add({
+        severity: 'success',
+        summary: '수정 완료',
+        detail: '정보가 수정되었습니다.',
+        life: 2000
+      });
 
-    await store.fetchStaff();
-    editDialog.value = false;
-    editUser.value = {};
+      await store.fetchStaff();
+      editDialog.value = false;
+    }
+  } catch (e) {
+    console.error('수정 중 에러', e);
   }
 };
 </script>
@@ -198,35 +234,26 @@ const submitEdit = async () => {
   <Toast />
   <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
     <!-- 검색 -->
-    <aside class="w-[260px] px-6 pt-13 pb-13 rounded">
-      <h3 class="font-bold mb-3">검색</h3>
-
-      <Select v-model="dropdownValue" :options="dropdownValues" optionLabel="name" class="w-full mb-3" placeholder="검색 항목 선택" />
-      <IconField iconPosition="left">
-        <InputIcon class="pi pi-search" />
-        <InputText class="w-full" type="text" v-model="filters.global.value" :disabled="!dropdownValue" placeholder="검색어 입력" />
-      </IconField>
-    </aside>
+    <SearchTable v-model:filters="filters" v-model:dropdownValue="dropdownValue" v-model:radioValue="radioValue" :dropdownValues="dropdownValues" :useRadio="true" @update:filterFields="globalFilterFields = $event" />
 
     <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
 
     <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">{{ user.c_name }} 담당자 정보</h2>
-        <div class="flex items-center justify-end gap-4">
-          <span v-if="statusMessage" class="text-red-500 whitespace-nowrap">
-            {{ statusMessage }}
-          </span>
+        <h2 class="text-xl font-bold">
+          <template v-if="user.type != 3">{{ user.c_name }} 담당자 정보</template>
+          <template v-if="user.type === 3">기관 담당자 정보</template>
+        </h2>
 
-          <div class="flex items-center">
-            <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
-            <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
-          </div>
+        <div class="flex items-center">
+          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" class="mr-5" />
+          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
         </div>
       </div>
       <div class="flex-1 overflow-auto">
         <DataTable
-          :value="store.staff"
+          :value="filterStaff"
           v-model:selection="selectedRows"
           dataKey="user_no"
           sortField="name"
@@ -249,7 +276,7 @@ const submitEdit = async () => {
 
           <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ index }">
-              {{ rowNumber(index) }}
+              {{ rowNum(index) }}
             </template>
           </Column>
 
@@ -258,6 +285,12 @@ const submitEdit = async () => {
           <Column header="아이디" headerClass="table-header" bodyClass="table-body" style="width: 180px">
             <template #body="{ data }">
               {{ data.id }}
+            </template>
+          </Column>
+
+          <Column v-if="user.type === 3" header="기관명" headerClass="table-header" bodyClass="table-body" style="width: 180px">
+            <template #body="{ data }">
+              {{ data.center_name }}
             </template>
           </Column>
 
@@ -273,7 +306,7 @@ const submitEdit = async () => {
             </template>
           </Column>
 
-          <Column header="지원자 수" field="center_name" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column v-if="user.type != 3" header="지원자 수" field="center_name" headerClass="table-header" bodyClass="table-body" style="width: 100px">
             <template #body="{ data }">
               {{ data.applicant_count ?? '-' }}
             </template>
@@ -287,7 +320,7 @@ const submitEdit = async () => {
 
           <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <Tag :value="statusMap[data.status]?.label ?? '알 수 없음'" :severity="statusMap[data.status]?.severity ?? 'secondary'" rounded class="status-tag" />
+              <Tag :value="data.status === 1 ? '승인' : '대기'" :severity="data.status === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
             </template>
           </Column>
 
@@ -315,6 +348,14 @@ const submitEdit = async () => {
           <small v-if="nameMsg" class="text-red-500"> 담당자명을 입력해주세요. </small>
         </div>
 
+        <div v-if="user.type === 3">
+          <label class="block font-bold mb-3">기관명</label>
+          <IconField iconPosition="left">
+            <InputIcon class="pi pi-search" />
+            <AutoComplete v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" placeholder="기관명 검색" @complete="searchCenter" @item-select="selectCenter" forceSelection fluid />
+          </IconField>
+        </div>
+
         <div>
           <label class="block font-bold mb-3">연락처</label>
           <InputText v-model.trim="editUser.phone" @input="msg.phone = true" :invalid="phoneMsg" fluid />
@@ -332,8 +373,8 @@ const submitEdit = async () => {
 
           <InputText v-model="editUser.password" type="password" placeholder="새 비밀번호 입력" fluid class="mb-2" />
 
-          <InputText v-model="editUser.passwordConfirm" type="password" placeholder="비밀번호 재확인" @input="msg.passwordConfirm = true" fluid />
-          <small v-if="passwordMismatch" class="text-red-500"> 비밀번호가 일치하지 않습니다. </small>
+          <InputText v-model="editUser.pwConfirm" type="password" placeholder="비밀번호 재확인" @input="msg.pwConfirm = true" fluid />
+          <small v-if="pwMismatch" class="text-red-500"> 비밀번호가 일치하지 않습니다. </small>
         </div>
       </div>
 
@@ -345,7 +386,7 @@ const submitEdit = async () => {
   </div>
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">
-    {{ confirmMessage }}
+    {{ ConfirmMsg }}
   </ConfirmDialog>
 </template>
 

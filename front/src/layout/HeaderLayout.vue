@@ -32,9 +32,13 @@ const logout = () => {
       </router-link>
       <div class="topbar-menu flex items-center gap-8 whitespace-nowrap">
         <router-link to="/test">지원신청내역</router-link>
-        <router-link to="/test">문의</router-link>
+        <router-link v-if="user.type != 3" to="/test">문의</router-link>
         <router-link v-if="user.type == 0" to="/welfareMap">복지지도</router-link>
         <router-link v-if="user.type == 2" to="/staff">담당자관리</router-link>
+        <router-link v-if="user.type == 3" to="/center">기관 관리</router-link>
+        <router-link v-if="user.type == 3" to="/center/manager">기관 관리자 관리</router-link>
+        <router-link v-if="user.type == 3" to="/staff">기관 담당자 관리</router-link>
+        <router-link v-if="user.type == 3" to="/test">지원서</router-link>
       </div>
     </div>
 

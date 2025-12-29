@@ -128,24 +128,24 @@ const findByUserNoUsersManager = async () => {
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
 const modifyByUserNoUsers = async (userInfo, userNo) => {
-  const { name, phone, email, password } = userInfo;
-
-  let sql = `
-    update users
-    set name = ?, phone = ?, email = ?
-  `;
-  const params = [name, phone, email];
+  const { name, phone, email, c_no, password } = userInfo;
+  let result;
 
   // 비밀번호는 있을 때만
   if (password) {
-    sql += `, password = ?`;
-    params.push(password);
+    result = await mysql.query(
+      "updateUserWithPw",
+      [name, phone, email, c_no, password, userNo],
+      "users"
+    );
+  } else {
+    result = await mysql.query(
+      "updateUserWithoutPw",
+      [name, phone, email, c_no, userNo],
+      "users"
+    );
   }
 
-  sql += ` where user_no = ?`;
-  params.push(userNo);
-
-  const result = await mysql.queryRaw(sql, params);
   //console.log("result:", result);
 
   let resObj = {};

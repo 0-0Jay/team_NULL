@@ -18,8 +18,15 @@ const findAllAddressCenter = async () => {
   return list;
 };
 
+// 기관 검색 (자동완성용)
+const findByNameCenter = async (name) => {
+  const list = await mysql.query("selectByNameCenter", [name], "center");
+  return list;
+};
+
 module.exports = {
   findAllCenter,
   findByUsernoCenter,
   findAllAddressCenter,
+  findByNameCenter,
 };
