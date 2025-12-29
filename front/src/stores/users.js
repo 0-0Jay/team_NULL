@@ -7,7 +7,7 @@ export const useUsersStore = defineStore('users', {
   state: () => ({
     user: {},
     manager: [],
-    myInfo: null
+    myInfo: null,
     staff: []
   }),
   // getters
