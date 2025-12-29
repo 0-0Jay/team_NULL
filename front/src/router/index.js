@@ -89,6 +89,12 @@ const router = createRouter({
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue'),
       meta: { showHeader: true }
+    },
+    {
+      path: '/myPage',
+      name: 'myPage',
+      component: () => import('@/views/MyPage.vue'),
+      meta: { showHeader: true }
     }
   ]
 });

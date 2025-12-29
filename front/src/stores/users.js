@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useAuthStore } from './auth';
 
 export const useUsersStore = defineStore('users', {
   // state
   state: () => ({
     user: {},
     manager: [],
+    myInfo: null
     staff: []
   }),
   // getters
@@ -138,6 +140,16 @@ export const useUsersStore = defineStore('users', {
       } catch (err) {
         console.log(err);
       }
+    },
+    // 마이페이지 - 일반회원 정보 불러오기
+    async fetchMyInfo() {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) return;
+
+      const userNo = authStore.user.user_no;
+      const { data } = await axios.get(`/api/users/${userNo}`);
+      console.log('API 응답: ', data);
+      this.myInfo = data[0];
     }
   },
   persist: true
