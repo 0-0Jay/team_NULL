@@ -74,7 +74,8 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: () => import('@/views/TestFile.vue')
+      component: () => import('@/views/TestFile.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/planDetail',
