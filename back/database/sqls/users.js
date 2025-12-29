@@ -4,7 +4,7 @@
 const selectByIdAndPwUsers = `
 SELECT u.user_no, u.name AS u_name, u.status, u.type, c.name AS c_name
 FROM users u JOIN center c
-WHERE u.id = ? AND u.password = ? AND (u.c_no is null or u.c_no = c.c_no)`;
+WHERE u.id = ? AND u.password = ? AND (u.c_no IS NULL OR u.c_no = c.c_no)`;
 
 // 회원가입
 const insertUsers = `

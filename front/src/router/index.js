@@ -82,13 +82,25 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: () => import('@/views/TestFile.vue')
+      component: () => import('@/views/TestFile.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/planDetail',
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue'),
       meta: { showHeader: true }
+    },
+    {
+      path: '/survey',
+      name: 'survey',
+      component: () => import('@/views/SurveyView.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/editSurvey',
+      name: 'editSurvey',
+      component: () => import('@/views/EditSurveyView.vue'),
     },
     {
       path: '/myPage',
