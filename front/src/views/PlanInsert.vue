@@ -3,48 +3,45 @@
 <script setup>
 //11.28 작업
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';  // 
+import { useRouter } from 'vue-router'; //페이지 이동을 위함
 import axios from 'axios';
 
-const router = useRouter(); 
+const router = useRouter();
 
+const planAuthor = ref('');
 const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
-const plan_author = ref('');
 
-const displayConfirmation = ref(false);
-const openConfirmation = () => (displayConfirmation.value = true);
-const closeConfirmation = () => (displayConfirmation.value = false);
+const submitPlan = async () => {
+  //axios 작업하기
+  console.log(title.value, content.value, planAuthor.value, startDate.value, endDate.value);
 
-const submitPlan = async () => { // 여기 수정 해야함
-  console.log(title.value, content.value, plan_author.value);
   const data = {
     title: title.value,
     content: content.value,
-    author: plan_author.value,
-
+    plan_author: planAuthor.value,
+    status: 1,
+    application_no: 11, //지원신청서 11번으로 테스트 중임
+    start: startDate.value,
+    end: endDate.value
   };
-
-  await axios.post('/api/plan', data);
+  console.log(data);
+  try {
+    //axios try catch로 감싸야 오류를 확인할 수 있음
+    await axios.post('/api/plan', data); //api주소 맞음
+    alert('저장 됨');
+  } catch (e) {
+    console.error(e);
+    alert('저장 안됨');
+  }
 };
-
-try {
-    const res = await axios.post('/api/plan', formData);
-    console.log('저장 성공', res.data);
-
-    router.push(`/plan/detail/${res.data.application_no}`); //작성후 세부 목록으로 이동?
-  } catch (err) {
-    console.error('저장실패', err);
-  };
-
 </script>
 
+<!--------------------------------------------------------------------------->
 <template>
   <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
-
-  <!---------------------------------------------------------->
   <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
@@ -129,8 +126,9 @@ try {
           <div class="font-bold text-2xl text-center">지원계획서 작성</div>
           <div class="flex flex-col grow basis-0 gap-2">
             <label for="name">작성자</label>
-            <InputText v-model="plan_author" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
-          </div> <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
+            <InputText v-model="planAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+          </div>
+          <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
 
           <div class="flex flex-col gap-2">
             <label for="title">목표</label>
@@ -159,11 +157,11 @@ try {
 
           <!--첨부파일 삽입-->
           <label for="file">첨부파일</label>
-          <input type="file" @change="onFilechange" />
+          <!-- <input type="file" @change="onFilechange" /> -->
 
           <!--등록, 목록 버튼-->
           <div class="flex flex-wrap gap-2 justify-center">
-            <Button label="등록" style="width: auto" @click="openConfirmation" />
+            <Button label="등록" style="width: auto" @click="submitPlan" />
             <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
               <div class="flex items-center justify-center">
                 <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />

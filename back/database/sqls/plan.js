@@ -2,8 +2,8 @@
 
 //지원 계획서 작성 - *주의 : 지원'신청서' 번호를 받아와야함 - 데이터 검사 완료
 const insertPlan = `
-INSERT INTO plan(title, content, file, application_no, start, end, plan_author)
-VALUES(?, ?, ?, ?, ?, ?, ?)`;
+INSERT INTO plan(title, content, plan_author, status, file, application_no, start, end)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
 
 //승인된 지원 계획서 조회 (일반, 관리자) - 데이터 검사 완료
 const selectPlan = `
