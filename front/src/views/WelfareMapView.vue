@@ -1,15 +1,14 @@
 <script setup>
-  import { ref } from 'vue';
+import { ref } from 'vue';
 import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps';
 
-//라이브러리 사용 방법을 반드시 참고하여 주시기 바랍니다.
 const map = ref();
 const markerList = ref([]);
 const cur_loc = ref(true);
 const care_loc = ref();
 const public_loc = ref();
 const medic_loc = ref();
-const amen_loc =ref();
+const amen_loc = ref();
 
 const getCurrentLocation = () => {
   if (!navigator.geolocation) {
@@ -37,7 +36,6 @@ const onLoadKakaoMap = (mapRef) => {
   map.value = mapRef;
   // 장소 검색 객체를 생성합니다
   getCurrentLocation(); // 최초 1회
-
 };
 
 const searchNearby = (latlng) => {
@@ -45,14 +43,10 @@ const searchNearby = (latlng) => {
 
   markerList.value = []; // 기존 마커 제거
 
-  ps.keywordSearch(
-    '의원',
-    placesSearchCB,
-    {
-      location: latlng,
-      radius: 3000 // ⭐ 3km (필요에 따라 조절)
-    }
-  );
+  ps.keywordSearch('의원', placesSearchCB, {
+    location: latlng,
+    radius: 3000 // ⭐ 3km (필요에 따라 조절)
+  });
 };
 
 // 키워드 검색 완료 시 호출되는 콜백함수 입니다
@@ -99,49 +93,48 @@ const showCurrentMarker = (latlng) => {
 };
 
 const listboxValues = ref([
-    { name: 'New York', code: 'NY' },
-    { name: 'Rome', code: 'RM' },
-    { name: 'London', code: 'LDN' },
-    { name: 'Istanbul', code: 'IST' },
-    { name: 'Paris', code: 'PRS' }
+  { name: 'New York', code: 'NY' },
+  { name: 'Rome', code: 'RM' },
+  { name: 'London', code: 'LDN' },
+  { name: 'Istanbul', code: 'IST' },
+  { name: 'Paris', code: 'PRS' }
 ]);
 const listboxValue = ref(null);
 </script>
 
-
 <template>
   <div class="pt-16">
     <Fluid>
-        <div class="flex flex-col md:flex-row gap-8">
-            <div class="md:w-1/3">
-                <div class="card flex flex-col gap-4">
-                  <div class="font-semibold text-xl">복지지도</div>
-                    <ToggleButton v-model="cur_loc" onLabel="현위치" offLabel="현위치" :style="{ width: '100%' }" />
-                    <ToggleButton v-model="care_loc" onLabel="보육/교육시설" offLabel="보육/교육시설" :style="{ width: '100%' }" />
-                    <ToggleButton v-model="public_loc" onLabel="공공기관" offLabel="공공기관" :style="{ width: '100%' }" />
-                    <ToggleButton v-model="medic_loc" onLabel="의료기관" offLabel="의료기관" :style="{ width: '100%' }" />
-                    <ToggleButton v-model="amen_loc" onLabel="편의시설" offLabel="편의시설" :style="{ width: '100%' }" />
-                </div>
-                <div>
-                  <Listbox v-model="listboxValue" :options="listboxValues" optionLabel="name" :filter="true" />
-                </div>
-            </div>
-            <div class="md:w-2/3">
-                <div class="card flex flex-col gap-4">
-                    <KakaoMap :lat="35.8691048" :lng="128.5933317" :width="1200" :height="800" @onLoadKakaoMap="onLoadKakaoMap">
-                      <KakaoMapMarker
-                        v-for="(marker, index) in markerList"
-                        :key="marker.key === undefined ? index : marker.key"
-                        :lat="marker.lat"
-                        :lng="marker.lng"
-                        :infoWindow="marker.infoWindow"
-                        :clickable="true"
-                        @onClickKakaoMapMarker="onClickMapMarker(marker)"
-                      />
-                    </KakaoMap>
-                </div>
-            </div>
+      <div class="flex flex-col md:flex-row gap-8">
+        <div class="md:w-1/3">
+          <div class="card flex flex-col gap-4">
+            <div class="font-semibold text-xl">복지지도</div>
+            <ToggleButton v-model="cur_loc" onLabel="현위치" offLabel="현위치" :style="{ width: '100%' }" />
+            <ToggleButton v-model="care_loc" onLabel="보육/교육시설" offLabel="보육/교육시설" :style="{ width: '100%' }" />
+            <ToggleButton v-model="public_loc" onLabel="공공기관" offLabel="공공기관" :style="{ width: '100%' }" />
+            <ToggleButton v-model="medic_loc" onLabel="의료기관" offLabel="의료기관" :style="{ width: '100%' }" />
+            <ToggleButton v-model="amen_loc" onLabel="편의시설" offLabel="편의시설" :style="{ width: '100%' }" />
+          </div>
+          <div>
+            <Listbox v-model="listboxValue" :options="listboxValues" optionLabel="name" :filter="true" />
+          </div>
         </div>
+        <div class="md:w-2/3">
+          <div class="card flex flex-col gap-4">
+            <KakaoMap :lat="35.8691048" :lng="128.5933317" :width="1200" :height="800" @onLoadKakaoMap="onLoadKakaoMap">
+              <KakaoMapMarker
+                v-for="(marker, index) in markerList"
+                :key="marker.key === undefined ? index : marker.key"
+                :lat="marker.lat"
+                :lng="marker.lng"
+                :infoWindow="marker.infoWindow"
+                :clickable="true"
+                @onClickKakaoMapMarker="onClickMapMarker(marker)"
+              />
+            </KakaoMap>
+          </div>
+        </div>
+      </div>
     </Fluid>
   </div>
 </template>
