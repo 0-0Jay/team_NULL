@@ -7,6 +7,13 @@ const selectAllCenter = `select c_no, name,
                          created_date, closed_date
                          from center `;
 
+// 기관 검색 (자동완성용)
+const selectByNameCenter = `select c_no, name
+                            from center
+                            where closed_date is null
+                                  and name like concat('%', ?, '%')
+                            order by name `;
+
 // 회원 소속 기관 번호 불러오기
 const selectByUsernoCenter = ` select c.name, c.phone
                                from center c join users u
@@ -26,4 +33,5 @@ module.exports = {
   selectAllCenter,
   selectByUsernoCenter,
   selectAllAddressCenter,
+  selectByNameCenter,
 };

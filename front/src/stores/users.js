@@ -5,7 +5,8 @@ export const useUsersStore = defineStore('users', {
   // state
   state: () => ({
     user: {},
-    manager: []
+    manager: [],
+    staff: []
   }),
   // getters
   // actions
@@ -93,11 +94,15 @@ export const useUsersStore = defineStore('users', {
       try {
         const response = await axios.post(`/api/sendCode`, email);
         return response;
-      } catch (Err) {
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     // 기관 관리자 불러오기
     async fetchManager() {
       try {
-        const response = await axios.get('/api/usersManager');
+        const response = await axios.get(`/api/usersManager`);
         this.manager = response.data;
       } catch (err) {
         console.log(err);
@@ -107,7 +112,28 @@ export const useUsersStore = defineStore('users', {
     // 회원상태(사용승인 및 비활성화)
     async modifyStatus(userNos, status) {
       try {
-        const response = await axios.put('/api/users/status', { userNos, status });
+        const response = await axios.put(`/api/users/status`, { userNos, status });
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 기관 관리자 페이지 - 기관 담당자 불러오기
+    async fetchStaff() {
+      try {
+        const response = await axios.get(`/api/usersStaff`);
+        this.staff = response.data;
+        console.log(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 기관 관리자 페이지 - 기관 담당자 정보 수정
+    async modifyStaff(userNo, info) {
+      try {
+        const response = await axios.put(`/api/usersStaff/${userNo}`, info);
         return response.data;
       } catch (err) {
         console.log(err);
