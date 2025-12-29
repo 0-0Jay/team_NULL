@@ -76,7 +76,10 @@ UPDATE users
 SET status = 2
 WHERE user_no = ?`;
 
-// 일반회원 마이페이지 - 정보 조회
+// 일반회원 마이페이지 - 나의 정보 조회
+const selectByUserNoUsers = `SELECT name, id, phone, email, address, address_detail, created_date
+                             FROM users
+                             WHERE user_no = ?`;
 
 module.exports = {
   selectByIdAndPwUsers,
@@ -91,4 +94,5 @@ module.exports = {
   selectByIdUsers,
   selectByEmailUsers,
   updateStatusUsers,
+  selectByUserNoUsers,
 };

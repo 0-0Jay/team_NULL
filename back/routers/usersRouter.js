@@ -106,4 +106,11 @@ router.put("/users", async (req, res) => {
   res.send(result);
 });
 
+// 일반회원 마이페이지 - 나의 정보 조회
+router.get("/users/:user_no", async (req, res) => {
+  const user_no = req.params.user_no;
+  let result = await usersService.findByUserNoUsers(user_no);
+  res.send(result);
+});
+
 module.exports = router;

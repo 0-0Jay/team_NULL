@@ -1,6 +1,6 @@
 const mysql = require("../database/mappers.js");
 const nodemailer = require("nodemailer");
-const crypto = require('crypto');
+const crypto = require("crypto");
 require("dotenv").config();
 
 const mail_config = {
@@ -191,6 +191,12 @@ const modifyStatusByUsernoUsers = async (user_no) => {
   return resObj;
 };
 
+// 일반회원 마이페이지 - 나의 정보 조회
+const findByUserNoUsers = async (user_no) => {
+  let result = await mysql.query("selectByUserNoUsers", [user_no], "users");
+  return result;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -205,4 +211,5 @@ module.exports = {
   findByEmailUsers,
   sendCode,
   modifyStatusUsers,
+  findByUserNoUsers,
 };
