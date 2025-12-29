@@ -54,13 +54,15 @@ router.get("/usersManager", async (req, res) => {
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
 // pic : the person in charge
-router.get("/usersPic", async (req, res) => {
+router.get("/usersStaff", async (req, res) => {
   let list = await usersService.findByUserNoUsersManager();
   res.send(list);
 });
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
-router.put("/usersPic/:userNo", async (req, res) => {
+router.put("/usersStaff/:userNo", async (req, res) => {
+  console.log("params.userNo:", req.params.userNo);
+  console.log("body:", req.body);
   const userInfo = req.body;
   const userNo = req.params.userNo;
 
@@ -103,6 +105,13 @@ router.put("/findPw", async (req, res) => {
 router.put("/users", async (req, res) => {
   const { user_no } = req.body;
   let result = await usersService.modifyStatusByUsernoUsers(user_no);
+  res.send(result);
+});
+
+// 일반회원 마이페이지 - 나의 정보 조회
+router.get("/users/:user_no", async (req, res) => {
+  const user_no = req.params.user_no;
+  let result = await usersService.findByUserNoUsers(user_no);
   res.send(result);
 });
 

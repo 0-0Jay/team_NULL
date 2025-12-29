@@ -8,6 +8,16 @@ router.get("/centers", async (req, res) => {
   res.send(centerList);
 });
 
+// 기관 검색 (자동완성용)
+router.get("/searchCenter", async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) return res.send([]);
+
+  let list = await centersService.findByNameCenter(name);
+  res.send(list);
+});
+
 // 회원 소속 기관 불러오기
 router.get(`/userCenter/:user_no`, async (req, res) => {
   const user_no = req.params.user_no;

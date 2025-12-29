@@ -32,14 +32,22 @@ const router = createRouter({
       component: () => import('@/views/FaqUpdate.vue')
     },
     {
-      path: '/centers',
-      name: 'centers',
-      component: () => import('@/views/AdminCenter.vue')
+      path: '/center',
+      name: 'center',
+      component: () => import('@/views/AdminCenter.vue'),
+      meta: { showHeader: true }
     },
     {
-      path: '/centers/managers',
-      name: 'managers',
-      component: () => import('@/views/AdminManager.vue')
+      path: '/center/manager',
+      name: 'manager',
+      component: () => import('@/views/AdminManager.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/staff',
+      name: 'staff',
+      component: () => import('@/views/ManageStaff.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/loginNA',
@@ -93,6 +101,11 @@ const router = createRouter({
       path: '/editSurvey',
       name: 'editSurvey',
       component: () => import('@/views/EditSurveyView.vue'),
+    },
+    {
+      path: '/myPage',
+      name: 'myPage',
+      component: () => import('@/views/MyPage.vue'),
       meta: { showHeader: true }
     }
   ]

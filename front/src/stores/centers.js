@@ -19,6 +19,21 @@ export const useCentersStore = defineStore('centers', {
       }
     },
 
+    // 기관 검색 (자동완성용)
+    async searchCenter(name) {
+      try {
+        if (!name || name.length < 2) {
+          return [];
+        }
+        const response = await axios.get('/api/searchCenter', {
+          params: { name }
+        });
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     // 기관 주소
     async centerAddress() {
       try {

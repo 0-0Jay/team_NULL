@@ -1,6 +1,6 @@
 const mysql = require("../database/mappers.js");
 const nodemailer = require("nodemailer");
-const crypto = require('crypto');
+const crypto = require("crypto");
 require("dotenv").config();
 
 const mail_config = {
@@ -128,22 +128,32 @@ const findByUserNoUsersManager = async () => {
 
 // 기관 관리자 페이지 - 기관 담당자 정보 수정
 const modifyByUserNoUsers = async (userInfo, userNo) => {
-  let { name, phone, email, password } = userInfo;
+  const { name, phone, email, c_no, password } = userInfo;
+  let result;
 
-  let result = await mysql.query(
-    "updateByUserNoUsers",
-    [name, phone, email, password, userNo],
-    "users"
-  );
+  // 비밀번호는 있을 때만
+  if (password) {
+    result = await mysql.query(
+      "updateUserWithPw",
+      [name, phone, email, c_no, password, userNo],
+      "users"
+    );
+  } else {
+    result = await mysql.query(
+      "updateUserWithoutPw",
+      [name, phone, email, c_no, userNo],
+      "users"
+    );
+  }
+
+  //console.log("result:", result);
 
   let resObj = {};
-
   if (result.affectedRows > 0) {
-    resObj = { status: "success", no: userNo };
+    resObj = { status: "success", userNo: userNo };
   } else {
     resObj = { status: "fail" };
   }
-
   return resObj;
 };
 
@@ -191,6 +201,12 @@ const modifyStatusByUsernoUsers = async (user_no) => {
   return resObj;
 };
 
+// 일반회원 마이페이지 - 나의 정보 조회
+const findByUserNoUsers = async (user_no) => {
+  let result = await mysql.query("selectByUserNoUsers", [user_no], "users");
+  return result;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -205,4 +221,5 @@ module.exports = {
   findByEmailUsers,
   sendCode,
   modifyStatusUsers,
+  findByUserNoUsers,
 };

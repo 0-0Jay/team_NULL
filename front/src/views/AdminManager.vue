@@ -1,33 +1,39 @@
 <script setup>
 import { useUsersStore } from '@/stores/users';
-import { onBeforeMount, computed, ref, watch } from 'vue';
+import { onBeforeMount, computed, ref } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import SearchTable from '@/components/SearchTable.vue';
 
 const store = useUsersStore();
+const toast = useToast();
 
 // 페이지네이션
 const page = ref(1);
 const rows = ref(10);
 
-// selection 관련
+// checkbox
 const selectedRows = ref([]);
 
-// 검색 + 드롭다운
-const inputKeyword = ref('');
-const searchKeyword = ref('');
-const dropdownValues = ref([
+// 검색 + 드롭다운(사이드 바)
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+const dropdownValue = ref(null);
+const dropdownValues = [
   { name: '관리자명', code: 'CM' },
   { name: '아이디', code: 'ID' },
   { name: '기관명', code: 'CN' }
-]);
-const dropdownValue = ref(null);
-const searchError = ref('');
+];
+const radioValue = ref(-1);
+const globalFilterFields = ref([]);
 
-// 회원 상태
-const statusMap = {
-  0: { label: '대기', severity: 'secondary' },
-  1: { label: '승인', severity: 'info' },
-  2: { label: '비활성', severity: 'danger' }
-};
+// Confirm
+const visible = ref(false);
+const pendingStatus = ref(null); // 1: 승인, 2: 비활성
+const ConfirmMsg = ref('');
 
 onBeforeMount(() => {
   store.fetchManager();
@@ -45,7 +51,7 @@ const formatDate = (v) => {
 };
 
 // 번호
-const rowNumber = (index) => {
+const rowNum = (index) => {
   return (page.value - 1) * rows.value + index + 1;
 };
 
@@ -56,69 +62,19 @@ const onPageChange = (e) => {
   selectedRows.value = [];
 };
 
-// 검색 이벤트
-const onSearch = () => {
-  // 초기화
-  searchError.value = '';
-
-  if (!dropdownValue.value) {
-    searchError.value = '검색 항목을 선택해주세요.';
-    return;
+// 라디오
+const filterManager = computed(() => {
+  // 전체
+  if (radioValue.value === -1) {
+    return store.manager;
   }
 
-  if (!inputKeyword.value.trim()) {
-    searchError.value = '검색어를 입력해주세요.';
-    return;
-  }
-
-  searchKeyword.value = inputKeyword.value.trim();
-  page.value = 1;
-  selectedRows.value = [];
-};
-
-// 검색 기준 변경 시 전체 초기화
-watch(dropdownValue, () => {
-  inputKeyword.value = '';
-  searchKeyword.value = '';
-  searchError.value = '';
-  page.value = 1;
-  selectedRows.value = [];
-});
-
-// 검색 초기화
-watch(inputKeyword, (keyword) => {
-  searchError.value = ''; // 검색어 입력 시 에러 제거
-
-  if (!keyword.trim()) {
-    searchKeyword.value = '';
-    page.value = 1;
-    selectedRows.value = [];
-  }
-});
-
-// 필터링된 데이터(평소에는 전체, 검색을 할 경우 검색된 데이터)
-const filterCenter = computed(() => {
-  if (!searchKeyword.value || !dropdownValue.value) return store.manager;
-
-  const keyword = searchKeyword.value;
-
-  return store.manager.filter((manager) => {
-    switch (dropdownValue.value.code) {
-      case 'CM':
-        return manager.user_name?.includes(keyword);
-      case 'ID':
-        return manager.id?.toLowerCase().includes(keyword.toLowerCase());
-      case 'CN':
-        return manager.center_name?.includes(keyword);
-      default:
-        return true;
-    }
-  });
+  // 승인 / 대기
+  return store.manager.filter((row) => row.status === radioValue.value);
 });
 
 // 회원 상태 변경(사용승인, 비활성화)
 const changeStatus = async (status) => {
-  // console.log(selectedRows);
   const userNos = selectedRows.value.map((row) => row.user_no);
 
   if (userNos.length === 0) return;
@@ -134,117 +90,147 @@ const changeStatus = async (status) => {
     console.error(err);
   }
 };
+
+// Confirm
+const openConfirm = (status) => {
+  if (selectedRows.value.length === 0) return;
+
+  if (status === 1) {
+    const hasApproved = selectedRows.value.some((row) => row.status === 1);
+
+    if (hasApproved) {
+      toast.add({
+        severity: 'error',
+        summary: '승인 실패',
+        detail: '이미 승인된 회원이 포함되어 있습니다.',
+        closable: false,
+        life: 2000
+      });
+      selectedRows.value = [];
+      return;
+    }
+  }
+
+  pendingStatus.value = status;
+  ConfirmMsg.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
+
+  visible.value = true;
+};
+
+const handleConfirm = async () => {
+  visible.value = false;
+
+  if (!pendingStatus.value) return;
+
+  await changeStatus(pendingStatus.value);
+  pendingStatus.value = null;
+};
 </script>
 
 <template>
-  <div class="flex gap-4 p-4" style="min-height: 80vh">
+  <Toast />
+  <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
     <!-- 검색 -->
-    <aside class="w-[260px] p-4 rounded">
-      <h3 class="font-bold mb-3">검색</h3>
+    <SearchTable v-model:filters="filters" v-model:dropdownValue="dropdownValue" v-model:radioValue="radioValue" :dropdownValues="dropdownValues" :useRadio="true" @update:filterFields="globalFilterFields = $event" />
 
-      <Select v-model="dropdownValue" :options="dropdownValues" optionLabel="name" class="w-full mb-3" placeholder="검색 항목 선택" />
-      <IconField iconPosition="left">
-        <InputIcon class="pi pi-search" />
-        <InputText class="w-full" type="text" v-model="inputKeyword" placeholder="검색어 입력" @keyup.enter="onSearch" />
-      </IconField>
+    <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
 
-      <Button type="button" class="w-full mt-3 mb-3" label="검색" @click="onSearch" />
-      <p v-if="searchError" class="text-red-500 text-center">
-        {{ searchError }}
-      </p>
-    </aside>
-
-    <div class="border-l-2 border-gray-300 mx-4"></div>
-
-    <section class="flex-1 p-4 rounded flex flex-col">
+    <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-xl font-bold">기관 관리자 정보</h2>
-        <div>
+        <div class="flex items-center">
           <Button label="기관 관리자 등록" icon="pi pi-user" class="mr-5" />
-          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="changeStatus(1)" />
-          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="changeStatus(2)" />
+          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
         </div>
       </div>
-
-      <DataTable
-        :value="filterCenter"
-        v-model:selection="selectedRows"
-        dataKey="user_no"
-        sortField="center_name"
-        :sortOrder="1"
-        :paginator="true"
-        :rows="rows"
-        :rowHover="true"
-        showGridlines
-        @page="onPageChange"
-        :selectionPageOnly="true"
-        tableLayout="fixed"
-      >
-        <template #empty>
-          <div class="text-center">데이터 없음</div>
-        </template>
-
-        <Column selectionMode="multiple" headerStyle="width:48px" />
-
-        <Column header="번호" headerClass="manager-header" bodyClass="manager-body" style="width: 80px">
-          <template #body="{ index }">
-            {{ rowNumber(index) }}
+      <div class="flex-1 overflow-auto">
+        <DataTable
+          :value="filterManager"
+          v-model:selection="selectedRows"
+          dataKey="user_no"
+          sortField="center_name"
+          :sortOrder="1"
+          :paginator="true"
+          :rows="rows"
+          :rowHover="true"
+          v-model:filters="filters"
+          :globalFilterFields="globalFilterFields"
+          showGridlines
+          @page="onPageChange"
+          :selectionPageOnly="true"
+          tableLayout="fixed"
+        >
+          <template #empty>
+            <div class="text-center">데이터 없음</div>
           </template>
-        </Column>
 
-        <Column field="user_name" header="관리자명" headerClass="manager-header" bodyClass="manager-body" style="width: 100px" />
+          <Column selectionMode="multiple" headerStyle="width:48px" />
 
-        <Column header="아이디" headerClass="manager-header" bodyClass="manager-body" style="width: 150px">
-          <template #body="{ data }">
-            {{ data.id }}
-          </template>
-        </Column>
-        <Column header="기관명" field="center_name" headerClass="manager-header" sortable style="width: 200px">
-          <template #body="{ data }">
-            {{ data.center_name ?? '-' }}
-          </template>
-        </Column>
+          <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+            <template #body="{ index }">
+              {{ rowNum(index) }}
+            </template>
+          </Column>
 
-        <Column header="연락처" headerClass="manager-header" bodyClass="manager-body" style="width: 100px">
-          <template #body="{ data }">
-            {{ data.phone ?? '-' }}
-          </template>
-        </Column>
+          <Column field="user_name" header="관리자명" headerClass="table-header" bodyClass="table-body" style="width: 100px" />
 
-        <Column header="이메일" headerClass="manager-header" bodyClass="manager-body" style="width: 200px">
-          <template #body="{ data }">
-            {{ data.email ?? '-' }}
-          </template>
-        </Column>
+          <Column header="아이디" headerClass="table-header" bodyClass="table-body" style="width: 150px">
+            <template #body="{ data }">
+              {{ data.id }}
+            </template>
+          </Column>
+          <Column header="기관명" field="center_name" headerClass="table-header" sortable style="width: 200px">
+            <template #body="{ data }">
+              {{ data.center_name ?? '-' }}
+            </template>
+          </Column>
 
-        <Column header="가입일" headerClass="manager-header" bodyClass="manager-body" style="width: 100px">
-          <template #body="{ data }">
-            {{ formatDate(data.created_date) }}
-          </template>
-        </Column>
+          <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+            <template #body="{ data }">
+              {{ data.phone ?? '-' }}
+            </template>
+          </Column>
 
-        <Column header="회원 상태" headerClass="manager-header" bodyClass="manager-body" style="width: 80px">
-          <template #body="{ data }">
-            <Tag :value="statusMap[data.status]?.label ?? '알 수 없음'" :severity="statusMap[data.status]?.severity ?? 'secondary'" rounded class="status-tag" />
-          </template>
-        </Column>
+          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 200px">
+            <template #body="{ data }">
+              {{ data.email ?? '-' }}
+            </template>
+          </Column>
 
-        <Column header="수정" headerClass="manager-header" bodyClass="manager-body" style="width: 80px">
-          <template #body="{ data }">
-            <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
-          </template>
-        </Column>
-      </DataTable>
+          <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+            <template #body="{ data }">
+              {{ formatDate(data.created_date) }}
+            </template>
+          </Column>
+
+          <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+            <template #body="{ data }">
+              <Tag :value="data.status === 1 ? '승인' : '대기'" :severity="data.status === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
+            </template>
+          </Column>
+
+          <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+            <template #body="{ data }">
+              <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
+            </template>
+          </Column>
+        </DataTable>
+      </div>
     </section>
   </div>
+
+  <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">
+    {{ ConfirmMsg }}
+  </ConfirmDialog>
 </template>
 
 <style scoped>
-:deep(.manager-header .p-datatable-column-header-content) {
+:deep(.table-header .p-datatable-column-header-content) {
   justify-content: center;
 }
 
-:deep(.manager-body) {
+:deep(.table-body) {
   text-align: center;
 }
 

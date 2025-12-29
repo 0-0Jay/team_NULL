@@ -22,7 +22,7 @@ const emit = defineEmits(['confirm', 'update:visible']);
 </script>
 <template>
   <!-- <Dialog header="Confirmation" v-model:visible="props.visible" :style="{ width: '350px' }" :modal="true"> -->
-  <Dialog header="Confirmation" :visible="props.visible" modal :style="{ width: '350px' }" @update:visible="emit('update:visible', $event)">
+  <Dialog header="Confirmation" :visible="props.visible" modal :style="{ width: '350px' }" :closable="false" @update:visible="emit('update:visible', $event)">
     <div class="flex items-center justify-center">
       <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
       <slot />
