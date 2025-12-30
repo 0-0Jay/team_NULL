@@ -40,7 +40,7 @@ const login = async () => {
   if (result[0].status == 0) {
     router.push({ name: 'LoginNA' });
   } else {
-    router.push({ name: 'test' });
+    router.push({ name: 'main' });
   }
 };
 

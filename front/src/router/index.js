@@ -16,6 +16,12 @@ const router = createRouter({
       meta: { showHeader: false }
     },
     {
+      path: '/main',
+      name: 'main',
+      component: () => import('@/views/MainView.vue'),
+      meta: { showHeader: true }
+    },
+    {
       path: '/planinsert',
       name: 'planinsert',
       component: () => import('@/views/PlanInsert.vue')
@@ -34,19 +40,19 @@ const router = createRouter({
     {
       path: '/center',
       name: 'center',
-      component: () => import('@/views/AdminCenter.vue'),
+      component: () => import('@/views/AdminCenterView.vue'),
       meta: { showHeader: true }
     },
     {
       path: '/center/manager',
       name: 'manager',
-      component: () => import('@/views/AdminManager.vue'),
+      component: () => import('@/views/AdminManagerView.vue'),
       meta: { showHeader: true }
     },
     {
       path: '/staff',
       name: 'staff',
-      component: () => import('@/views/ManageStaff.vue'),
+      component: () => import('@/views/ManageStaffView.vue'),
       meta: { showHeader: true }
     },
     {

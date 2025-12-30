@@ -60,7 +60,7 @@ const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.e
                                         on u.user_no = m.user_no
                                         and m.unassign is null
                                     left join center c on u.c_no = c.c_no
-                                    where u.type = 1
+                                    where u.type = 1 and u.status != 2
                                     group by u.user_no, u.id, u.name,
                                              u.phone, u.email, c.name,
                                              u.created_date, u.status
@@ -90,9 +90,27 @@ SET status = 2
 WHERE user_no = ?`;
 
 // 일반회원 마이페이지 - 나의 정보 조회
-const selectByUserNoUsers = `SELECT name, id, phone, email, address, address_detail, created_date
+const selectByUserNoUsers = `SELECT name, id, phone, email, concat (address, ' ', address_detail) address, created_date
                              FROM users
                              WHERE user_no = ?`;
+
+// 마이페이지 - 지원자 목록 조회
+const selectByUserNoApplicant = `SELECT name, a_no
+                                 FROM applicant
+                                 WHERE user_no = ?`;
+
+// 마이페이지 - 지원자 상세 정보 조회
+const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
+                              FROM applicant
+                              WHERE a_no= ?`;
+// 지원신청서 담당자 조회
+const selectByUserNoManagerUsers = `select m.a_no,
+                                           group_concat(u.name order by u.name separator ', ') as m_name
+                                    from manager m
+                                    join users u
+                                      on m.user_no = u.user_no
+                                    where m.unassign is null
+                                    group by m.a_no`;
 
 module.exports = {
   selectByIdAndPwUsers,
@@ -109,4 +127,7 @@ module.exports = {
   selectByUserNoUsers,
   updateUserWithPw,
   updateUserWithoutPw,
+  selectByUserNoApplicant,
+  selectByANoApplicant,
+  selectByUserNoManagerUsers,
 };

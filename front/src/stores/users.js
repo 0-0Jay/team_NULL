@@ -8,7 +8,9 @@ export const useUsersStore = defineStore('users', {
     user: {},
     manager: [],
     myInfo: null,
-    staff: []
+    staff: [],
+    applicant: [],
+    applicantDetail: null
   }),
   // getters
   // actions
@@ -159,8 +161,28 @@ export const useUsersStore = defineStore('users', {
 
       const userNo = authStore.user.user_no;
       const { data } = await axios.get(`/api/users/${userNo}`);
-      console.log('API 응답: ', data);
+      console.log('회원 정보: ', data);
       this.myInfo = data[0];
+    },
+    // 마이페이지 - 지원자 목록 불러오기
+    async fetchApplicant() {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) return;
+
+      const userNo = authStore.user.user_no;
+      const { data } = await axios.get(`/api/users/${userNo}/applicant`);
+      console.log('지원자 목록: ', data);
+      this.applicant = data;
+    },
+    // 마이페이지 - 선택된 지원자 번호
+    setSelectedApplicantNo(ANo) {
+      const a_no = ANo;
+      console.log(a_no);
+    },
+    // 마이페이지 - 선택된 지원자 상세정보 불러오기
+    async fetchApplicantDetail(ANo) {
+      const { data } = await axios.get(`/api/users/applicant/${ANo}`);
+      console.log('지원자 상세정보: ', data);
     }
   },
   persist: true

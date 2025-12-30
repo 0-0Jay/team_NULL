@@ -21,4 +21,10 @@ router.put("/applications/:applicationNo/answers", async (req, res) => {
   res.send(result);
 });
 
+// 지원 신청 내역 불러오기
+router.get("/applicationList", async (req, res) => {
+  let result = await applicationService.findAllApplication();
+  res.send(result);
+});
+
 module.exports = router;

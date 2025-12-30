@@ -12,12 +12,12 @@ const toast = useToast();
 
 // 페이지네이션
 const page = ref(1);
-const rows = ref(10);
+const rows = ref(13);
 
 // checkbox
 const selectedRows = ref([]);
 
-// 검색 + 드롭다운(사이드 바)
+// 검색 + 드롭다운
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -32,14 +32,14 @@ const globalFilterFields = ref([]);
 
 // Confirm
 const visible = ref(false);
-const pendingStatus = ref(null); // 1: 승인, 2: 비활성
+const pendingStatus = ref(null);
 const ConfirmMsg = ref('');
 
 onBeforeMount(() => {
   store.fetchManager();
 });
 
-// 날짜 포맷 함수
+// 날짜 포맷
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -55,35 +55,28 @@ const rowNum = (index) => {
   return (page.value - 1) * rows.value + index + 1;
 };
 
-// 페이지 변경 이벤트
+// 페이지 변경
 const onPageChange = (e) => {
   page.value = e.page + 1;
   rows.value = e.rows;
   selectedRows.value = [];
 };
 
-// 라디오
+// 라디오 필터
 const filterManager = computed(() => {
-  // 전체
-  if (radioValue.value === -1) {
-    return store.manager;
-  }
-
-  // 승인 / 대기
+  if (radioValue.value === -1) return store.manager;
   return store.manager.filter((row) => row.status === radioValue.value);
 });
 
-// 회원 상태 변경(사용승인, 비활성화)
+// 상태 변경
 const changeStatus = async (status) => {
   const userNos = selectedRows.value.map((row) => row.user_no);
-
   if (userNos.length === 0) return;
 
   try {
     const result = await store.modifyStatus(userNos, status);
-
     if (result.status === 'success') {
-      await store.fetchManager(); // 화면 자동 갱신
+      await store.fetchManager();
       selectedRows.value = [];
     }
   } catch (err) {
@@ -97,13 +90,11 @@ const openConfirm = (status) => {
 
   if (status === 1) {
     const hasApproved = selectedRows.value.some((row) => row.status === 1);
-
     if (hasApproved) {
       toast.add({
         severity: 'error',
         summary: '승인 실패',
         detail: '이미 승인된 회원이 포함되어 있습니다.',
-        closable: false,
         life: 2000
       });
       selectedRows.value = [];
@@ -119,9 +110,7 @@ const openConfirm = (status) => {
 
 const handleConfirm = async () => {
   visible.value = false;
-
   if (!pendingStatus.value) return;
-
   await changeStatus(pendingStatus.value);
   pendingStatus.value = null;
 };
@@ -129,22 +118,32 @@ const handleConfirm = async () => {
 
 <template>
   <Toast />
-  <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
+
+  <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
-    <SearchTable v-model:filters="filters" v-model:dropdownValue="dropdownValue" v-model:radioValue="radioValue" :dropdownValues="dropdownValues" :useRadio="true" @update:filterFields="globalFilterFields = $event" />
+    <SearchTable
+      v-model:filters="filters"
+      v-model:dropdownValue="dropdownValue"
+      v-model:radioValue="radioValue"
+      :dropdownValues="dropdownValues"
+      :useRadio="true"
+      @update:filterFields="globalFilterFields = $event"
+      class="bg-white rounded-xl shadow-sm border border-gray-200"
+    />
 
-    <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
+    <!-- 메인 -->
+    <section class="flex-1 bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
+      <div class="flex justify-between items-center mb-5">
+        <h2 class="text-xl font-bold text-gray-800">기관 관리자 정보</h2>
 
-    <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">기관 관리자 정보</h2>
-        <div class="flex items-center">
-          <Button label="기관 관리자 등록" icon="pi pi-user" class="mr-5" />
-          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
-          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
+        <div class="flex gap-2">
+          <Button label="기관 관리자 등록" icon="pi pi-user" />
+          <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
       </div>
-      <div class="flex-1 overflow-auto">
+
+      <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
         <DataTable
           :value="filterManager"
           v-model:selection="selectedRows"
@@ -162,7 +161,7 @@ const handleConfirm = async () => {
           tableLayout="fixed"
         >
           <template #empty>
-            <div class="text-center">데이터 없음</div>
+            <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
           <Column selectionMode="multiple" headerStyle="width:48px" />
@@ -180,31 +179,32 @@ const handleConfirm = async () => {
               {{ data.id }}
             </template>
           </Column>
-          <Column header="기관명" field="center_name" headerClass="table-header" sortable style="width: 200px">
+
+          <Column field="center_name" header="기관명" headerClass="table-header" sortable style="width: 200px">
             <template #body="{ data }">
               {{ data.center_name ?? '-' }}
             </template>
           </Column>
 
-          <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 120px">
             <template #body="{ data }">
               {{ data.phone ?? '-' }}
             </template>
           </Column>
 
-          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 200px">
+          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 220px">
             <template #body="{ data }">
               {{ data.email ?? '-' }}
             </template>
           </Column>
 
-          <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 120px">
             <template #body="{ data }">
               {{ formatDate(data.created_date) }}
             </template>
           </Column>
 
-          <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+          <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 100px">
             <template #body="{ data }">
               <Tag :value="data.status === 1 ? '승인' : '대기'" :severity="data.status === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
             </template>
@@ -226,26 +226,38 @@ const handleConfirm = async () => {
 </template>
 
 <style scoped>
+:deep(.p-datatable-thead > tr > th) {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+:deep(.p-datatable-tbody > tr:hover) {
+  background-color: #f3f4f6;
+}
+
 :deep(.table-header .p-datatable-column-header-content) {
   justify-content: center;
 }
 
 :deep(.table-body) {
   text-align: center;
+  color: #374151;
 }
 
 :deep(.status-tag) {
-  font-size: 0.85rem;
-  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
 }
 
 .edit-icon {
   cursor: pointer;
-  font-size: 1.2rem;
-  color: #555;
+  font-size: 1.1rem;
+  color: #6b7280;
+  transition: color 0.2s;
 }
 
 .edit-icon:hover {
-  color: #48c787;
+  color: #10b981;
 }
 </style>
