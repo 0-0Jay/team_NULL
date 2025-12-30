@@ -146,8 +146,6 @@ const modifyByUserNoUsers = async (userInfo, userNo) => {
     );
   }
 
-  //console.log("result:", result);
-
   let resObj = {};
   if (result.affectedRows > 0) {
     resObj = { status: "success", userNo: userNo };
@@ -175,6 +173,7 @@ const modifyStatusUsers = async (userNos, status) => {
 
 // 비밀번호 재설정
 const modifyPwByUsernoUsers = async (user_no, pw) => {
+  console.log(user_no, pw);
   let result = await mysql.query(
     "updatePwByUsernoUsers",
     [pw, user_no],

@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import { useCentersStore } from '@/stores/centers';
 import { useRouter } from 'vue-router';
+import AlertModal from '@/components/AlertModal.vue';
 
 const store = useUsersStore();
 const cstore = useCentersStore();
@@ -18,6 +19,8 @@ const email = ref('');
 const emailchk = ref(false);
 const phone = ref('');
 const type = ref('0');
+const displayAlert = ref(false);
+const alertContent = ref('');
 
 const zipcode = ref('');
 const address = ref('');
@@ -73,13 +76,18 @@ const changeSigungu = () => {
 };
 
 const display = ref(false);
-function open() {
+const open = () => {
   display.value = true;
-}
+};
 
-function close() {
+const close = () => {
   display.value = false;
-}
+};
+
+const openAlert = (content) => {
+  alertContent.value = content;
+  displayAlert.value = true;
+};
 
 const validateSignup = () => {
   if (!type.value) return '회원 유형을 선택해 주세요!';
@@ -101,7 +109,7 @@ const validateSignup = () => {
 const signup = async () => {
   const error = validateSignup();
   if (error) {
-    alert(error);
+    openAlert(error);
     return;
   }
   const formData = {
@@ -128,7 +136,7 @@ const addressSearched = (data) => {
 
 const idCheck = async () => {
   if (!id.value) {
-    alert('아이디를 입력해주세요!');
+    openAlert('아이디를 입력해주세요!');
     idchk.value = false;
     return;
   }
@@ -142,7 +150,7 @@ const idCheck = async () => {
 
 const emailCheck = async () => {
   if (!email.value) {
-    alert('이메일을 입력해주세요!');
+    openAlert('이메일을 입력해주세요!');
     emailchk.value = false;
     return;
   }
@@ -175,7 +183,7 @@ const emailCheck = async () => {
               <Button label="중복확인" @click="idCheck"></Button>
             </div>
             <p v-if="idchk" style="color: blue">사용가능한 아이디 입니다.</p>
-            <p v-else style="color: red">아이디를 입력하지 않았거나 이미 존재하는 아이디입니다.</p>
+            <p v-else style="color: rgba(255, 0, 0, 0.7)">아이디를 입력하지 않았거나 이미 존재하는 아이디입니다.</p>
 
             <label for="name" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">이름</label>
             <InputText id="name" type="text" placeholder="이름" class="w-full md:w-[30rem] mb-4" v-model="name" />
@@ -185,8 +193,8 @@ const emailCheck = async () => {
 
             <label for="pwchk" class="block text-surface-900 dark:text-surface-0 font-medium text-xl">비밀번호 확인</label>
             <Password id="pwchk" v-model="pwchk" placeholder="비밀번호 확인" :toggleMask="true" class="w-full md:w-[30rem]" fluid :feedback="false"></Password>
-            <p v-if="!pw || !pwchk" style="color: red">비밀번호와 비밀번호 확인을 모두 입력해주세요</p>
-            <p v-else-if="pw !== pwchk" style="color: red">비밀번호가 일치하지 않습니다.</p>
+            <p v-if="!pw || !pwchk" style="color: rgba(255, 0, 0, 0.7)">비밀번호와 비밀번호 확인을 모두 입력해주세요</p>
+            <p v-else-if="pw !== pwchk" style="color: rgba(255, 0, 0, 0.7)">비밀번호가 일치하지 않습니다.</p>
             <p v-else style="color: blue">비밀번호가 일치합니다.</p>
 
             <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">이메일</label>
@@ -195,7 +203,7 @@ const emailCheck = async () => {
               <Button label="중복확인" class="pl-2" @click="emailCheck"></Button>
             </div>
             <p v-if="emailchk" style="color: blue">사용가능한 이메일 입니다.</p>
-            <p v-else style="color: red">이메일을 입력하지 않았거나 이미 존재하는 이메일입니다.</p>
+            <p v-else style="color: rgba(255, 0, 0, 0.7)">이메일을 입력하지 않았거나 이미 존재하는 이메일입니다.</p>
 
             <label for="phone" class="block text-surface-900 dark:text-surface-0 text-xl font-medium">연락처</label>
             <InputText id="phone" type="text" placeholder="연락처" class="w-full md:w-[30rem] mb-4" v-model="phone" />
@@ -220,7 +228,7 @@ const emailCheck = async () => {
             </div>
             <Select id="center" type="text" placeholder="기관명" class="w-full md:w-[30rem] mb-2" v-model="center" :options="center_list" optionLabel="label" optionValue="value"></Select>
 
-            <div class="grid mt-2 mb-8 gap-y-4">
+            <div class="flex mt-2 mb-8 gap-4">
               <Button label="회원가입" class="w-full" @click="signup"></Button>
               <Button label="처음으로" class="w-full" as="router-link" to="/"></Button>
             </div>
@@ -229,6 +237,7 @@ const emailCheck = async () => {
       </div>
     </div>
   </div>
+  <AlertModal v-model="displayAlert" :content="alertContent" />
 </template>
 
 <style scoped>

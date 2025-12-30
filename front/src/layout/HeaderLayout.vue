@@ -38,7 +38,7 @@ const logout = () => {
         <router-link v-if="user.type == 3" to="/center">기관 관리</router-link>
         <router-link v-if="user.type == 3" to="/center/manager">기관 관리자 관리</router-link>
         <router-link v-if="user.type == 3" to="/staff">기관 담당자 관리</router-link>
-        <router-link v-if="user.type == 3" to="/test">지원서</router-link>
+        <router-link v-if="user.type == 3" to="/survey">지원서</router-link>
       </div>
     </div>
 

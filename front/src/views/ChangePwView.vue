@@ -1,4 +1,5 @@
 <script setup>
+import AlertModal from '@/components/AlertModal.vue';
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useUsersStore } from '@/stores/users';
 import { ref } from 'vue';
@@ -9,10 +10,30 @@ const router = useRouter();
 
 const pw = ref('');
 const pwchk = ref('');
+const userNo = store.user.user_no;
+const display = ref(false);
+const alertContent = ref('');
+
+const openAlert = (content) => {
+  alertContent.value = content;
+  display.value = true;
+};
 
 const changePw = async () => {
+  const pw_regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,20}$/;
+  if (!pw.value) {
+    openAlert('새 비밀번호를 입력해주세요!');
+  } else if (!pwchk.value) {
+    openAlert('비밀번호 확인을 입력해주세요!');
+  } else if (!pw_regex.test(pw.value)) {
+    openAlert('비밀번호는 영문 + 숫자 + 특수문자 조합의 8 ~ 20자로 작성해주세요!');
+  }
+  const result = await store.changePw({ user_no: userNo, pw: pw.value });
+  if (result.status == 'success') {
+    openAlert('비밀번호가 변경되었습니다!');
+  }
   return;
-}
+};
 </script>
 
 <template>
@@ -44,6 +65,7 @@ const changePw = async () => {
       </div>
     </div>
   </div>
+  <AlertModal v-model="display" :content="alertContent" />
 </template>
 
 <style scoped>
