@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useAuthStore } from './auth';
 
 export const useUsersStore = defineStore('users', {
   // state
   state: () => ({
     user: {},
-    manager: []
+    manager: [],
+    myInfo: null,
+    staff: [],
+    applicant: [],
+    applicantDetail: null
   }),
   // getters
   // actions
@@ -82,6 +87,17 @@ export const useUsersStore = defineStore('users', {
     async findPw(data) {
       try {
         const response = await axios.post(`/api/findPw`, data);
+        this.user = response.data[0];
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 비밀번호 재설정
+    async changePw(data) {
+      try {
+        const response = await axios.put(`/api/findPw`, data);
         return response.data;
       } catch (err) {
         console.log(err);
@@ -101,7 +117,7 @@ export const useUsersStore = defineStore('users', {
     // 기관 관리자 불러오기
     async fetchManager() {
       try {
-        const response = await axios.get('/api/usersManager');
+        const response = await axios.get(`/api/usersManager`);
         this.manager = response.data;
       } catch (err) {
         console.log(err);
@@ -111,11 +127,62 @@ export const useUsersStore = defineStore('users', {
     // 회원상태(사용승인 및 비활성화)
     async modifyStatus(userNos, status) {
       try {
-        const response = await axios.put('/api/users/status', { userNos, status });
+        const response = await axios.put(`/api/users/status`, { userNos, status });
         return response.data;
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 기관 관리자 페이지 - 기관 담당자 불러오기
+    async fetchStaff() {
+      try {
+        const response = await axios.get(`/api/usersStaff`);
+        this.staff = response.data;
+        console.log(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 기관 관리자 페이지 - 기관 담당자 정보 수정
+    async modifyStaff(userNo, info) {
+      try {
+        const response = await axios.put(`/api/usersStaff/${userNo}`, info);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    // 마이페이지 - 일반회원 정보 불러오기
+    async fetchMyInfo() {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) return;
+
+      const userNo = authStore.user.user_no;
+      const { data } = await axios.get(`/api/users/${userNo}`);
+      console.log('회원 정보: ', data);
+      this.myInfo = data[0];
+    },
+    // 마이페이지 - 지원자 목록 불러오기
+    async fetchApplicant() {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) return;
+
+      const userNo = authStore.user.user_no;
+      const { data } = await axios.get(`/api/users/${userNo}/applicant`);
+      console.log('지원자 목록: ', data);
+      this.applicant = data;
+    },
+    // 마이페이지 - 선택된 지원자 번호
+    setSelectedApplicantNo(ANo) {
+      const a_no = ANo;
+      console.log(a_no);
+    },
+    // 마이페이지 - 선택된 지원자 상세정보 불러오기
+    async fetchApplicantDetail(ANo) {
+      const { data } = await axios.get(`/api/users/applicant/${ANo}`);
+      console.log('지원자 상세정보: ', data);
     }
   },
   persist: true

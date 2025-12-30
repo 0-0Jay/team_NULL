@@ -16,6 +16,12 @@ const router = createRouter({
       meta: { showHeader: false }
     },
     {
+      path: '/main',
+      name: 'main',
+      component: () => import('@/views/MainView.vue'),
+      meta: { showHeader: true }
+    },
+    {
       path: '/planinsert',
       name: 'planinsert',
       component: () => import('@/views/PlanInsert.vue')
@@ -33,14 +39,22 @@ const router = createRouter({
       component: () => import('@/views/FaqUpdate.vue')
     },
     {
-      path: '/centers',
-      name: 'centers',
-      component: () => import('@/views/AdminCenter.vue')
+      path: '/center',
+      name: 'center',
+      component: () => import('@/views/AdminCenterView.vue'),
+      meta: { showHeader: true }
     },
     {
-      path: '/centers/managers',
-      name: 'managers',
-      component: () => import('@/views/AdminManager.vue')
+      path: '/center/manager',
+      name: 'manager',
+      component: () => import('@/views/AdminManagerView.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/staff',
+      name: 'staff',
+      component: () => import('@/views/ManageStaffView.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/loginNA',
@@ -75,13 +89,32 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: () => import('@/views/TestFile.vue')
+      component: () => import('@/views/TestFile.vue'),
+      meta: { showHeader: true }
     },
     {
       path: '/planDetail',
       name: 'planDetail',
-      component: () => import('@/views/PlanDetail.vue')
-      // meta: { showHeader: true }
+      component: () => import('@/views/PlanDetail.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/survey',
+      name: 'survey',
+      component: () => import('@/views/SurveyView.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/editSurvey',
+      name: 'editSurvey',
+      component: () => import('@/views/EditSurveyView.vue'),
+      meta: { showHeader: true }
+    },
+    {
+      path: '/myPage',
+      name: 'myPage',
+      component: () => import('@/views/MyPage.vue'),
+      meta: { showHeader: true }
     }
   ]
 });

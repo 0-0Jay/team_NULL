@@ -1,4 +1,5 @@
 <script setup>
+import AlertModal from '@/components/AlertModal.vue';
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useUsersStore } from '@/stores/users';
 import { ref } from 'vue';
@@ -15,6 +16,8 @@ const email = ref('');
 const usercode = ref('');
 const realcode = ref('');
 const codespace = ref(false);
+const display = ref(false);
+const alertContent = ref('');
 
 const sendCode = async () => {
   codespace.value = true;
@@ -22,38 +25,42 @@ const sendCode = async () => {
   realcode.value = result.data.code;
 };
 
+const openAlert = (content) => {
+  alertContent.value = content;
+  display.value = true;
+};
+
 const findId = async () => {
   if (!name.value || !email.value) {
-    alert('이름과 이메일을 모두 입력해주세요!');
+    openAlert('이름과 이메일을 모두 입력해주세요!');
     return;
   }
   if (realcode.value == '' || realcode.value != usercode.value) {
-    alert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
+    openAlert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
     return;
   }
   const result = await store.findId({ name: name.value, email: email.value });
-  console.log(result);
   if (result.length > 0) {
     router.push({ name: 'resultId' });
   } else {
-    alert('가입하지 않은 이름/이메일 입니다.');
+    openAlert('가입하지 않은 이름/이메일 입니다.');
   }
 };
 
 const changePw = async () => {
   if (!id.value || !email.value) {
-    alert('아이디와 이메일을 모두 입력해주세요!');
+    openAlert('아이디와 이메일을 모두 입력해주세요!');
     return;
   }
   if (realcode.value == '' || realcode.value != usercode.value) {
-    alert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
+    openAlert('이메일이 인증되지 않았거나 인증번호가 틀렸습니다!');
     return;
   }
   const result = await store.findPw({ id: id.value, email: email.value });
   if (result.length > 0) {
     router.push({ name: 'changePw' });
   } else {
-    alert('가입하지 않은 아이디/이메일 입니다.');
+    openAlert('가입하지 않은 아이디/이메일 입니다.');
   }
 };
 </script>
@@ -98,6 +105,7 @@ const changePw = async () => {
       </div>
     </div>
   </div>
+  <AlertModal v-model="display" :content="alertContent" />
 </template>
 
 <style scoped>

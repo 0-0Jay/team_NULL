@@ -19,8 +19,17 @@ FROM plan
 WHERE application_no = ?
 AND   status = 0`; // 대기중인 것만 불러 올려고 0 삽입
 
+// 지원계획서 승인, 반려, 검토 집계
+const selectCountPlan = `select p.application_no,
+                                sum(case when p.approve_date is null and p.reject_date is null then 1 else 0 end) as review_count,
+                                sum(case when p.approve_date is not null then 1 else 0 end) as approve_count,
+                                sum(case when p.reject_date is not null then 1 else 0 end) as reject_count
+                         from plan p
+                         group by p.application_no;`;
+
 module.exports = {
   insertPlan,
   selectPlan,
   selectPendingPlan,
+  selectCountPlan,
 };
