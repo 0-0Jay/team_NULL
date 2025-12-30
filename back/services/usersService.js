@@ -207,6 +207,18 @@ const findByUserNoUsers = async (user_no) => {
   return result;
 };
 
+// 마이페이지 - 지원자 목록 조회
+const findByUserNoApplicant = async (user_no) => {
+  let result = await mysql.query("selectByUserNoApplicant", [user_no], "users");
+  return result;
+};
+
+// 마이페이지 - 지원자 상세정보 조회
+const findByANoApplicant = async (a_no) => {
+  let result = await mysql.query("selectByANoApplicant", [a_no], "users");
+  return result;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -222,4 +234,6 @@ module.exports = {
   sendCode,
   modifyStatusUsers,
   findByUserNoUsers,
+  findByUserNoApplicant,
+  findByANoApplicant,
 };

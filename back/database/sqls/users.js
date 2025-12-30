@@ -93,6 +93,16 @@ const selectByUserNoUsers = `SELECT name, id, phone, email, concat (address, ' '
                              FROM users
                              WHERE user_no = ?`;
 
+// 마이페이지 - 지원자 목록 조회
+const selectByUserNoApplicant = `SELECT name, a_no
+                                 FROM applicant
+                                 WHERE user_no = ?`;
+
+// 마이페이지 - 지원자 상세 정보 조회
+const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
+                              FROM applicant
+                              WHERE a_no= ?`;
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
@@ -108,4 +118,6 @@ module.exports = {
   selectByUserNoUsers,
   updateUserWithPw,
   updateUserWithoutPw,
+  selectByUserNoApplicant,
+  selectByANoApplicant,
 };
