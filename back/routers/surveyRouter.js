@@ -8,4 +8,11 @@ router.get("/survey", async (req, res) => {
   res.send(data);
 });
 
+// 조사지 새 버전 추가
+router.post("/survey", async (req, res) => {
+  const data = req.body;
+  let result = await surveyService.addSurvey(data);
+  res.send(result);
+});
+
 module.exports = router;

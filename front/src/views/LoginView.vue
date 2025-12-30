@@ -1,4 +1,5 @@
 <script setup>
+import AlertModal from '@/components/AlertModal.vue';
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { useUsersStore } from '@/stores/users';
 import { ref } from 'vue';
@@ -11,13 +12,15 @@ const savedId = localStorage.getItem('id');
 const id = ref(savedId ? savedId : '');
 const password = ref('');
 const saveId = ref(savedId ? true : false);
+const display = ref(false);
+const alertContent = ref('');
 
 const login = async () => {
   if (!id.value) {
-    alert('아이디를 입력해주세요!');
+    openAlert('아이디를 입력해주세요!');
     return;
   } else if (!password.value) {
-    alert('비밀번호를 입력해주세요!');
+    openAlert('비밀번호를 입력해주세요!');
     return;
   }
   const data = {
@@ -26,7 +29,7 @@ const login = async () => {
   };
   const result = await store.login(data);
   if (result.length == 0) {
-    alert('아이디 또는 비밀번호가 틀렸습니다.');
+    openAlert('아이디 또는 비밀번호가 틀렸습니다.');
     return;
   }
   if (saveId.value) {
@@ -39,6 +42,11 @@ const login = async () => {
   } else {
     router.push({ name: 'main' });
   }
+};
+
+const openAlert = (content) => {
+  alertContent.value = content;
+  display.value = true;
 };
 </script>
 
@@ -81,6 +89,7 @@ const login = async () => {
       </div>
     </div>
   </div>
+  <AlertModal v-model="display" :content="alertContent" />
 </template>
 
 <style scoped>

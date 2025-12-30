@@ -18,6 +18,16 @@ export const useSurveyStore = defineStore('survey', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    async updateSurvey(data) {
+      try {
+        const response = await axios.post('/api/survey', data);
+        this.survey = null;
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   persist: true

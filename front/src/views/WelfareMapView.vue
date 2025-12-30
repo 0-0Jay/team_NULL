@@ -23,7 +23,7 @@ const getCurrentLocation = () => {
       const currentLatLng = new kakao.maps.LatLng(lat, lng);
       // 지도 중심 이동
       map.value.setCenter(currentLatLng);
-      // 주변 병원 검색
+      // 주변 검색
       searchNearby(currentLatLng);
     },
     () => {
