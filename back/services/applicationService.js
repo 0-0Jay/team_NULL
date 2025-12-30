@@ -60,4 +60,26 @@ const modifyByQnoApplicationAnswer = async (applicationNo, answers) => {
   return resObj;
 };
 
-module.exports = { addApplication, modifyByQnoApplicationAnswer };
+// 지원신청서 내역 조회
+const findAllApplication = async () => {
+  const appList = await mysql.query(
+    "selectByAppNoApplication",
+    [],
+    "application"
+  );
+  const managerList = await mysql.query(
+    "selectByUserNoManagerUsers",
+    [],
+    "users"
+  );
+  const planList = await mysql.query("selectCountPlan", [], "plan");
+  const resultList = await mysql.query("selectCountResult", [], "result");
+
+  return { appList, managerList, planList, resultList };
+};
+
+module.exports = {
+  addApplication,
+  modifyByQnoApplicationAnswer,
+  findAllApplication,
+};

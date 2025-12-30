@@ -14,7 +14,7 @@ const toast = useToast();
 
 // 페이지네이션
 const page = ref(1);
-const rows = ref(10);
+const rows = ref(13);
 
 // checkbox
 const selectedRows = ref([]);
@@ -232,93 +232,81 @@ const submitEdit = async () => {
 
 <template>
   <Toast />
-  <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
+  <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
-    <SearchTable v-model:filters="filters" v-model:dropdownValue="dropdownValue" v-model:radioValue="radioValue" :dropdownValues="dropdownValues" :useRadio="true" @update:filterFields="globalFilterFields = $event" />
+    <SearchTable
+      v-model:filters="filters"
+      v-model:dropdownValue="dropdownValue"
+      v-model:radioValue="radioValue"
+      :dropdownValues="dropdownValues"
+      :useRadio="true"
+      @update:filterFields="globalFilterFields = $event"
+      class="bg-white rounded-xl shadow-sm border border-gray-200"
+    />
 
-    <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
-
-    <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">
-          <template v-if="user.type != 3">{{ user.c_name }} 담당자 정보</template>
-          <template v-if="user.type === 3">기관 담당자 정보</template>
+    <!-- 메인 -->
+    <section class="flex-1 bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
+      <div class="flex justify-between items-center mb-5">
+        <h2 class="text-xl font-bold text-gray-800">
+          <template v-if="user.type !== 3">{{ user.c_name }} 담당자 정보</template>
+          <template v-else>기관 담당자 정보</template>
         </h2>
 
-        <div class="flex items-center">
-          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" class="mr-5" />
-          <Button label="사용 승인" class="mr-5" severity="info" :disabled="selectedRows.length == 0" @click="openConfirm(1)" />
-          <Button label="비활성화" severity="danger" :disabled="selectedRows.length == 0" @click="openConfirm(2)" />
+        <div class="flex gap-2">
+          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" />
+          <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
       </div>
-      <div class="flex-1 overflow-auto">
+
+      <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
         <DataTable
           :value="filterStaff"
           v-model:selection="selectedRows"
           dataKey="user_no"
-          sortField="name"
-          :sortOrder="1"
           :paginator="true"
           :rows="rows"
           :rowHover="true"
           v-model:filters="filters"
           :globalFilterFields="globalFilterFields"
           showGridlines
+          tableLayout="fixed"
           @page="onPageChange"
           :selectionPageOnly="true"
-          tableLayout="fixed"
         >
           <template #empty>
-            <div class="text-center">데이터 없음</div>
+            <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
           <Column selectionMode="multiple" headerStyle="width:48px" />
 
           <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
-            <template #body="{ index }">
-              {{ rowNum(index) }}
-            </template>
+            <template #body="{ index }">{{ rowNum(index) }}</template>
           </Column>
 
-          <Column field="name" header="담당자명" headerClass="table-header" bodyClass="table-body" sortable style="width: 120px" />
+          <Column field="name" header="담당자명" headerClass="table-header" bodyClass="table-body" style="width: 120px" />
 
           <Column header="아이디" headerClass="table-header" bodyClass="table-body" style="width: 180px">
-            <template #body="{ data }">
-              {{ data.id }}
-            </template>
+            <template #body="{ data }">{{ data.id }}</template>
           </Column>
 
           <Column v-if="user.type === 3" header="기관명" headerClass="table-header" bodyClass="table-body" style="width: 180px">
-            <template #body="{ data }">
-              {{ data.center_name }}
-            </template>
+            <template #body="{ data }">{{ data.center_name }}</template>
           </Column>
 
           <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 130px">
-            <template #body="{ data }">
-              {{ data.phone ?? '-' }}
-            </template>
+            <template #body="{ data }">{{ data.phone ?? '-' }}</template>
           </Column>
 
           <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 260px">
-            <template #body="{ data }">
-              {{ data.email ?? '-' }}
-            </template>
-          </Column>
-
-          <Column v-if="user.type != 3" header="지원자 수" field="center_name" headerClass="table-header" bodyClass="table-body" style="width: 100px">
-            <template #body="{ data }">
-              {{ data.applicant_count ?? '-' }}
-            </template>
+            <template #body="{ data }">{{ data.email ?? '-' }}</template>
           </Column>
 
           <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 120px">
-            <template #body="{ data }">
-              {{ formatDate(data.created_date) }}
-            </template>
+            <template #body="{ data }">{{ formatDate(data.created_date) }}</template>
           </Column>
 
-          <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+          <Column header="회원 상태" headerClass="table-header" bodyClass="table-body" style="width: 100px">
             <template #body="{ data }">
               <Tag :value="data.status === 1 ? '승인' : '대기'" :severity="data.status === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
             </template>
@@ -391,6 +379,11 @@ const submitEdit = async () => {
 </template>
 
 <style scoped>
+:deep(.p-datatable-thead > tr > th) {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
 :deep(.table-header .p-datatable-column-header-content) {
   justify-content: center;
 }

@@ -7,7 +7,7 @@ const store = useCentersStore();
 
 // 페이지네이션
 const page = ref(1);
-const rows = ref(10);
+const rows = ref(13);
 
 // checkbox
 const selectedRows = ref([]);
@@ -46,28 +46,26 @@ const onPageChange = (e) => {
 </script>
 
 <template>
-  <div class="flex gap-4 p-4 pt-16 h-screen overflow-hidden">
+  <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
-    <aside class="w-[260px] px-6 pt-13 pb-13 rounded">
-      <h3 class="font-bold mb-3">검색</h3>
+    <aside class="w-[260px] bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200">
+      <h3 class="font-bold mb-4 text-gray-700">검색</h3>
 
       <IconField iconPosition="left">
-        <InputIcon class="pi pi-search" />
+        <InputIcon class="pi pi-search text-gray-400" />
         <InputText v-model="filters.global.value" class="w-full" placeholder="기관명 검색" />
       </IconField>
     </aside>
 
-    <div class="border-l-2 border-gray-300 mx-4 my-6 self-stretch"></div>
+    <!-- 메인 -->
+    <section class="flex-1 bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
+      <div class="flex justify-between items-center mb-5">
+        <h2 class="text-xl font-bold text-gray-800">지원신청내역</h2>
 
-    <section class="flex-1 px-6 pt-13 pb-13 rounded flex flex-col">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold">기관 정보</h2>
-        <div>
-          <Button label="기관 등록" icon="pi pi-building" class="mr-5" />
-          <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" />
-        </div>
+        <Button label="지원 신청" icon="pi pi-clipboard" severity="info" />
       </div>
-      <div class="flex-1 overflow-auto">
+
+      <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
         <DataTable
           :value="store.centers"
           v-model:selection="selectedRows"
@@ -85,7 +83,7 @@ const onPageChange = (e) => {
           :selectionPageOnly="true"
         >
           <template #empty>
-            <div class="text-center">데이터 없음</div>
+            <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
           <Column selectionMode="multiple" headerStyle="width:48px" />
@@ -146,26 +144,38 @@ const onPageChange = (e) => {
 </template>
 
 <style scoped>
+:deep(.p-datatable-thead > tr > th) {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+:deep(.p-datatable-tbody > tr:hover) {
+  background-color: #f3f4f6;
+}
+
 :deep(.table-header .p-datatable-column-header-content) {
   justify-content: center;
 }
 
 :deep(.table-body) {
   text-align: center;
+  color: #374151;
 }
 
 :deep(.status-tag) {
-  font-size: 0.85rem;
-  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
 }
 
 .edit-icon {
   cursor: pointer;
-  font-size: 1.2rem;
-  color: #555;
+  font-size: 1.1rem;
+  color: #6b7280;
+  transition: color 0.2s;
 }
 
 .edit-icon:hover {
-  color: #48c787;
+  color: #10b981;
 }
 </style>
