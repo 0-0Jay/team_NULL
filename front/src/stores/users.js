@@ -183,6 +183,7 @@ export const useUsersStore = defineStore('users', {
     async fetchApplicantDetail(ANo) {
       const { data } = await axios.get(`/api/users/applicant/${ANo}`);
       console.log('지원자 상세정보: ', data);
+      this.applicantDetail = data;
     }
   },
   persist: true
