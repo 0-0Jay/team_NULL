@@ -1,11 +1,13 @@
 <!-- 지원계획서 입력 창입니다 (12.28기준 작성중) -->
 
 <script setup>
-//11.28 작업
+//12.30 작업
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; //페이지 이동을 위함
+import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import axios from 'axios';
 
+const store = usePlanStore(); //pinia작업 위함
 const router = useRouter();
 
 const planAuthor = ref('');
@@ -16,8 +18,13 @@ const content = ref('');
 
 const submitPlan = async () => {
   //axios 작업하기
+  if (!planAuthor.value) {
+    alert('작성자를 입력해주세요.');
+    return;
+  }
   console.log(title.value, content.value, planAuthor.value, startDate.value, endDate.value);
 
+  //넘길 값들
   const data = {
     title: title.value,
     content: content.value,
@@ -27,7 +34,11 @@ const submitPlan = async () => {
     start: startDate.value,
     end: endDate.value
   };
-  console.log(data);
+
+  // await store.목록창(data);  // 추후에 사용할 예정 - 작성하고 나면 목록으로 이동됨
+  // router.push({ name: '목록창 이름'});
+
+  console.log(data); //pinia 감싸야 함
   try {
     //axios try catch로 감싸야 오류를 확인할 수 있음
     await axios.post('/api/plan', data); //api주소 맞음

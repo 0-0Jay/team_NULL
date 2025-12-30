@@ -19,6 +19,7 @@ const router = createRouter({
       path: '/planinsert',
       name: 'planinsert',
       component: () => import('@/views/PlanInsert.vue')
+      // meta: { showHeader: true }  //머지하고 다시해볼예정
     },
     { path: '/faq', name: 'faq', component: () => import('@/views/FaqList.vue') },
     {
@@ -79,8 +80,8 @@ const router = createRouter({
     {
       path: '/planDetail',
       name: 'planDetail',
-      component: () => import('@/views/PlanDetail.vue'),
-      meta: { showHeader: true }
+      component: () => import('@/views/PlanDetail.vue')
+      // meta: { showHeader: true }
     }
   ]
 });
