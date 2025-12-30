@@ -115,4 +115,18 @@ router.get("/users/:user_no", async (req, res) => {
   res.send(result);
 });
 
+// 마이페이지 - 지원자 목록 조회
+router.get("/users/:user_no/applicant", async (req, res) => {
+  const user_no = req.params.user_no;
+  let result = await usersService.findByUserNoApplicant(user_no);
+  res.send(result);
+});
+
+// 마이페이지 - 지원자 상세정보 조회
+router.get("/users/applicant/:a_no", async (req, res) => {
+  const a_no = req.params.a_no;
+  let result = await usersService.findByANoApplicant(a_no);
+  res.send(result);
+});
+
 module.exports = router;
