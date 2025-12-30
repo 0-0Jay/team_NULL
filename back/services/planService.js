@@ -1,4 +1,4 @@
-//모듈 생성
+//모듈 생성 12.30 작업
 const mysql = require("../database/mappers.js");
 
 //####### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
