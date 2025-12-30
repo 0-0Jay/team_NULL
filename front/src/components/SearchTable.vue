@@ -43,7 +43,7 @@ watch(
 </script>
 
 <template>
-  <aside class="w-[260px] px-6 pt-13 pb-13 rounded">
+  <aside class="w-[260px] px-6 pt-15 pb-6 rounded">
     <h3 class="font-bold mb-3">검색</h3>
 
     <!-- dropdown -->
@@ -51,7 +51,7 @@ watch(
 
     <!-- radio(필요시) -->
     <template v-if="useRadio">
-      <div class="font-semibold text-xl mb-1">사용승인</div>
+      <div class="font-semibold text-xl mb-2">사용승인</div>
       <div class="flex flex-col md:flex-row gap-4 mb-3">
         <div class="flex items-center">
           <RadioButton :value="-1" v-model="radioValue" />
