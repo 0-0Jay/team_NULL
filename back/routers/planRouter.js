@@ -6,18 +6,18 @@ const planService = require("../services/planService.js");
 
 // 지원계획서 작성  - 데이터 검사 완료
 router.post("/plan", async (req, res) => {
-  const { title, content, file, application_no, start, end, plan_author } =
+  const { title, content, plan_author, status, application_no, start, end } =
     req.body;
 
   try {
     const list = await planService.addPlan(
       title,
       content,
-      file,
+      plan_author,
+      status,
       application_no,
       start,
-      end,
-      plan_author
+      end
     );
     res.send(list);
   } catch (err) {

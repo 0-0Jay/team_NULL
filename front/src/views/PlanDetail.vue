@@ -1,27 +1,39 @@
-<!-- 지원계획서 상세 조회창 12.26기준 작성중 -->
+<!-- 지원계획서 입력 창입니다 (12.28기준 작성중) -->
 
 <script setup>
-import { usePlanStore } from '@/stores/plan';
+//12.30 작업
+import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import { onBeforeMount, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
+import { useRouter } from 'vue-router'; //페이지 이동을 위함
 
-const store = usePlanStore();
-const route = useRoute();
+const store = usePlanStore(); //pinia작업 위함
+const router = useRouter();
 
-const applicationNo = route.params.application_no;
+const title = ref('');
+const content = ref('');
+const planAuthor = ref('');
+const startDate = ref(null);
+const endDate = ref(null);
 
 onBeforeMount(() => {
-  store.fetchPlanDetail(applicationNo);
+  store.fetchPlan(); //plan인지 planDetail인지 잘 모르겠음
 });
 
-axios.get(`/api/plan/pending/${application_no}`).then((response) => {
-  console.log(response.data); //지원신청서 번호를 받아서 지원계획서 조회를
-});
+const submitPlan = async () => {
+  try {
+    //axios try catch로 감싸야 오류를 확인할 수 있음
+    await axios.get('/api/plan', data); //api주소 맞음
+    alert('저장 됨');
+  } catch (e) {
+    console.error(e);
+    alert('저장 안됨');
+  }
+};
 </script>
 
+<!--------------------------------------------------------------------------->
 <template>
-  <!---------------------------------------------------------->
+  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
@@ -98,72 +110,57 @@ axios.get(`/api/plan/pending/${application_no}`).then((response) => {
   </Tabs>
 
   <!----------------------------------------------------------->
-  <div v-if="store.planDetail">
-    <h2>지원계획서 상세</h2>
+  <div class="card flex flex-col">
+    <div class="font-bold text-2xl text-center mb-4">지원계획서 조회</div>
+    <DataTable :value="filterplan" :sortOrder="1" :rowHover="true" showGridlines>
+      <template #empty>
+        <div class="text-center">데이터 없음</div>
+      </template>
 
-    <p>신청번호: {{ store.planDetail.application_no }}</p>
-    <p>내용: {{ store.planDetail.content }}</p>
-  </div>
+      <Column selectionMode="multiple" headerStyle="width:48px" />
+      <!--삭제 때문에 행 선택 체크박스 필요함-->
 
-  <div v-else>로딩중...</div>
+      <Column header="번호" headerClass="center-header" bodyClass="center-body" style="width: 80px">
+        <template #body="{ index }">
+          {{ rowNumber(index) }}
+        </template>
+      </Column>
 
-  <div class="flex mt-8">
-    <div class="card flex flex-col gap-4 w-full">
-      <!----------------------------------------------->
-      <div class="card">
-        <div class="card flex flex-col gap-4">
-          <div class="font-bold text-2xl text-center">{{ plan_no }}지원계획서 조회</div>
-          <div class="flex flex-col grow basis-0 gap-2">
-            <label for="name">작성자</label>
-            <InputText v-model="name" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
-          </div>
+      <Column field="applicationNo" header="신청서 번호" headerClass="center-header" sortable style="width: 200px" />
+      <!--정렬의 기준이 됨-->
 
-          <div class="flex flex-col gap-2">
-            <label for="title">목표</label>
-            <InputText v-model="title" placeholder="지원계획 목표를 입력하세요." id="title" type="text" />
-          </div>
+      <Column header="목표" headerClass="center-header" bodyClass="center-body" style="width: 200px">
+        <template #body="{ data }">
+          {{ data.title ?? '-' }}
+        </template>
+      </Column>
 
-          <div class="flex gap-8 items-start">
-            <!--시작일-->
-            <div class="flex flex-col gap-2">
-              <div class="font-semibold text-xl">지원시작일</div>
-              <DatePicker :showIcon="true" :showButtonBar="true" v-model="startDate"></DatePicker>
-            </div>
+      <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+        <template #body="{ data }">
+          {{ data.startDate }}
+        </template>
+      </Column>
 
-            <!--종료일-->
-            <div class="flex flex-col gap-2">
-              <div class="font-semibold text-xl">지원종료일</div>
-              <DatePicker :showIcon="true" :showButtonBar="true" v-model="endDate"></DatePicker>
-            </div>
-          </div>
+      <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+        <template #body="{ data }">
+          {{ data.endDate }}
+        </template>
+      </Column>
 
-          <!--지원내용 작성란-->
-          <div class="flex flex-col gap-2">
-            <label for="content">지원내용</label>
-            <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="3" cols="30" />
-          </div>
+      <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+        <template #body="{ data }">
+          {{ data.content_date }}
+        </template>
+      </Column>
 
-          <!--첨부파일 삽입-->
-          <label for="file">첨부파일</label>
-          <input type="file" @change="onFilechange" />
-
-          <!--등록, 목록 버튼-->
-          <div class="flex flex-wrap gap-2 justify-center">
-            <Button label="등록" style="width: auto" @click="openConfirmation" />
-            <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-              <div class="flex items-center justify-center">
-                <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
-                <span>Are you sure you want to proceed?</span>
-              </div>
-              <template #footer>
-                <Button label="Yes" icon="pi pi-check" @click="addFaq" severity="danger" outlined autofocus />
-                <Button label="No" icon="pi pi-times" @click="closeConfirmation" text severity="secondary" />
-              </template>
-            </Dialog>
-            <Button label="목록" severity="danger" />
-          </div>
-        </div>
-      </div>
-    </div>
+      <Column header="첨부파일" headerClass="center-header" bodyClass="center-body" style="width: 100px"> </Column>
+    </DataTable>
   </div>
 </template>
+
+<style scoped>
+.insert-plan {
+  display: flex;
+  align-items: center;
+}
+</style>

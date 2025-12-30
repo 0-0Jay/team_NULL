@@ -12,14 +12,14 @@ export const usePlanStore = defineStore('plan', {
   //actions
 
   actions: {
-    //
-    async fetchPlan(formData) {
+    // 지원계획서 입력
+    async fetchPlan(data) {
       try {
-        const res = await axios.post(`/api/plan/`, formData);
-        this.plan = res.data;
+        const res = await axios.post(`/api/plan`, data);
+        this.planList.push(res.data); //목록에 추가
         return this.plan;
       } catch (err) {
-        console.log(err);
+        throw err;
       }
     },
 
