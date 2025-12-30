@@ -59,7 +59,7 @@ const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.e
                                         on u.user_no = m.user_no
                                         and m.unassign is null
                                     left join center c on u.c_no = c.c_no
-                                    where u.type = 1
+                                    where u.type = 1 and u.status != 2
                                     group by u.user_no, u.id, u.name,
                                              u.phone, u.email, c.name,
                                              u.created_date, u.status
@@ -102,6 +102,14 @@ const selectByUserNoApplicant = `SELECT name, a_no
 const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
                               FROM applicant
                               WHERE a_no= ?`;
+// 지원신청서 담당자 조회
+const selectByUserNoManagerUsers = `select m.a_no,
+                                           group_concat(u.name order by u.name separator ', ') as m_name
+                                    from manager m
+                                    join users u
+                                      on m.user_no = u.user_no
+                                    where m.unassign is null
+                                    group by m.a_no`;
 
 module.exports = {
   selectByIdAndPwUsers,
@@ -120,4 +128,5 @@ module.exports = {
   updateUserWithoutPw,
   selectByUserNoApplicant,
   selectByANoApplicant,
+  selectByUserNoManagerUsers,
 };
