@@ -142,11 +142,15 @@ const handleSave = (payload) => {
 
 const saveAll = async (reason) => {
   const updateData = {};
-  updateData['content'] = reason.content;
-  const user = JSON.parse(localStorage.getItem('users'));
-  updateData['author'] = user.user[0].user_no;
-  console.log(data);
-  // await store.updateSurvey(updateData);
+  if (reason.update == "1") {
+    updateData['content'] = reason.content;
+    const user = JSON.parse(localStorage.getItem('users'));
+    updateData['author'] = user.user[0].user_no;
+    updateData['survey'] = data.value;
+    await store.updateSurvey(updateData);
+  } else {
+    updataeData['data']
+  }
 };
 
 const deleteRow = (row) => {

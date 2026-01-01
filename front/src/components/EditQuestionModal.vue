@@ -112,7 +112,7 @@ const check = (bit) => {
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex items-center">
           <RadioButton id="option1" name="option" value="0" v-model="form.update" />
-          <label for="option1" class="leading-none ml-2">오탈자 수정</label>
+          <label for="option1" class="leading-none ml-2">현재 버전 수정</label>
         </div>
         <div class="flex items-center">
           <RadioButton id="option2" name="option" value="1" v-model="form.update" />

@@ -8,10 +8,18 @@ JOIN survey_question q ON d.d_no = q.d_no
 WHERE v.active = 1
 ORDER BY s.sec_no, d.d_no, q.q_no`;
 
+// 조사지 구버전 비활성화
+const updateSurveyVersion = `
+UPDATE survey_version SET active = 0`;
+
 // 조사지 새 버전 추가
 const insertSurveyVersion = `
 INSERT INTO survey_version(active, content, author)
 VALUES(1, ?, ?)`;
+
+// 조사지 새버전 이름 생성
+const updateSurveyVersionName = `
+UPDATE survey_version SET version_name = ? WHERE version_id = ?`
 
 // 조사지 새 버전 지원서 항목 추가
 const insertSurveySection = `
@@ -30,6 +38,8 @@ VALUES(?, ?, ?)`;
 
 module.exports = {
   selectAllSurvey,
+  updateSurveyVersion,
+  updateSurveyVersionName,
   insertSurveyDetail,
   insertSurveyQuestion,
   insertSurveySection,

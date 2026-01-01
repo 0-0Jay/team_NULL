@@ -20,6 +20,7 @@ export const useSurveyStore = defineStore('survey', {
       }
     },
 
+    // 조사지 업데이트(버전 업)
     async updateSurvey(data) {
       try {
         const response = await axios.post('/api/survey', data);
