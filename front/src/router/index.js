@@ -42,7 +42,7 @@ const router = createRouter({
       path: '/center',
       name: 'center',
       component: () => import('@/views/AdminCenterView.vue'),
-      meta: { showHeader: true }
+      // meta: { showHeader: true }
     },
     {
       path: '/center/manager',
@@ -96,7 +96,7 @@ const router = createRouter({
       path: '/planDetail',
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue'),
-      meta: { showHeader: true }
+      // meta: { showHeader: true }
     },
     {
       path: '/survey',
@@ -115,6 +115,12 @@ const router = createRouter({
       name: 'myPage',
       component: () => import('@/views/MyPage.vue'),
       meta: { showHeader: true }
+    },
+    {
+      path: '/counselInsert',
+      name: 'counselInsert',
+      component: () => import('@/views/CounselInsert.vue'),
+      // meta: { showHeader: true }
     }
   ]
 });

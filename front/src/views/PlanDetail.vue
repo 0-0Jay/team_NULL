@@ -3,32 +3,20 @@
 <script setup>
 //12.30 작업
 import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter } from 'vue-router'; //페이지 이동을 위함
 
 const store = usePlanStore(); //pinia작업 위함
 const router = useRouter();
-
-const title = ref('');
-const content = ref('');
-const planAuthor = ref('');
-const startDate = ref(null);
-const endDate = ref(null);
+const filterplan = computed(() => usePlanStore.planlist); // 화면에 보여질 테이터
+const rowNumber = (index) => index+1;
 
 onBeforeMount(() => {
   store.fetchPlan(); //plan인지 planDetail인지 잘 모르겠음
 });
 
-const submitPlan = async () => {
-  try {
-    //axios try catch로 감싸야 오류를 확인할 수 있음
-    await axios.get('/api/plan', data); //api주소 맞음
-    alert('저장 됨');
-  } catch (e) {
-    console.error(e);
-    alert('저장 안됨');
-  }
-};
+
+
 </script>
 
 <!--------------------------------------------------------------------------->
@@ -137,19 +125,19 @@ const submitPlan = async () => {
 
       <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
-          {{ data.startDate }}
+          {{ data.start_date }}
         </template>
       </Column>
 
       <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
-          {{ data.endDate }}
+          {{ data.end_date }}
         </template>
       </Column>
 
       <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
-          {{ data.content_date }}
+          {{ data.content ?? '-' }}
         </template>
       </Column>
 
@@ -159,8 +147,38 @@ const submitPlan = async () => {
 </template>
 
 <style scoped>
-.insert-plan {
-  display: flex;
-  align-items: center;
+:deep(.p-datatable-thead > tr > th) {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+:deep(.p-datatable-tbody > tr:hover) {
+  background-color: #f3f4f6;
+}
+
+:deep(.table-header .p-datatable-column-header-content) {
+  justify-content: center;
+}
+
+:deep(.table-body) {
+  text-align: center;
+  color: #374151;
+}
+
+:deep(.status-tag) {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.edit-icon {
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.edit-icon:hover {
+  color: #10b981;
 }
 </style>

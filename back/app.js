@@ -42,3 +42,7 @@ app.use(`/api`, applicationRouter);
 // 조사지 관련 라우터
 const surveyRouter = require("./routers/surveyRouter.js");
 app.use(`/api`, surveyRouter);
+
+// 상담내역 관련 라우터
+const counselRouter = require("./routers/counselRouter.js");
+app.use(`/api`, counselRouter);

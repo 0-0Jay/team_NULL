@@ -17,7 +17,7 @@ export const usePlanStore = defineStore('plan', {
       try {
         const res = await axios.post(`/api/plan`, data);
         this.planList.push(res.data); //목록에 추가
-        return this.plan;
+        return res.data;
       } catch (err) {
         throw err;
       }
