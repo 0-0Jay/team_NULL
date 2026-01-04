@@ -103,6 +103,21 @@ const selectByUserNoApplicant = `SELECT name, a_no
 const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
                               FROM applicant
                               WHERE a_no= ?`;
+
+// 마이페이지 - 지원자 상세 정보 수정
+const updateByANoApplicant = `UPDATE applicant
+                              SET name = ?, birth = ?, gender = ?, zipcode = ?, address = ?, address_detail = ?, disability = ?
+                              WHERE a_no = ?`;
+
+// 마이페이지 - 지원자 삭제
+const deleteByANoApplicant = `DELETE FROM applicant 
+                              WHERE a_no = ?`;
+
+// 마이페이지 -지원자 등록
+const insertApplicant = `INSERT INTO applicant (
+                         user_no, name, birth, gender, zipcode, address, address_detail, disability
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
 // 지원신청서 담당자 조회
 const selectByUserNoManagerUsers = `select m.a_no,
                                            group_concat(u.name order by u.name separator ', ') as m_name
@@ -129,5 +144,8 @@ module.exports = {
   updateUserWithoutPw,
   selectByUserNoApplicant,
   selectByANoApplicant,
+  updateByANoApplicant,
+  deleteByANoApplicant,
+  insertApplicant,
   selectByUserNoManagerUsers,
 };

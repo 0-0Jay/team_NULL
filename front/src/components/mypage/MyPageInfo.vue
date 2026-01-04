@@ -1,4 +1,4 @@
-<!-- components/MyPageInfo.vue -->
+<!-- components/mypage/MyPageInfo.vue -->
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useUsersStore } from '@/stores/users';

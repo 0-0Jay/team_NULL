@@ -114,7 +114,19 @@ const router = createRouter({
       path: '/myPage',
       name: 'myPage',
       component: () => import('@/views/MyPage.vue'),
-      meta: { showHeader: true }
+      meta: { showHeader: true },
+      children: [
+        {
+          path: '',
+          name: 'myPageApplicantEmpty',
+          component: () => import('@/components/mypage/ApplicantEmpty.vue')
+        },
+        {
+          path: ':a_no',
+          name: 'myPageApplicantDetail',
+          component: () => import('@/components/mypage/ApplicantDetail.vue')
+        }
+      ]
     }
   ]
 });

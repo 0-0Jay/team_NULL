@@ -218,6 +218,50 @@ const findByANoApplicant = async (a_no) => {
   return result;
 };
 
+// 마이페이지 - 지원자 상세정보 수정
+const modifyByAnoApplicant = async ({name, birth, gender, zipcode, address, address_detail, disability, a_no} = {}) => {
+  if (!name?.trim() || !birth || gender === undefined || zipcode == null || !address?.trim() || !disability?.trim() || a_no == null) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query("updateByANoApplicant", [name, birth, gender, zipcode, address, address_detail, disability, a_no], "users");
+  let resObj = {};
+  if (result.affectedRows > 0) {
+  resObj = { status: "success", a_no: a_no };
+  } else {
+  resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// 마이페이지 - 지원자 삭제
+const removeByANoApplicant = async (a_no) => {
+  let result = await mysql.query("deleteByANoApplicant", [a_no], "users");
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", a_no: a_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// 마이페이지 - 지원자 등록
+const addApplicant = async ({user_no, name, birth, gender, zipcode, address, address_detail, disability} = {}) => {
+  if (!user_no || !name?.trim() || !birth || gender === undefined || zipcode == null || !address?.trim() || !disability?.trim()) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "insertApplicant", [user_no, name, birth, gender, zipcode, address, address_detail, disability], "users"
+  );
+    let resObj = {};
+  if (result && result.insertId) {
+    resObj = { status: "success", a_no: result.insertId };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -235,4 +279,7 @@ module.exports = {
   findByUserNoUsers,
   findByUserNoApplicant,
   findByANoApplicant,
+  modifyByAnoApplicant,
+  removeByANoApplicant,
+  addApplicant
 };

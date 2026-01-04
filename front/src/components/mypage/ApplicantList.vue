@@ -1,7 +1,11 @@
+<!-- /component/mypage/ApplicantList.vue -->
+
 <script setup>
 import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 import 'primeicons/primeicons.css';
+const router = useRouter();
 const userStore = useUsersStore();
 const applicant = computed(() => userStore.applicant);
 const total = computed(() => applicant.value.length);
@@ -10,9 +14,9 @@ onMounted(() => {
   userStore.fetchApplicant();
 });
 
-function selectedApplicant(app) {
-  const ANo = app.a_no;
-  userStore.setSelectedApplicantNo(ANo);
+function selectedApplicant(a_no) {
+  console.log('클릭됨:', a_no);
+  router.push(`/myPage/${a_no}`)
 }
 </script>
 <template>
@@ -22,7 +26,7 @@ function selectedApplicant(app) {
       <div class="font-semibold text-xl text-black">지원자 목록</div>
       <div class="text-lg text-right mb-3">총 {{ total }}명</div>
       <ul>
-        <li v-for="app in applicant" :key="app.a_no" class="text-lg" @click="selectedApplicant(app)">
+        <li v-for="app in applicant" :key="app.a_no" class="text-lg" @click="selectedApplicant(app.a_no)">
           <div class="flex justify-between items-center">
             <span>{{ app.name }}</span
             ><span class="pi pi-arrow-circle-right" style="font-size: 1.5rem"></span>
