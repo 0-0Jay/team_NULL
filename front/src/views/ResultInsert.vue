@@ -1,46 +1,42 @@
-<!-- 지원계획서 입력 창입니다 -->
+<!-- 지원결과서 입력 창입니다.-->
 
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; //페이지 이동을 위함
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
+import { useResultStore } from '@/stores/result'; // pinia작업을 위함
 import axios from 'axios';
 
-const store = usePlanStore(); //pinia작업 위함
-const router = useRouter();
+const store = useResultStore(); //pinia작업 위함
+const router = useRouter()
 
-const planAuthor = ref('');
+const resultAuthor = ref('');
 const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
 
-const submitPlan = async () => {
+const submitResult = async () => {
   //axios 작업하기
-  if (!planAuthor.value) {
+  if (!resultAuthor.value) {
     alert('작성자를 입력해주세요.');
     return;
   }
-  console.log(title.value, content.value, planAuthor.value, startDate.value, endDate.value);
+  console.log(title.value, content.value, resultAuthor.value, startDate.value, endDate.value);
 
-  //넘길 값들
+    //넘길 값들
   const data = {
     title: title.value,
     content: content.value,
-    plan_author: planAuthor.value,
-    status: 1,
-    application_no: 11, //지원신청서 11번으로 테스트 중임
+    result_author: resultAuthor.value,
+    status: 0, 
+    plan_no: 11, //지원계획서 11번으로 테스트 중임
     start: startDate.value,
     end: endDate.value
   };
 
-  // await store.목록창(data);  // 추후에 사용할 예정 - 작성하고 나면 목록으로 이동됨
-  // router.push({ name: '목록창 이름'});
-
-  console.log(data); //pinia 감싸야 함
+  console.log(data); 
   try {
-    //axios try catch로 감싸야 오류를 확인할 수 있음
-    await axios.post('/api/plan', data); //api주소 맞음
+    await axios.post('/api/result', data);
     alert('저장 됨');
   } catch (e) {
     console.error(e);
@@ -49,9 +45,11 @@ const submitPlan = async () => {
 };
 </script>
 
-<!--------------------------------------------------------------------------->
+
+
+
 <template>
-  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+<!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
@@ -133,16 +131,16 @@ const submitPlan = async () => {
       <!----------------------------------------------->
       <div class="card">
         <div class="card flex flex-col gap-4">
-          <div class="font-bold text-2xl text-center">지원계획서 작성</div>
+          <div class="font-bold text-2xl text-center">지원결과서 작성</div>
           <div class="flex flex-col grow basis-0 gap-2">
             <label for="name">작성자</label>
-            <InputText v-model="planAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+            <InputText v-model="resultAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
           </div>
           <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
 
           <div class="flex flex-col gap-2">
             <label for="title">목표</label>
-            <InputText v-model="title" placeholder="지원계획 목표를 입력하세요." id="title" type="text" />
+            <InputText v-model="title" placeholder="지원결과 입력하세요." id="title" type="text" />
           </div>
 
           <div class="flex gap-8 items-start">
@@ -161,7 +159,7 @@ const submitPlan = async () => {
 
           <!--지원내용 작성란-->
           <div class="flex flex-col gap-2">
-            <label for="content">지원내용</label>
+            <label for="content">내용</label>
             <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="3" cols="30" />
           </div>
 
@@ -171,7 +169,7 @@ const submitPlan = async () => {
 
           <!--등록, 목록 버튼-->
           <div class="flex flex-wrap gap-2 justify-center">
-            <Button label="등록" style="width: auto" @click="submitPlan" />
+            <Button label="등록" style="width: auto" @click="submitResult" />
             <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
               <div class="flex items-center justify-center">
                 <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
@@ -190,9 +188,4 @@ const submitPlan = async () => {
   </div>
 </template>
 
-<style scoped>
-.insert-plan {
-  display: flex;
-  align-items: center;
-}
-</style>
+

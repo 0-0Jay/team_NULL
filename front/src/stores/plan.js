@@ -12,8 +12,20 @@ export const usePlanStore = defineStore('plan', {
   //actions
 
   actions: {
+     // 지원계획서 목록 조회
+    async fetchPlanList(application_no, status) {
+      try {
+        const res = await axios.get(`/api/plan/${application_no}`, {
+          params: { status }
+        });
+        this.planList = res.data;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+
     // 지원계획서 입력
-    async fetchPlan(data) {
+    async createPlan(data) {
       try {
         const res = await axios.post(`/api/plan`, data);
         this.planList.push(res.data); //목록에 추가
@@ -23,7 +35,7 @@ export const usePlanStore = defineStore('plan', {
       }
     },
 
-    //지원계획서 상세 정보 (1건)  -  수정예정 application_no => plan_no
+    //대기중인 지원계획서 조회
     async fetchPlanDetail(application_no) {
       try {
         const res = await axios.get(`/api/plan/pending/${application_no}`);

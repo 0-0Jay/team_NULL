@@ -1,23 +1,22 @@
-<!-- 지원계획서 조회창-->
+<!-- 지원결과서 조회창 -->
+
 <script setup>
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
+import { useResultStore } from '@/stores/result'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter } from 'vue-router'; //페이지 이동을 위함
 
-const store = usePlanStore(); //pinia작업 위함
+const store = useResultStore(); //pinia작업 위함
 const router = useRouter();
-// const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
 
-
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
+const filterresult = computed(() => store.resultList); // 화면에 보여질 테이터
 const rowNumber = (index) => index+1;
 
 // onBeforeMount(() => {
-//   store.fetchPlanList(application_no, 1); //승인된 계획서
+//   store.fetchResultList(plan_no, 1); //승인된 결과서
 // });
 
 onBeforeMount(() => {
-  store.fetchPlanList(11, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  store.fetchResultList(8, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -33,12 +32,10 @@ const formatDate = (v) => {
 
 
 
-
 </script>
 
-<!--------------------------------------------------------------------------->
 <template>
-  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+<!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
@@ -116,8 +113,8 @@ const formatDate = (v) => {
 
   <!----------------------------------------------------------->
   <div class="card flex flex-col">
-    <div class="font-bold text-2xl text-center mb-4">지원계획서 조회</div>
-    <DataTable :value="filterplan" :sortOrder="1" :rowHover="true" showGridlines>
+    <div class="font-bold text-2xl text-center mb-4">지원결과서 조회</div>
+    <DataTable :value="filterresult" :sortOrder="1" :rowHover="true" showGridlines>
       <template #empty>
         <div class="text-center">데이터 없음</div>
       </template>
@@ -131,9 +128,9 @@ const formatDate = (v) => {
         </template>
       </Column>
 
-      <Column field="applicationNo" header="신청서 번호" headerClass="center-header" sortable style="width: 200px">
+      <Column field="planNo" header="계획서 번호" headerClass="center-header" sortable style="width: 200px">
       <template #body="{ data }">
-          {{ data.application_no ?? '-' }}
+          {{ data.plan_no ?? '-' }}
         </template>
       </Column>
       <!--정렬의 기준이 됨-->
@@ -156,7 +153,7 @@ const formatDate = (v) => {
         </template>
       </Column>
 
-      <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+      <Column header="결과내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
           {{ data.content ?? '-' }}
         </template>

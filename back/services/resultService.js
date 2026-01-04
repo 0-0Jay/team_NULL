@@ -4,18 +4,30 @@ const mysql = require("../database/mappers.js");
 
 //지원결과서 작성 - 데이터 검사 완료
 
+//####### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
+const toDateString = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return date.toISOString().slice(0, 10);
+};
+
 const addResult = async (
   title,
   content,
-  file,
+  result_author,
+  status,
   plan_no,
   start,
   end,
-  result_author
 ) => {
+
+  //###### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
+  const startDate = toDateString(start);
+  const endDate = toDateString(end);
+
   let list = await mysql.query(
     "insertResult",
-    [title, content, file, plan_no, start, end, result_author],
+    [title, content, result_author, status, plan_no, startDate, endDate ],
     "result"
   );
   return list;

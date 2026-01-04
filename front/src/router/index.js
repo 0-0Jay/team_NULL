@@ -27,6 +27,12 @@ const router = createRouter({
       component: () => import('@/views/PlanInsert.vue')
       // meta: { showHeader: true }  //머지하고 다시해볼예정
     },
+     {
+      path: '/resultinsert',
+      name: 'resultinsert',
+      component: () => import('@/views/ResultInsert.vue')
+      // meta: { showHeader: true }  //머지하고 다시해볼예정
+    },
     { path: '/faq', name: 'faq', component: () => import('@/views/FaqList.vue') },
     {
       path: '/faq/create',
@@ -42,7 +48,7 @@ const router = createRouter({
       path: '/center',
       name: 'center',
       component: () => import('@/views/AdminCenterView.vue'),
-      // meta: { showHeader: true }
+      meta: { showHeader: true }
     },
     {
       path: '/center/manager',
@@ -96,6 +102,12 @@ const router = createRouter({
       path: '/planDetail',
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue'),
+      // meta: { showHeader: true }
+    },
+     {
+      path: '/resultDetail',
+      name: 'resultDetail',
+      component: () => import('@/views/ResultDetail.vue'),
       // meta: { showHeader: true }
     },
     {

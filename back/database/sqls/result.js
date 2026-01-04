@@ -2,7 +2,7 @@
 
 //지원결과서 작성 - *주의 : 지원'계획서'번호를 받아와야함
 const insertResult = `
-INSERT INTO result(title, content, file, plan_no, start, end, result_author)
+INSERT INTO result(title, content, result_author, status, plan_no, start, end )
 VALUES(?, ?, ?, ?, ?, ?, ?)`;
 
 //승인된 지원 결과서 조회 (일반, 관리자)
