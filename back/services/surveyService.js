@@ -1,26 +1,34 @@
 const mysql = require("../database/mappers.js");
 
+// 조사지 조회
 const findAllSurvey = async () => {
   let list = await mysql.query("selectAllSurvey", null, "survey");
   const data = {};
   for (let i = 0; i < list.length; i++) {
-    const section = list[i].section;
-    const detail = list[i].detail + "*" + list[i].info;
+    const sec_no = list[i].sec_no;
+    const d_no = list[i].d_no;
+    const q_no = list[i].q_no;
 
-    if (!data[section]) data[section] = {};
-    if (!data[section][detail]) data[section][detail] = [];
-    data[section][detail].push({
+    if (!data[sec_no]) data[sec_no] = { section: list[i].section, details: {} };
+    if (!data[sec_no]["details"][d_no])
+      data[sec_no]["details"][d_no] = {
+        detail: list[i].detail,
+        info: list[i].info,
+        questions: {},
+      };
+    data[sec_no]["details"][d_no]["questions"][q_no] = {
       question: list[i].question,
       type: list[i].type,
-    });
+    };
   }
   return data;
 };
 
+// 조사지 버전 추가
 const addSurvey = async (data) => {
-  // 1. 조사지 버전 추가
-  //   - 기존 버전 비활성화
-  const activeCtrl = await mysql.query("updateSurveyVersion", null, "survey");
+  // 기존 버전 비활성화
+  await mysql.query("updateSurveyVersion", null, "survey");
+  // 새 버전 생성
   const { content, author, survey } = data;
   const verResult = await mysql.query(
     "insertSurveyVersion",
@@ -28,41 +36,80 @@ const addSurvey = async (data) => {
     "survey"
   );
   const verId = verResult.insertId;
-  const verNaming = await mysql.query("updateSurveyVersionName", [`ver_${verId}`, verId], "survey"); 
-  // 2. 조사지 항목 추가
-  for (const section of Object.keys(survey)) {
+  await mysql.query(
+    "updateSurveyVersionName",
+    [`ver_${verId}`, verId],
+    "survey"
+  );
+  // 조사지 항목 추가
+  for (const secKey of Object.keys(survey)) {
+    const sectionData = survey[secKey];
     const secResult = await mysql.query(
       "insertSurveySection",
-      [section, verId],
+      [sectionData.section, verId],
       "survey"
-    )
+    );
     const secId = secResult.insertId;
-    const sectionData = survey[section];
 
-    for (const detailInfo of Object.keys(sectionData)) {
-      const [detail, info] = detailInfo.split("*");
+    for (const detKey of Object.keys(sectionData.details)) {
+      const detailData = sectionData.details[detKey];
       const detResult = await mysql.query(
         "insertSurveyDetail",
-        [secId, detail, info],
+        [secId, detailData.detail, detailData.info],
         "survey"
-      )
+      );
       const detId = detResult.insertId;
-      const detaildata = sectionData[detailInfo];
 
-      for (const q of detaildata) {
-        const {question, type} = q;
-        const questionResult = await mysql.query(
+      for (const qKey of Object.keys(detailData.questions)) {
+        const questionData = detailData.questions[qKey];
+        await mysql.query(
           "insertSurveyQuestion",
-          [detId, question, type],
+          [detId, questionData.question, questionData.type],
           "survey"
-        )
+        );
       }
     }
   }
-  console.log(verResult);
+  return verResult;
+};
+
+// 조사지 현 버전 수정
+const modifySurvey = async (data) => {
+  const { survey } = data;
+  // 항목 업데이트
+  for (const secKey of Object.keys(survey)) {
+    const sectionData = survey[secKey];
+    const secResult = await mysql.query(
+      "updateSurveySection",
+      [sectionData.section, secKey],
+      "survey"
+    );
+
+    for (const detKey of Object.keys(sectionData.details)) {
+      const detailData = sectionData.details[detKey];
+      const detResult = await mysql.query(
+        "updateSurveyDetail",
+        [detailData.detail, detailData.info, detKey],
+        "survey"
+      );
+
+      for (const qKey of Object.keys(detailData.questions)) {
+        const questionData = detailData.questions[qKey];
+        await mysql.query(
+          "updateSurveyQuestion",
+          [questionData.question, questionData.type, qKey],
+          "survey"
+        );
+      }
+    }
+  }
+  return {
+    status: "success",
+  };
 };
 
 module.exports = {
   findAllSurvey,
   addSurvey,
+  modifySurvey,
 };

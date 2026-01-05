@@ -6,7 +6,8 @@ const props = defineProps({
   mode: String,
   section: Object,
   detail: Object,
-  row: Object
+  row: Object,
+  hasStructure: Boolean
 });
 
 const form = reactive({
@@ -16,7 +17,7 @@ const form = reactive({
   info: '',
   section: '',
   content: '',
-  update: '0' // 0이면 오탈자 수정, 1이면 버전 업
+  update: '0' // 0이면 현재버전 수정, 1이면 버전 업
 });
 
 watch(
@@ -24,7 +25,8 @@ watch(
   (open) => {
     if (!open) return;
     if (props.mode == 'section') {
-      form.section = props.section.key;
+      console.log(props.section);
+      form.section = props.section.section;
     } else if (props.mode == 'detail') {
       form.detail = props.detail.detail;
       form.info = props.detail.info;
@@ -33,6 +35,17 @@ watch(
       form.type = props.row.type;
     }
   }
+);
+
+watch(
+  () => props.hasStructure,
+  (val) => {
+    console.log(props.hasStructure);
+    if (val) {
+      form.update = '1';
+    }
+  },
+  { immediate: true }
 );
 
 const emit = defineEmits(['update:modelValue', 'save', 'saveAll']);
@@ -44,11 +57,27 @@ const close = () => {
 const save = () => {
   if (props.mode == 'row' && form.type == 0) return;
   if (props.mode == 'all') {
-    emit('saveAll', { content: form.content, update: form.update });
+    emit('saveAll', {
+      content: form.content,
+      update: form.update
+    });
   } else if (props.mode == 'section') {
-    emit('save', { section: form.section });
-  } else {
-    emit('save', { ...form, oldKey: props.detail?.oldKey, section: props.detail?.section });
+    emit('save', {
+      sec_no: props.section?.sec_no ?? null,
+      section: form.section
+    });
+  } else if (props.mode == 'detail') {
+    emit('save', {
+      sec_no: props.detail?.sec_no,
+      d_no: props.detail?.d_no ?? null,
+      detail: form.detail,
+      info: form.info
+    });
+  } else if (props.mode == 'row') {
+    emit('save', {
+      question: form.question,
+      type: form.type
+    });
   }
   close();
 };
@@ -111,14 +140,16 @@ const check = (bit) => {
       </div>
       <div class="flex flex-col md:flex-row gap-4">
         <div class="flex items-center">
-          <RadioButton id="option1" name="option" value="0" v-model="form.update" />
-          <label for="option1" class="leading-none ml-2">현재 버전 수정</label>
+          <RadioButton id="option1" name="option" value="0" v-model="form.update" :disabled="props.hasStructure" />
+          <label for="option1" class="leading-none ml-2" :class="{ 'text-gray-400': props.hasStructure }"> 현재 버전 수정 </label>
         </div>
+
         <div class="flex items-center">
           <RadioButton id="option2" name="option" value="1" v-model="form.update" />
-          <label for="option2" class="leading-none ml-2">새 버전 생성</label>
+          <label for="option2" class="leading-none ml-2"> 새 버전 생성 </label>
         </div>
       </div>
+      <p v-if="props.hasStructure" class="text-sm text-red-500">항목이 추가/삭제되어 새 버전 생성만 가능합니다.</p>
     </div>
     <template #footer>
       <Button label="저장" @click="save" />

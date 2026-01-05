@@ -1,6 +1,6 @@
 // 최신버전 조사지 조회
 const selectAllSurvey = `
-SELECT s.section, d.detail, d.info, q.question, q.type
+SELECT s.sec_no, s.section, d.d_no, d.detail, d.info, q.q_no, q.question, q.type
 FROM survey_version v
 JOIN survey_section s ON s.version_id = v.version_id
 JOIN survey_detail d ON d.sec_no = s.sec_no
@@ -19,7 +19,7 @@ VALUES(1, ?, ?)`;
 
 // 조사지 새버전 이름 생성
 const updateSurveyVersionName = `
-UPDATE survey_version SET version_name = ? WHERE version_id = ?`
+UPDATE survey_version SET version_name = ? WHERE version_id = ?`;
 
 // 조사지 새 버전 지원서 항목 추가
 const insertSurveySection = `
@@ -36,6 +36,24 @@ const insertSurveyQuestion = `
 INSERT INTO survey_question(d_no, question, type)
 VALUES(?, ?, ?)`;
 
+// 조사지 현 버전 지원서 항목 수정
+const updateSurveySection = `
+UPDATE survey_section
+SET section = ?
+WHERE sec_no = ?`;
+
+// 조사지 현 버전 세부 항복 수정
+const updateSurveyDetail = `
+UPDATE survey_detail
+SET detail = ?, info = ?
+WHERE d_no = ?`;
+
+// 조사지 현 버전 문항 수정
+const updateSurveyQuestion = `
+UPDATE survey_question
+SET question = ?, type = ?
+WHERE q_no = ?`;
+
 module.exports = {
   selectAllSurvey,
   updateSurveyVersion,
@@ -44,4 +62,7 @@ module.exports = {
   insertSurveyQuestion,
   insertSurveySection,
   insertSurveyVersion,
+  updateSurveySection,
+  updateSurveyDetail,
+  updateSurveyQuestion,
 };
