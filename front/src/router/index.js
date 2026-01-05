@@ -125,6 +125,11 @@ const router = createRouter({
           path: ':a_no',
           name: 'myPageApplicantDetail',
           component: () => import('@/components/mypage/ApplicantDetail.vue')
+        },
+        {
+          path: 'new',
+          name: 'myPageApplicantCreate',
+          component: () => import('@/components/mypage/ApplicantCreate.vue')
         }
       ]
     }

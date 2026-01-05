@@ -115,6 +115,14 @@ router.get("/users/:user_no", async (req, res) => {
   res.send(result);
 });
 
+// 일반회원 마이페이지 - 나의 정보 수정
+router.put("/users/:user_no", async (req, res) => {
+  const generaluserInfo = req.body;
+  generaluserInfo.user_no = req.params.user_no;
+  let result = await usersService.modifyByUserNoGeneralUsers(generaluserInfo);
+  res.send(result);
+});
+
 // 마이페이지 - 지원자 목록 조회
 router.get("/users/:user_no/applicant", async (req, res) => {
   const user_no = req.params.user_no;

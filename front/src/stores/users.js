@@ -164,6 +164,20 @@ export const useUsersStore = defineStore('users', {
       console.log('회원 정보: ', data);
       this.myInfo = data[0];
     },
+
+    // 일반회원 마이페이지 - 나의 정보 수정
+    async modifyMyInfo(formData) {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) return;
+      try {
+        const user_no = authStore.user.user_no;
+        const payload = { user_no, ...formData };
+        await axios.put(`/api/users/${user_no}`, payload);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     // 마이페이지 - 지원자 목록 불러오기
     async fetchApplicant() {
       const authStore = useAuthStore();
@@ -190,14 +204,28 @@ export const useUsersStore = defineStore('users', {
       try {
         const res = await axios.delete(`/api/users/applicant/${a_no}`);
         if (res.data.status === 'success') {
-          this.applicant = this.applicant.filter(
-            app => app.a_no !== a_no
-          );        
+          this.applicant = this.applicant.filter((app) => app.a_no !== a_no);
         }
         return res.data;
       } catch (e) {
         return { status: 'error' };
       }
+    },
+    // 마이페이지 - 지원자 등록
+    async addApplicant(payload) {
+      const authStore = useAuthStore();
+      if (!authStore.user?.user_no) {
+        return { status: 'error', message: 'unauthorized' };
+      }
+      const body = {
+        user_no: authStore.user.user_no,
+        ...payload
+      };
+      const { data } = await axios.post(`/api/users/applicant/new`, body);
+      if (data.status === 'success') {
+        await this.fetchApplicant();
+      }
+      return data;
     }
   },
   persist: true

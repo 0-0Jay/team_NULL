@@ -9,7 +9,7 @@ import ApplicantDetail from '@/components/mypage/ApplicantDetail.vue';
     <MyPageInfo class="md:w-1/5" />
     <ApplicantList class="md:w-1/5" />
     <div class="md:w-3/5 flex h-full">
-      <router-view class="flex-1"/>
+      <router-view class="flex-1" />
     </div>
   </div>
 </template>
