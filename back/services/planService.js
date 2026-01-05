@@ -1,4 +1,3 @@
-//모듈 생성 12.30 작업
 const mysql = require("../database/mappers.js");
 
 //####### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
@@ -38,6 +37,12 @@ const findPlan = async (application_no, status) => {
   return list;
 };
 
+// 반려된 지원계획서 조회
+const findRejectPlan = async (application_no) => {
+  let list = await mysql.query("rejectPlan", [application_no], "plan");
+  return list;
+};
+
 //승인대기 중인 지원계획서 조회 (승인된 지원계획서랑 쿼리문이 달라서 나눠서 적은 것) - 데이터 테스트 완료
 const findPendingPlan = async (application_no) => {
   let list = await mysql.query("selectPendingPlan", [application_no], "plan");
@@ -47,5 +52,7 @@ const findPendingPlan = async (application_no) => {
 module.exports = {
   addPlan,
   findPlan,
+  findRejectPlan,
   findPendingPlan,
+  
 };

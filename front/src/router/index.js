@@ -135,13 +135,13 @@ const router = createRouter({
       // meta: { showHeader: true }
     },
     {
-      path: '/rejectplanDetail',
+      path: '/rejectplanDetail/:application_no',
       name: 'rejectplanDetail',
       component: () => import('@/views/RejectPlanDetail.vue')
       // meta: { showHeader: true }
     },
     {
-      path: '/rejectresultDetail',
+      path: '/rejectresultDetail/:plan_no',
       name: 'rejectresultDetail',
       component: () => import('@/views/RejectResultDetail.vue')
       // meta: { showHeader: true }

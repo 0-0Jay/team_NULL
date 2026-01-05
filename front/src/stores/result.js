@@ -35,6 +35,17 @@ export const useResultStore = defineStore('result', {
       }
     },
 
+    //반려된 지원결과서 조회
+    async fetchRejectResultList(plan_no) {
+      try {
+       const res = await axios.get(`/api/result/reject/${plan_no}`);
+       this.resultList = res.data;
+     } catch (err) {
+       console.error('반려된 지원계획서 조회 실패', err);
+  }
+},
+
+
     //대기중인 지원결과서 조회
     async fetchResultDetail(plan_no) {
       try {

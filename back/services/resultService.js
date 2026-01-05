@@ -39,6 +39,12 @@ const findResult = async (plan_no, status) => {
   return list;
 };
 
+// 반려된 지원결과서 조회
+const findRejectResult = async (plan_no) => {
+  let list = await mysql.query("rejectResult", [plan_no], "result");
+  return list;
+};
+
 //승인대기 중인 지원결과서 조회 - 테이터 검사 완료
 const findPendingResult = async (plan_no) => {
   let list = await mysql.query("selectPendingResult", [plan_no], "result");
@@ -48,5 +54,6 @@ const findPendingResult = async (plan_no) => {
 module.exports = {
   addResult,
   findResult,
+  findRejectResult,
   findPendingResult,
 };

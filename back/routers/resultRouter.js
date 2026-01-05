@@ -34,6 +34,13 @@ router.get("/result/:plan_no", async (req, res) => {
   res.send(resultList);
 });
 
+//반려된 지원계획서 조회
+router.get("/result/reject/:plan_no", async (req, res) => {
+  const { plan_no } = req.params;
+  const rejectList = await resultService.findRejectResult(plan_no);
+  res.send(rejectList);
+});
+
 //승인대기중인 지원결과서 조회 -
 router.get("/result/pending/:plan_no", async (req, res) => {
   const { plan_no } = req.params;

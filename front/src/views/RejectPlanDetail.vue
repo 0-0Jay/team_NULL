@@ -19,7 +19,7 @@ onBeforeMount(() => {
     console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchPlanList(Number(route.params.application_no), 2); //반려된 계획서
+  store.fetchRejectPlanList(Number(route.params.application_no), 2); //반려된 계획서만 화면에 송출
 });
 
 // onBeforeMount(() => {
@@ -154,6 +154,14 @@ const formatDate = (v) => {
       <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
           {{ formatDate(data.end) }}
+        </template>
+      </Column>
+
+      <Column header="반려 된 날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+        <template #body="{ data }">
+          <span class="text-red-500 font-bold">
+            {{ formatDate(data.reject_date) }}
+          </span>
         </template>
       </Column>
 

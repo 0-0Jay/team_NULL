@@ -3,20 +3,23 @@
 <script setup>
 import { useResultStore } from '@/stores/result'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
-import { useRouter } from 'vue-router'; //페이지 이동을 위함
+import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 
 const store = useResultStore(); //pinia작업 위함
 const router = useRouter();
+const route = useRoute();
 
 const filterresult = computed(() => store.resultList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
-// onBeforeMount(() => {
-//   store.fetchResultList(plan_no, 2); //반려된 결과서
-// });
-
 onBeforeMount(() => {
-  store.fetchResultList(10, 2); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  const plan_no = Number(route.params.plan_no);
+
+  if (!plan_no) {
+    console.error('plan_no 없음:', route.params.plan_no);
+    return;
+  }
+  store.fetchRejectResultList(Number(route.params.plan_no), 2); //반려된 계획서만 화면에 송출
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -147,6 +150,14 @@ const formatDate = (v) => {
       <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
           {{ formatDate(data.end) }}
+        </template>
+      </Column>
+
+      <Column header="반려 된 날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+        <template #body="{ data }">
+          <span class="text-red-500 font-bold">
+            {{ formatDate(data.reject_date) }}
+          </span>
         </template>
       </Column>
 
