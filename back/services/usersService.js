@@ -190,7 +190,7 @@ const modifyPwByUsernoUsers = async (user_no, pw) => {
 
 // 회원탈퇴
 const modifyStatusByUsernoUsers = async (user_no) => {
-  let result = await mysql.query("");
+  let result = await mysql.query("updateStatusByUsernoUsers", [user_no], "users");
   let resObj = {};
   if (result.affectedRows > 0) {
     resObj = { status: "success", user_no: user_no };

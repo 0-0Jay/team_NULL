@@ -103,8 +103,8 @@ async function delApplicant() {
     await userStore.fetchApplicant();
     router.push(`/myPage`);
     alert('삭제되었습니다.');
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     alert('삭제 실패');
   }
 }

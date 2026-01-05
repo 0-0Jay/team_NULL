@@ -111,7 +111,7 @@ const router = createRouter({
       meta: { showHeader: true }
     },
     {
-      path: '/myPage',
+      path: '/mypage',
       name: 'myPage',
       component: () => import('@/views/MyPage.vue'),
       meta: { showHeader: true },

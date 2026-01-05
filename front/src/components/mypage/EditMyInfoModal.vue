@@ -1,6 +1,11 @@
 <!-- /component/mypage/EditMyInfoModal.vue -->
 <script setup>
 import { reactive, watch, ref } from 'vue';
+import { useUsersStore } from '@/stores/users';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import router from '@/router';
+const userStore = useUsersStore();
+const visible = ref(false);
 
 const props = defineProps({
   modalValue: Boolean,
@@ -54,6 +59,20 @@ function closeAddress() {
   display.value = false;
 }
 
+// 회원 탈퇴 함수
+function openWithdrawConfirm() {
+  visible.value = true;
+}
+async function withdrawUser() {
+  const result = await userStore.withdrawUser();
+  if (result.status === 'success') {
+    alert('탈퇴 되었습니다.');
+    router.push('/');
+  } else {
+    alert(result.message);
+  }
+}
+
 // 날짜 포맷 함수
 const formatDate = (v) => {
   if (!v) return '-';
@@ -105,11 +124,13 @@ const formatDate = (v) => {
           <th class="text-left py-2 px-2 border-r">가입일</th>
           <td class="py-2 px-2 flex justify-between items-center">
             <span>{{ formatDate(myInfo.created_date) }}</span>
-            <Button label="회원탈퇴" severity="secondary" />
+            <Button label="회원탈퇴" severity="secondary" @click="openWithdrawConfirm" />
           </td>
         </tr>
       </tbody>
     </table>
+    <ConfirmDialog v-model:visible="visible" @confirm="withdrawUser"> 정말로 탈퇴하시겠습니까? </ConfirmDialog>
+
     <template #footer>
       <div class="flex justify-center w-full">
         <Button label="수정" severity="warn" class="w-30" @click="save" />
