@@ -24,10 +24,10 @@ const router = createRouter({
     {
       path: '/planinsert',
       name: 'planinsert',
-      component: () => import('@/views/PlanInsert.vue')
-      // meta: { showHeader: true }  //머지하고 다시해볼예정
+      component: () => import('@/views/PlanInsert.vue'),
+      meta: { showHeader: true } //머지하고 다시해볼예정
     },
-     {
+    {
       path: '/resultinsert',
       name: 'resultinsert',
       component: () => import('@/views/ResultInsert.vue')
@@ -101,13 +101,13 @@ const router = createRouter({
     {
       path: '/planDetail',
       name: 'planDetail',
-      component: () => import('@/views/PlanDetail.vue'),
+      component: () => import('@/views/PlanDetail.vue')
       // meta: { showHeader: true }
     },
-     {
+    {
       path: '/resultDetail',
       name: 'resultDetail',
-      component: () => import('@/views/ResultDetail.vue'),
+      component: () => import('@/views/ResultDetail.vue')
       // meta: { showHeader: true }
     },
     {
@@ -131,7 +131,25 @@ const router = createRouter({
     {
       path: '/counselInsert',
       name: 'counselInsert',
-      component: () => import('@/views/CounselInsert.vue'),
+      component: () => import('@/views/CounselInsert.vue')
+      // meta: { showHeader: true }
+    },
+    {
+      path: '/rejectplanDetail',
+      name: 'rejectplanDetail',
+      component: () => import('@/views/RejectPlanDetail.vue')
+      // meta: { showHeader: true }
+    },
+    {
+      path: '/rejectresultDetail',
+      name: 'rejectresultDetail',
+      component: () => import('@/views/RejectResultDetail.vue')
+      // meta: { showHeader: true }
+    },
+    {
+      path: '/counselDetail',
+      name: 'counselDetail',
+      component: () => import('@/views/CounselDetail.vue')
       // meta: { showHeader: true }
     }
   ]

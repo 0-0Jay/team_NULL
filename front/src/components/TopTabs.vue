@@ -1,16 +1,13 @@
-<!-- 지원계획서 조회창-->
+<!-- 지원계획서/신청서 관련 탭 부분입니다 -->
+
 <script setup>
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
-import { onBeforeMount, computed, ref, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const store = usePlanStore(); //pinia작업 위함
 const router = useRouter();
-const route = useRoute(); // 현재 경로 확인용
-// const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
+const route = useRoute();
 
-// 상위 TAB 클릭하면 클릭 된 것 유지하기 위함
-const activeTab = ref('0');
+const activeTab = ref('1'); //초기값이 지원계획서 탭임
 
 watch(
   () => route.path,
@@ -62,31 +59,8 @@ watch(
   },
   { immediate: true }
 );
-
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
-const rowNumber = (index) => index + 1;
-
-// onBeforeMount(() => {
-//   store.fetchPlanList(application_no, 1); //승인된 계획서
-// });
-
-onBeforeMount(() => {
-  store.fetchPlanList(11, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
-});
-
-//날짜 포멧 - 유민님 파일에서 따옴
-const formatDate = (v) => {
-  if (!v) return '-';
-  const d = new Date(v);
-  if (Number.isNaN(d.getTime())) return v;
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}.${m}.${day}`;
-};
 </script>
 
-<!--------------------------------------------------------------------------->
 <template>
   <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs v-model:value="activeTab">
@@ -145,93 +119,4 @@ const formatDate = (v) => {
       <TabPanel value="4"> 캘린더 화면 출력돼야함 (캘린더 화면 구축되면 링크 걸어야 함)</TabPanel>
     </TabPanels>
   </Tabs>
-
-  <!----------------------------------------------------------->
-  <div class="card flex flex-col">
-    <div class="font-bold text-2xl text-center mb-4">지원계획서 조회</div>
-    <DataTable :value="filterplan" :sortOrder="1" :rowHover="true" showGridlines>
-      <template #empty>
-        <div class="text-center">데이터 없음</div>
-      </template>
-
-      <Column selectionMode="multiple" headerStyle="width:48px" />
-      <!--삭제 때문에 행 선택 체크박스 필요함-->
-
-      <Column header="번호" headerClass="center-header" bodyClass="center-body" style="width: 80px">
-        <template #body="{ index }">
-          {{ rowNumber(index) }}
-        </template>
-      </Column>
-
-      <Column field="applicationNo" header="신청서 번호" headerClass="center-header" sortable style="width: 200px">
-        <template #body="{ data }">
-          {{ data.application_no ?? '-' }}
-        </template>
-      </Column>
-      <!--정렬의 기준이 됨-->
-
-      <Column header="목표" headerClass="center-header" bodyClass="center-body" style="width: 200px">
-        <template #body="{ data }">
-          {{ data.title ?? '-' }}
-        </template>
-      </Column>
-
-      <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.start) }}
-        </template>
-      </Column>
-
-      <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.end) }}
-        </template>
-      </Column>
-
-      <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ data.content ?? '-' }}
-        </template>
-      </Column>
-
-      <Column header="첨부파일" headerClass="center-header" bodyClass="center-body" style="width: 100px"> </Column>
-    </DataTable>
-  </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background-color: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-:deep(.p-datatable-tbody > tr:hover) {
-  background-color: #f3f4f6;
-}
-
-:deep(.table-header .p-datatable-column-header-content) {
-  justify-content: center;
-}
-
-:deep(.table-body) {
-  text-align: center;
-  color: #374151;
-}
-
-:deep(.status-tag) {
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-}
-
-.edit-icon {
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: #6b7280;
-  transition: color 0.2s;
-}
-
-.edit-icon:hover {
-  color: #10b981;
-}
-</style>

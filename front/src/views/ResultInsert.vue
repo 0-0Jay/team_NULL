@@ -1,13 +1,68 @@
 <!-- 지원결과서 입력 창입니다.-->
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'; //페이지 이동을 위함
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 import { useResultStore } from '@/stores/result'; // pinia작업을 위함
 import axios from 'axios';
 
 const store = useResultStore(); //pinia작업 위함
-const router = useRouter()
+const router = useRouter();
+const route = useRoute(); // 현재 경로 확인용
+
+// 상위 TAB 클릭하면 클릭 된 것 유지하기 위함
+const activeTab = ref('0');
+
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath?.startsWith('/plan')) activeTab.value = '1';
+    else if (newPath?.startsWith('/result')) activeTab.value = '2';
+    else if (newPath?.startsWith('/counsel')) activeTab.value = '3';
+    else if (newPath?.startsWith('/calendar')) activeTab.value = '4';
+    else activeTab.value = '0';
+  },
+  { immediate: true }
+);
+
+// 지원 계획서 하위 TAB
+const planSubTab = ref('1-0');
+watch(
+  () => route.path,
+  (path) => {
+    path = path || '';
+    if (path.includes('insert')) planSubTab.value = '1-3';
+    else if (path.includes('reject')) planSubTab.value = '1-2';
+    else if (path.includes('pending')) planSubTab.value = '1-1';
+    else planSubTab.value = '1-0';
+  },
+  { immediate: true }
+);
+
+// 지원 결과서 하위 TAB
+const resultSubTab = ref('2-0');
+watch(
+  () => route.path,
+  (path) => {
+    path = path || '';
+    if (path.includes('insert')) resultSubTab.value = '2-3';
+    else if (path.includes('reject')) resultSubTab.value = '2-2';
+    else if (path.includes('pending')) resultSubTab.value = '2-1';
+    else resultSubTab.value = '2-0';
+  },
+  { immediate: true }
+);
+
+// 상담내역 하위 TAB
+const counselSubTab = ref('3-0');
+watch(
+  () => route.path,
+  (path) => {
+    path = path || '';
+    counselSubTab.value = path.includes('insert') ? '3-1' : '3-0';
+  },
+  { immediate: true }
+);
 
 const resultAuthor = ref('');
 const title = ref('');
@@ -23,18 +78,18 @@ const submitResult = async () => {
   }
   console.log(title.value, content.value, resultAuthor.value, startDate.value, endDate.value);
 
-    //넘길 값들
+  //넘길 값들
   const data = {
     title: title.value,
     content: content.value,
     result_author: resultAuthor.value,
-    status: 0, 
+    status: 0,
     plan_no: 11, //지원계획서 11번으로 테스트 중임
     start: startDate.value,
     end: endDate.value
   };
 
-  console.log(data); 
+  console.log(data);
   try {
     await axios.post('/api/result', data);
     alert('저장 됨');
@@ -45,83 +100,62 @@ const submitResult = async () => {
 };
 </script>
 
-
-
-
 <template>
-<!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
-  <Tabs value="0">
+  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+  <Tabs v-model:value="activeTab">
+    <!--하드 코딩 안하려고 작성함-->
     <!-- 상위 탭 -->
     <TabList>
-      <Tab value="0">지원신청서</Tab>
-      <Tab value="1">지원계획서</Tab>
-      <Tab value="2">지원결과서</Tab>
-      <Tab value="3">상담내역</Tab>
-      <Tab value="4">캘린더</Tab>
+      <!-- <Tab value="0"><RouterLink to="/apply">지원신청서</RouterLink></Tab> -->
+      <Tab value="1"><RouterLink to="/plandetail">지원계획서</RouterLink></Tab>
+      <Tab value="2"><RouterLink to="/resultdetail">지원결과서</RouterLink></Tab>
+      <Tab value="3"><RouterLink to="/counseldetail">상담내역</RouterLink></Tab>
+      <!-- <Tab value="4"><RouterLink to="/calendar">캘린더</RouterLink></Tab> -->
     </TabList>
 
     <TabPanels>
       <!-- 지원신청서 -->
-      <TabPanel value="0"> 지원신청서 화면 출력돼야함 </TabPanel>
+      <TabPanel value="0"> 지원신청서 화면 출력돼야함(신청서 화면 구축되면 링크 걸어야 함) </TabPanel>
 
       <!-- 지원계획서 -->
       <TabPanel value="1">
         <!-- 지원계획서 세부 탭 -->
-        <Tabs value="1-0">
+        <Tabs v-model:value="planSubTab">
           <TabList>
-            <Tab value="1-0">지원계획서 조회</Tab>
-            <Tab value="1-1">승인대기 조회</Tab>
-            <Tab value="1-2">반려내역 조회</Tab>
-            <Tab value="1-3">지원계획서 작성</Tab>
+            <Tab value="1-0"><RouterLink to="/plandetail">지원계획서 조회(확인)</RouterLink></Tab>
+            <Tab value="1-1">승인대기 조회(작업해야함)</Tab>
+            <Tab value="1-2">반려내역 조회(작업해야함)</Tab>
+            <Tab value="1-3"><RouterLink to="planinsert">지원계획서 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="1-0"> 지원계획서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="1-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-3"> 지원계획서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
       <!--지원결과서-->
       <TabPanel value="2">
         <!-- 지원결과서 세부 탭 -->
-        <Tabs value="2-0">
+        <Tabs v-model:value="resultSubTab">
           <TabList>
-            <Tab value="2-0">지원결과서 조회</Tab>
-            <Tab value="2-1">승인대기 조회</Tab>
-            <Tab value="2-2">반려내역 조회</Tab>
-            <Tab value="2-3">지원결과서 작성</Tab>
+            <Tab value="2-0"><RouterLink to="/resultdetail">지원결과서 조회(확인)</RouterLink></Tab>
+            <Tab value="2-1">승인대기 조회(작업해야함)</Tab>
+            <Tab value="2-2">반려내역 조회(작업해야함)</Tab>
+            <Tab value="2-3"><RouterLink to="/resultinsert">지원결과서 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="2-0"> 지원결과서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="2-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-3"> 지원결과서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
       <!--상담내역-->
       <TabPanel value="3">
         <!-- 상담내역 세부 탭 -->
-        <Tabs value="3-0">
+        <Tabs v-model:value="counselSubTab">
           <TabList>
-            <Tab value="3-0">상담내역 조회</Tab>
-            <Tab value="3-1">상담내역 작성</Tab>
+            <Tab value="3-0"><RouterLink to="/counseldetail">상담내역 조회(확인)</RouterLink></Tab>
+            <Tab value="3-1"><RouterLink to="/counselinsert">상담내역 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="3-0"> 상담내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="3-1"> 상담내역 화면 출력 돼야함</TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
       <!--캘린더-->
-      <TabPanel value="4"> 캘린더 화면 출력돼야함 </TabPanel>
+      <TabPanel value="4"> 캘린더 화면 출력돼야함 (캘린더 화면 구축되면 링크 걸어야 함)</TabPanel>
     </TabPanels>
   </Tabs>
 
@@ -187,5 +221,3 @@ const submitResult = async () => {
     </div>
   </div>
 </template>
-
-

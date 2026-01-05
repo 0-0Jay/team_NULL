@@ -1,9 +1,8 @@
 <!-- 상담내역 작성-->
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from 'axios';
-
 
 const title = ref('');
 const content = ref('');
@@ -22,6 +21,7 @@ const submitCounsel = async () => {
     application_no: 1,
     title: title.value,
     content: content.value,
+    save: 0,
     counsel_date: counselDate.value,
     counsel_author: counselAuthor.value
   };
@@ -29,21 +29,20 @@ const submitCounsel = async () => {
   // await store.목록창(data);  // 추후에 사용할 예정 - 작성하고 나면 목록으로 이동됨
   // router.push({ name: '목록창 이름'});
 
-  console.log(data); //pinia 감싸야 함
+  console.log(data);
   try {
-    //axios try catch로 감싸야 오류를 확인할 수 있음
-    await axios.post('/api/counsel', data); //api주소 맞음
+    await axios.post('/api/counsel', data);
     alert('저장 됨');
   } catch (e) {
     console.error(e);
     alert('저장 안됨');
   }
 };
-
 </script>
 
 <template>
-<!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
@@ -56,25 +55,18 @@ const submitCounsel = async () => {
 
     <TabPanels>
       <!-- 지원신청서 -->
-      <TabPanel value="0"> 지원신청서 화면 출력돼야함 </TabPanel>
+      <TabPanel value="0"> 지원신청서 화면 출력돼야함(신청서 화면 구축되면 링크 걸어야 함) </TabPanel>
 
       <!-- 지원계획서 -->
       <TabPanel value="1">
         <!-- 지원계획서 세부 탭 -->
         <Tabs value="1-0">
           <TabList>
-            <Tab value="1-0">지원계획서 조회</Tab>
-            <Tab value="1-1">승인대기 조회</Tab>
-            <Tab value="1-2">반려내역 조회</Tab>
-            <Tab value="1-3">지원계획서 작성</Tab>
+            <Tab value="1-0"><RouterLink to="/plandetail">지원계획서 조회(확인)</RouterLink></Tab>
+            <Tab value="1-1">승인대기 조회(작업해야함)</Tab>
+            <Tab value="1-2">반려내역 조회(작업해야함)</Tab>
+            <Tab value="1-3"><RouterLink to="planinsert">지원계획서 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="1-0"> 지원계획서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="1-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-3"> 지원계획서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
@@ -83,18 +75,11 @@ const submitCounsel = async () => {
         <!-- 지원결과서 세부 탭 -->
         <Tabs value="2-0">
           <TabList>
-            <Tab value="2-0">지원결과서 조회</Tab>
-            <Tab value="2-1">승인대기 조회</Tab>
-            <Tab value="2-2">반려내역 조회</Tab>
-            <Tab value="2-3">지원결과서 작성</Tab>
+            <Tab value="2-0"><RouterLink to="/resultdetail">지원결과서 조회(확인)</RouterLink></Tab>
+            <Tab value="2-1">승인대기 조회(작업해야함)</Tab>
+            <Tab value="2-2">반려내역 조회(작업해야함)</Tab>
+            <Tab value="2-3"><RouterLink to="/resultinsert">지원결과서 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="2-0"> 지원결과서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="2-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-3"> 지원결과서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
@@ -103,19 +88,14 @@ const submitCounsel = async () => {
         <!-- 상담내역 세부 탭 -->
         <Tabs value="3-0">
           <TabList>
-            <Tab value="3-0">상담내역 조회</Tab>
-            <Tab value="3-1">상담내역 작성</Tab>
+            <Tab value="3-0"><RouterLink to="/counseldetail">상담내역 조회(확인)</RouterLink></Tab>
+            <Tab value="3-1"><RouterLink to="/counselinsert">상담내역 작성(확인)</RouterLink></Tab>
           </TabList>
-
-          <TabPanels>
-            <TabPanel value="3-0"> 상담내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="3-1"> 상담내역 화면 출력 돼야함</TabPanel>
-          </TabPanels>
         </Tabs>
       </TabPanel>
 
       <!--캘린더-->
-      <TabPanel value="4"> 캘린더 화면 출력돼야함 </TabPanel>
+      <TabPanel value="4"> 캘린더 화면 출력돼야함 (캘린더 화면 구축되면 링크 걸어야 함)</TabPanel>
     </TabPanels>
   </Tabs>
 
@@ -142,7 +122,7 @@ const submitCounsel = async () => {
             <div class="flex flex-col gap-2">
               <div class="font-semibold text-xl">상담일</div>
               <DatePicker :showIcon="true" :showButtonBar="true" v-model="counselDate"></DatePicker>
-            </div>           
+            </div>
           </div>
 
           <!--지원내용 작성란-->

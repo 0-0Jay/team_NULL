@@ -1,77 +1,22 @@
-<!-- 지원계획서 조회창-->
+<!-- 상담내역 조회창 -->
+
 <script setup>
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
+import { useCounselStore } from '@/stores/counsel';
 import { onBeforeMount, computed, ref, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import { useRouter } from 'vue-router';
 
-const store = usePlanStore(); //pinia작업 위함
+const store = useCounselStore();
 const router = useRouter();
-const route = useRoute(); // 현재 경로 확인용
-// const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
 
-// 상위 TAB 클릭하면 클릭 된 것 유지하기 위함
-const activeTab = ref('0');
-
-watch(
-  () => route.path,
-  (Path) => {
-    if (Path?.startsWith('/plan')) activeTab.value = '1';
-    else if (newPath?.startsWith('/result')) activeTab.value = '2';
-    else if (newPath?.startsWith('/counsel')) activeTab.value = '3';
-    else if (newPath?.startsWith('/calendar')) activeTab.value = '4';
-    else activeTab.value = '0';
-  },
-  { immediate: true }
-);
-
-// 지원 계획서 하위 TAB
-const planSubTab = ref('1-0');
-watch(
-  () => route.path,
-  (path) => {
-    path = path || '';
-    if (path.includes('insert')) planSubTab.value = '1-3';
-    else if (path.includes('reject')) planSubTab.value = '1-2';
-    else if (path.includes('pending')) planSubTab.value = '1-1';
-    else planSubTab.value = '1-0';
-  },
-  { immediate: true }
-);
-
-// 지원 결과서 하위 TAB
-const resultSubTab = ref('2-0');
-watch(
-  () => route.path,
-  (path) => {
-    path = path || '';
-    if (path.includes('insert')) resultSubTab.value = '2-3';
-    else if (path.includes('reject')) resultSubTab.value = '2-2';
-    else if (path.includes('pending')) resultSubTab.value = '2-1';
-    else resultSubTab.value = '2-0';
-  },
-  { immediate: true }
-);
-
-// 상담내역 하위 TAB
-const counselSubTab = ref('3-0');
-watch(
-  () => route.path,
-  (path) => {
-    path = path || '';
-    counselSubTab.value = path.includes('insert') ? '3-1' : '3-0';
-  },
-  { immediate: true }
-);
-
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
+const filtercounsel = computed(() => store.counselList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
 // onBeforeMount(() => {
-//   store.fetchPlanList(application_no, 1); //승인된 계획서
+//   store.fetchCounselList(application_no, 0); // 작성된 상담내역 조회
 // });
 
 onBeforeMount(() => {
-  store.fetchPlanList(11, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  store.fetchCounselList(1, 0); // (application_no, save) 일단은 하드코딩 테스트함
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -89,15 +34,15 @@ const formatDate = (v) => {
 <!--------------------------------------------------------------------------->
 <template>
   <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
-  <Tabs v-model:value="activeTab">
-    <!--하드 코딩 안하려고 작성함-->
+  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
+  <Tabs value="0">
     <!-- 상위 탭 -->
     <TabList>
-      <!-- <Tab value="0"><RouterLink to="/apply">지원신청서</RouterLink></Tab> -->
-      <Tab value="1"><RouterLink to="/plandetail">지원계획서</RouterLink></Tab>
-      <Tab value="2"><RouterLink to="/resultdetail">지원결과서</RouterLink></Tab>
-      <Tab value="3"><RouterLink to="/counseldetail">상담내역</RouterLink></Tab>
-      <!-- <Tab value="4"><RouterLink to="/calendar">캘린더</RouterLink></Tab> -->
+      <Tab value="0">지원신청서</Tab>
+      <Tab value="1">지원계획서</Tab>
+      <Tab value="2">지원결과서</Tab>
+      <Tab value="3">상담내역</Tab>
+      <Tab value="4">캘린더</Tab>
     </TabList>
 
     <TabPanels>
@@ -107,7 +52,7 @@ const formatDate = (v) => {
       <!-- 지원계획서 -->
       <TabPanel value="1">
         <!-- 지원계획서 세부 탭 -->
-        <Tabs v-model:value="planSubTab">
+        <Tabs value="1-0">
           <TabList>
             <Tab value="1-0"><RouterLink to="/plandetail">지원계획서 조회(확인)</RouterLink></Tab>
             <Tab value="1-1">승인대기 조회(작업해야함)</Tab>
@@ -120,7 +65,7 @@ const formatDate = (v) => {
       <!--지원결과서-->
       <TabPanel value="2">
         <!-- 지원결과서 세부 탭 -->
-        <Tabs v-model:value="resultSubTab">
+        <Tabs value="2-0">
           <TabList>
             <Tab value="2-0"><RouterLink to="/resultdetail">지원결과서 조회(확인)</RouterLink></Tab>
             <Tab value="2-1">승인대기 조회(작업해야함)</Tab>
@@ -133,7 +78,7 @@ const formatDate = (v) => {
       <!--상담내역-->
       <TabPanel value="3">
         <!-- 상담내역 세부 탭 -->
-        <Tabs v-model:value="counselSubTab">
+        <Tabs value="3-0">
           <TabList>
             <Tab value="3-0"><RouterLink to="/counseldetail">상담내역 조회(확인)</RouterLink></Tab>
             <Tab value="3-1"><RouterLink to="/counselinsert">상담내역 작성(확인)</RouterLink></Tab>
@@ -148,8 +93,8 @@ const formatDate = (v) => {
 
   <!----------------------------------------------------------->
   <div class="card flex flex-col">
-    <div class="font-bold text-2xl text-center mb-4">지원계획서 조회</div>
-    <DataTable :value="filterplan" :sortOrder="1" :rowHover="true" showGridlines>
+    <div class="font-bold text-2xl text-center mb-4">상담내역 조회</div>
+    <DataTable :value="filtercounsel" :sortOrder="1" :rowHover="true" showGridlines>
       <template #empty>
         <div class="text-center">데이터 없음</div>
       </template>
@@ -170,25 +115,19 @@ const formatDate = (v) => {
       </Column>
       <!--정렬의 기준이 됨-->
 
-      <Column header="목표" headerClass="center-header" bodyClass="center-body" style="width: 200px">
+      <Column header="상담내역 제목" headerClass="center-header" bodyClass="center-body" style="width: 200px">
         <template #body="{ data }">
           {{ data.title ?? '-' }}
         </template>
       </Column>
 
-      <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+      <Column header="상담날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
-          {{ formatDate(data.start) }}
+          {{ formatDate(data.counsel_date) }}
         </template>
       </Column>
 
-      <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.end) }}
-        </template>
-      </Column>
-
-      <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
+      <Column header="상담내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
         <template #body="{ data }">
           {{ data.content ?? '-' }}
         </template>
