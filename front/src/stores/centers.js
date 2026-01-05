@@ -42,6 +42,16 @@ export const useCentersStore = defineStore('centers', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 기관 등록
+    async addCenter(data) {
+      try {
+        const response = await axios.post('/api/centers', data);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 });

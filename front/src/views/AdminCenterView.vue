@@ -2,8 +2,11 @@
 import { useCentersStore } from '@/stores/centers';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
+import AddCenterModal from '@/components/AddCenterModal.vue';
+import { useRouter } from 'vue-router';
 
 const store = useCentersStore();
+const router = useRouter();
 
 // 페이지네이션
 const page = ref(1);
@@ -43,6 +46,12 @@ const onPageChange = (e) => {
   rows.value = e.rows;
   selectedRows.value = [];
 };
+
+// 기관 등록 모달 열기
+const display = ref(false);
+const openAddCenter = () => {
+  display.value = true;
+};
 </script>
 
 <template>
@@ -63,7 +72,7 @@ const onPageChange = (e) => {
         <h2 class="text-xl font-bold text-gray-800">기관 정보</h2>
 
         <div class="flex gap-2">
-          <Button label="기관 등록" icon="pi pi-building" />
+          <Button label="기관 등록" icon="pi pi-building" @click="openAddCenter" />
           <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" />
         </div>
       </div>
@@ -143,6 +152,7 @@ const onPageChange = (e) => {
         </DataTable>
       </div>
     </section>
+    <AddCenterModal v-model="display" />
   </div>
 </template>
 

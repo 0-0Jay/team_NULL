@@ -29,9 +29,15 @@ FROM center
 WHERE closed_date IS NULL;
 `;
 
+// 기관 등록
+const insertCenters = `
+INSERT INTO center(name, sido, sigungu, address, address_detail, zipcode, phone, email, manage)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
 module.exports = {
   selectAllCenter,
   selectByUsernoCenter,
   selectAllAddressCenter,
   selectByNameCenter,
+  insertCenters,
 };

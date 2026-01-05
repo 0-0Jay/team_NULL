@@ -25,7 +25,6 @@ watch(
   (open) => {
     if (!open) return;
     if (props.mode == 'section') {
-      console.log(props.section);
       form.section = props.section.section;
     } else if (props.mode == 'detail') {
       form.detail = props.detail.detail;
@@ -40,7 +39,6 @@ watch(
 watch(
   () => props.hasStructure,
   (val) => {
-    console.log(props.hasStructure);
     if (val) {
       form.update = '1';
     }

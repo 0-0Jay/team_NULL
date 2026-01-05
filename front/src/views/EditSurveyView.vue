@@ -224,7 +224,7 @@ const hasStructuralChange = (survey) => {
 </script>
 
 <template>
-  <div class="pt-16">
+  <div class="pt-20">
     <div class="card m-4">
       <div class="flex justify-between">
         <div class="font-semibold text-xl mb-4">조사지 수정</div>
