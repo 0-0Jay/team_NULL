@@ -1,24 +1,61 @@
 <script setup>
-import { useCentersStore } from '@/stores/centers';
-import { FilterMatchMode } from '@primevue/core/api';
-import { onBeforeMount, ref } from 'vue';
+import { useApplicationStore } from '@/stores/application';
+import { onBeforeMount, ref, computed } from 'vue';
 
-const store = useCentersStore();
+const store = useApplicationStore();
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
 
 // 페이지네이션
 const page = ref(1);
 const rows = ref(13);
 
-// checkbox
-const selectedRows = ref([]);
+// 상세 검색
+const searchFields = ref({
+  startDate: null,
+  endDate: null,
 
-// 검색
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  apName: '',
+  mName: '', // 담당자
+  gName: '', // 보호자
+  cName: '', // 기관
+
+  stage: '전체', // 전체 or 검토중 or 계획 or 중점 or 긴급
+
+  progress: {
+    review: false, // 검토
+    approve: false, // 승인
+    reject: false, // 반려
+    result: false // 결과
+  }
+});
+const filteredData = computed(() => {
+  const f = searchFields.value;
+
+  return columnData.value.filter((row) => {
+    // 작성일
+    if (f.startDate && f.endDate) {
+      const created = new Date(row.created_date);
+      if (created < f.startDate || created > f.endDate) return false;
+    }
+    console.log(row);
+    if (f.apName && !row.ap_name?.includes(f.apName)) return false;
+    if (f.mName && !row.manager_name?.includes(f.mName)) return false;
+    if (f.gName && !row.g_name?.includes(f.gName)) return false;
+    if (f.cName && !row.c_name?.includes(f.cName)) return false;
+
+    if (f.stage !== '전체' && row.status !== f.stage) return false;
+
+    const p = f.progress;
+    if ((p.review && row.review_count === 0) || (p.approve && row.approve_count === 0) || (p.reject && row.reject_count === 0) || (p.result && row.result_count === 0)) {
+      return false;
+    }
+
+    return true;
+  });
 });
 
 onBeforeMount(() => {
-  store.fetchCenter();
+  store.fetchApplication();
 });
 
 // 날짜 포맷
@@ -41,20 +78,135 @@ const rowNumber = (index) => {
 const onPageChange = (e) => {
   page.value = e.page + 1;
   rows.value = e.rows;
-  selectedRows.value = [];
 };
+
+// 신청내역 관련
+const getStatus = (row) => {
+  if (!row.approve_date) return '검토중';
+
+  switch (row.status) {
+    case 1:
+      return '계획';
+    case 2:
+      return '중점';
+    case 3:
+      return '긴급';
+    default:
+      return '-';
+  }
+};
+
+const columnData = computed(() => {
+  const managers = new Map(store.manager.map((m) => [m.a_no, m.m_name]));
+  const plans = new Map(store.planStat.map((p) => [p.application_no, p]));
+  const results = new Map(store.resultStat.map((r) => [r.application_no, r]));
+  // const counsel = new Map(store.counselStats.map((c) => [c.application_no, c.counsel_count]));
+
+  return store.appList.map((row) => {
+    const plan = plans.get(row.application_no) || {};
+    const result = results.get(row.application_no) || {};
+
+    // application 승인
+    let appReview = 0;
+    let appApprove = 0;
+
+    if (row.approve_date) {
+      appApprove = 1;
+    } else {
+      appReview = 1;
+    }
+
+    // console.log(typeof plan.review_count, plan.review_count);
+    const toNumber = (v) => Number(v) || 0;
+
+    return {
+      ...row,
+      status: getStatus(row),
+      manager_name: managers.get(row.a_no) || '미지정',
+      review_count: toNumber(appReview) + toNumber(plan.review_count) + toNumber(result.review_count),
+      approve_count: toNumber(appApprove) + toNumber(plan.approve_count) + toNumber(result.approve_count),
+      reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
+      result_count: toNumber(result.result_count)
+      // has_counsel: (counselMap.get(row.application_no) || 0) > 0
+    };
+  });
+});
 </script>
 
 <template>
   <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
-    <aside class="w-[260px] bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200">
-      <h3 class="font-bold mb-4 text-gray-700">검색</h3>
+    <aside class="w-[260px] bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
+      <h3 class="font-bold mb-5 text-gray-700">상세 검색</h3>
 
-      <IconField iconPosition="left">
-        <InputIcon class="pi pi-search text-gray-400" />
-        <InputText v-model="filters.global.value" class="w-full" placeholder="기관명 검색" />
-      </IconField>
+      <div class="mb-4">
+        <p class="text-gray-500 mb-1">작성일</p>
+        <DatePicker v-model="searchFields.startDate" dateFormat="yy.mm.dd" placeholder="시작일" class="mb-2" />
+        <DatePicker v-model="searchFields.endDate" dateFormat="yy.mm.dd" placeholder="종료일" />
+      </div>
+
+      <div class="mb-3">
+        <p class="text-gray-500 mb-1">지원자명</p>
+        <IconField iconPosition="left">
+          <InputIcon class="pi pi-search text-gray-400" />
+          <InputText v-model="searchFields.apName" class="w-full" />
+        </IconField>
+      </div>
+
+      <div class="mb-3">
+        <p class="text-gray-500 mb-1">담당자명</p>
+        <IconField iconPosition="left">
+          <InputIcon class="pi pi-search text-gray-400" />
+          <InputText v-model="searchFields.mName" class="w-full" />
+        </IconField>
+      </div>
+
+      <div v-if="user.type !== 0" class="mb-3">
+        <p class="text-gray-500 mb-1">보호자명</p>
+        <IconField iconPosition="left">
+          <InputIcon class="pi pi-search text-gray-400" />
+          <InputText v-model="searchFields.gName" class="w-full" />
+        </IconField>
+      </div>
+
+      <div v-if="user.type === 3" class="mb-4">
+        <p class="text-gray-500 mb-1">기관명</p>
+        <IconField iconPosition="left">
+          <InputIcon class="pi pi-search text-gray-400" />
+          <InputText v-model="searchFields.cName" class="w-full" />
+        </IconField>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-gray-500 mb-2">대기단계</p>
+        <div class="flex flex-wrap gap-2">
+          <Button v-for="s in ['전체', '검토중', '계획', '중점', '긴급']" :key="s" size="small" :severity="searchFields.stage === s ? 'success' : 'secondary'" @click="searchFields.stage = s">
+            {{ s }}
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-gray-500 mb-2">계획 / 결과 진행</p>
+        <div class="flex flex-wrap gap-x-4 gap-y-2">
+          <label class="flex items-center gap-1">
+            <Checkbox v-model="searchFields.progress.review" />
+            <span>검토</span>
+          </label>
+          <label class="flex items-center gap-1">
+            <Checkbox v-model="searchFields.progress.approve" />
+            <span>승인</span>
+          </label>
+          <label class="flex items-center gap-1">
+            <Checkbox v-model="searchFields.progress.reject" />
+            <span>반려</span>
+          </label>
+          <label class="flex items-center gap-1">
+            <Checkbox v-model="searchFields.progress.result" />
+            <span>결과</span>
+          </label>
+        </div>
+      </div>
     </aside>
 
     <!-- 메인 -->
@@ -62,80 +214,78 @@ const onPageChange = (e) => {
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-xl font-bold text-gray-800">지원신청내역</h2>
 
-        <Button label="지원 신청" icon="pi pi-clipboard" severity="info" />
+        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" />
       </div>
 
       <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
-        <DataTable
-          :value="store.centers"
-          v-model:selection="selectedRows"
-          v-model:filters="filters"
-          :globalFilterFields="['name']"
-          dataKey="c_no"
-          sortField="name"
-          :sortOrder="1"
-          :paginator="true"
-          :rows="rows"
-          :rowHover="true"
-          showGridlines
-          tableLayout="fixed"
-          @page="onPageChange"
-          :selectionPageOnly="true"
-        >
+        <DataTable :value="filteredData" :paginator="true" :rows="rows" :rowHover="true" showGridlines tableLayout="fixed" @page="onPageChange">
           <template #empty>
             <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
-          <Column selectionMode="multiple" headerStyle="width:48px" />
-
-          <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+          <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 60px; min-width: 60px; max-width: 60px">
             <template #body="{ index }">
               {{ rowNumber(index) }}
             </template>
           </Column>
 
-          <Column field="name" header="기관명" headerClass="table-header" sortable style="width: 200px" />
-
-          <Column header="주소" headerClass="table-header" style="width: 300px">
+          <Column header="지원자명" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
             <template #body="{ data }">
-              {{ data.address ?? '-' }}
+              {{ data.ap_name }}
             </template>
           </Column>
 
-          <Column header="대표 번호" headerClass="table-header" bodyClass="table-body" style="width: 140px">
+          <Column v-if="user.type != 0" header="보호자명" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
             <template #body="{ data }">
-              {{ data.phone ?? '-' }}
+              {{ data.g_name }}
             </template>
           </Column>
 
-          <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 200px">
-            <template #body="{ data }">
-              {{ data.email ?? '-' }}
-            </template>
-          </Column>
-
-          <Column header="등록일" headerClass="table-header" bodyClass="table-body" style="width: 130px">
+          <Column header="지원신청일" headerClass="table-header" bodyClass="table-body" style="width: 100px; min-width: 100px; max-width: 100px">
             <template #body="{ data }">
               {{ formatDate(data.created_date) }}
             </template>
           </Column>
 
-          <Column header="운영종료일" headerClass="table-header" bodyClass="table-body" style="width: 130px">
+          <Column header="지원신청서" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 90px; max-width: 90px">
+            <template #body="{ data }"></template>
+          </Column>
+
+          <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
             <template #body="{ data }">
-              {{ formatDate(data.closed_date) }}
+              {{ data.manager_name }}
             </template>
           </Column>
 
-          <Column header="운영여부" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+          <Column v-if="user.type === 3" header="기관" headerClass="table-header" bodyClass="table-body" style="width: 120px; min-width: 120px; max-width: 120px">
             <template #body="{ data }">
-              <Tag :value="data.manage === 1 ? '운영' : '종료'" :severity="data.manage === 1 ? 'info' : 'secondary'" rounded class="status-tag" />
+              {{ data.c_name || '-' }}
             </template>
           </Column>
 
-          <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
+          <Column header="대기단계" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
             <template #body="{ data }">
-              <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
+              {{ data.status }}
             </template>
+          </Column>
+
+          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 120px; min-width: 120px; max-width: 120px">
+            <template #body="{ data }">
+              검토 : {{ data.review_count }} 승인 : {{ data.approve_count }} <br />
+              반려 : {{ data.reject_count }} 결과 : {{ data.result_count }}
+            </template>
+          </Column>
+
+          <Column header="지원계획" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
+            <template #body="{ data }"></template>
+          </Column>
+
+          <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
+            <template #body="{ data }"></template>
+          </Column>
+
+          <Column v-if="user.type != 0" header="상담내역" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
+            <template #body="{ data }"></template>
           </Column>
         </DataTable>
       </div>
