@@ -53,7 +53,6 @@ router.get("/usersManager", async (req, res) => {
 });
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
-// pic : the person in charge
 router.get("/usersStaff", async (req, res) => {
   let list = await usersService.findByUserNoUsersManager();
   res.send(list);

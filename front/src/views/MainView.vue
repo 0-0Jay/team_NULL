@@ -1,16 +1,25 @@
 <script setup>
 import { useApplicationStore } from '@/stores/application';
-import { onBeforeMount, ref, computed } from 'vue';
+import { onBeforeMount, ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const store = useApplicationStore();
 const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const router = useRouter();
 
 // 페이지네이션
 const page = ref(1);
-const rows = ref(13);
+const rows = ref(10);
+
+// 페이지 이동 함수
+const goPage = (type, applicationNo) => {
+  router.push({
+    path: `/application/${applicationNo}/${type}`
+  });
+};
 
 // 상세 검색
-const searchFields = ref({
+const initSearchFields = {
   startDate: null,
   endDate: null,
 
@@ -27,17 +36,43 @@ const searchFields = ref({
     reject: false, // 반려
     result: false // 결과
   }
+};
+
+const searchFields = ref({ ...initSearchFields });
+
+const resetSearch = () => {
+  searchFields.value = {
+    ...initSearchFields,
+    progress: { ...initSearchFields.progress }
+  };
+};
+
+watch(
+  searchFields,
+  () => {
+    page.value = 1;
+  },
+  { deep: true }
+);
+
+onBeforeMount(() => {
+  store.fetchApplication(user);
 });
+
 const filteredData = computed(() => {
   const f = searchFields.value;
 
   return columnData.value.filter((row) => {
     // 작성일
-    if (f.startDate && f.endDate) {
-      const created = new Date(row.created_date);
-      if (created < f.startDate || created > f.endDate) return false;
+    const createdTime = new Date(row.created_date).getTime();
+    const start = f.startDate?.getTime();
+    const end = f.endDate?.getTime();
+
+    if (start && end && (createdTime < start || createdTime > end)) {
+      return false;
     }
-    console.log(row);
+
+    // console.log(row);
     if (f.apName && !row.ap_name?.includes(f.apName)) return false;
     if (f.mName && !row.manager_name?.includes(f.mName)) return false;
     if (f.gName && !row.g_name?.includes(f.gName)) return false;
@@ -46,16 +81,13 @@ const filteredData = computed(() => {
     if (f.stage !== '전체' && row.status !== f.stage) return false;
 
     const p = f.progress;
-    if ((p.review && row.review_count === 0) || (p.approve && row.approve_count === 0) || (p.reject && row.reject_count === 0) || (p.result && row.result_count === 0)) {
-      return false;
-    }
+    if (p.review && row.review_count === 0) return false;
+    if (p.approve && row.approve_count === 0) return false;
+    if (p.reject && row.reject_count === 0) return false;
+    if (p.result && row.result_count === 0) return false;
 
     return true;
   });
-});
-
-onBeforeMount(() => {
-  store.fetchApplication();
 });
 
 // 날짜 포맷
@@ -97,7 +129,7 @@ const getStatus = (row) => {
 };
 
 const columnData = computed(() => {
-  const managers = new Map(store.manager.map((m) => [m.a_no, m.m_name]));
+  const managers = new Map(store.manager.map((m) => [m.application_no, m.m_name]));
   const plans = new Map(store.planStat.map((p) => [p.application_no, p]));
   const results = new Map(store.resultStat.map((r) => [r.application_no, r]));
   // const counsel = new Map(store.counselStats.map((c) => [c.application_no, c.counsel_count]));
@@ -122,7 +154,7 @@ const columnData = computed(() => {
     return {
       ...row,
       status: getStatus(row),
-      manager_name: managers.get(row.a_no) || '미지정',
+      manager_name: managers.get(row.application_no) || '미지정',
       review_count: toNumber(appReview) + toNumber(plan.review_count) + toNumber(result.review_count),
       approve_count: toNumber(appApprove) + toNumber(plan.approve_count) + toNumber(result.approve_count),
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
@@ -137,7 +169,10 @@ const columnData = computed(() => {
   <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
     <aside class="w-[260px] bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
-      <h3 class="font-bold mb-5 text-gray-700">상세 검색</h3>
+      <div class="flex items-start justify-between mb-3">
+        <h3 class="font-bold text-gray-700">상세 검색</h3>
+        <Button label="초기화" class="mt-2" icon="pi pi-refresh" size="small" severity="secondary" outlined @click="resetSearch" />
+      </div>
 
       <div class="mb-4">
         <p class="text-gray-500 mb-1">작성일</p>
@@ -190,19 +225,19 @@ const columnData = computed(() => {
         <p class="text-gray-500 mb-2">계획 / 결과 진행</p>
         <div class="flex flex-wrap gap-x-4 gap-y-2">
           <label class="flex items-center gap-1">
-            <Checkbox v-model="searchFields.progress.review" />
+            <Checkbox v-model="searchFields.progress.review" binary />
             <span>검토</span>
           </label>
           <label class="flex items-center gap-1">
-            <Checkbox v-model="searchFields.progress.approve" />
+            <Checkbox v-model="searchFields.progress.approve" binary />
             <span>승인</span>
           </label>
           <label class="flex items-center gap-1">
-            <Checkbox v-model="searchFields.progress.reject" />
+            <Checkbox v-model="searchFields.progress.reject" binary />
             <span>반려</span>
           </label>
           <label class="flex items-center gap-1">
-            <Checkbox v-model="searchFields.progress.result" />
+            <Checkbox v-model="searchFields.progress.result" binary />
             <span>결과</span>
           </label>
         </div>
@@ -248,7 +283,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원신청서" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 90px; max-width: 90px">
-            <template #body="{ data }"></template>
+            <template #body="{ data }">보기</template>
           </Column>
 
           <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
@@ -265,27 +300,43 @@ const columnData = computed(() => {
 
           <Column header="대기단계" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
             <template #body="{ data }">
-              {{ data.status }}
+              <Tag
+                :value="data.status"
+                :severity="
+                  {
+                    검토중: 'secondary',
+                    계획: 'info',
+                    중점: 'warning',
+                    긴급: 'danger'
+                  }[data.status]
+                "
+                rounded
+              />
             </template>
           </Column>
 
-          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 120px; min-width: 120px; max-width: 120px">
+          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 140px; min-width: 140px; max-width: 140px">
             <template #body="{ data }">
-              검토 : {{ data.review_count }} 승인 : {{ data.approve_count }} <br />
-              반려 : {{ data.reject_count }} 결과 : {{ data.result_count }}
+              <div class="leading-tight">
+                <span class="ml-1">
+                  검토 {{ data.review_count }}, 승인 <span class="text-green-600">{{ data.approve_count }}</span
+                  >, 반려 <span class="text-red-500">{{ data.reject_count }}</span
+                  >, 결과 <span class="text-blue-600">{{ data.result_count }}</span>
+                </span>
+              </div>
             </template>
           </Column>
 
           <Column header="지원계획" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"></template>
+            <template #body="{ data }">보기</template>
           </Column>
 
           <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"></template>
+            <template #body="{ data }">보기</template>
           </Column>
 
           <Column v-if="user.type != 0" header="상담내역" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"></template>
+            <template #body="{ data }">보기</template>
           </Column>
         </DataTable>
       </div>
