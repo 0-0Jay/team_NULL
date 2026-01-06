@@ -1,14 +1,17 @@
 <!-- components/mypage/MyPageInfo.vue -->
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import MyInfoEditModal from './EditMyInfoModal.vue';
+
 const userStore = useUsersStore();
 const myInfo = computed(() => userStore.myInfo);
 const editOpen = ref(false);
+const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 
 onMounted(() => {
-  userStore.fetchMyInfo();
+  if (!user) return;
+  userStore.fetchMyInfo(user.user_no);
 });
 
 function open() {
@@ -24,8 +27,8 @@ const updateMyInfo = async (formData) => {
   }
   // API 호출
   try {
-    await userStore.modifyMyInfo(formData);
-    await userStore.fetchMyInfo();
+    await userStore.modifyMyInfo(user.user_no, formData);
+    await userStore.fetchMyInfo(user.user_no);
     alert('수정되었습니다.');
   } catch (err) {
     console.error(err);

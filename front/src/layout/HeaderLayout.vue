@@ -32,7 +32,7 @@ const logout = () => {
       </router-link>
       <div class="topbar-menu flex items-center gap-8 whitespace-nowrap">
         <router-link to="/main">지원신청내역</router-link>
-        <router-link v-if="user.type != 3" to="/test">문의</router-link>
+        <router-link v-if="user.type != 3" to="/faq">문의</router-link>
         <router-link v-if="user.type == 0" to="/welfareMap">복지지도</router-link>
         <router-link v-if="user.type == 2" to="/staff">담당자관리</router-link>
         <router-link v-if="user.type == 3" to="/center">기관 관리</router-link>
@@ -69,9 +69,11 @@ const logout = () => {
 
       <div class="layout-topbar-menu hidden lg:block content-center">
         <div class="layout-topbar-menu-content">
-          <Button type="button" class="min-w-[100px]">
-            <i class="pi pi-user"> 내 정보 </i>
-          </Button>
+          <router-link to="/mypage"
+            ><Button type="button" class="min-w-[100px]">
+              <i class="pi pi-user"> 내 정보 </i>
+            </Button>
+          </router-link>
           <Button type="button" class="min-w-[100px]" @click="logout">
             <i class="pi pi-sign-out"> 로그아웃 </i>
           </Button>

@@ -15,6 +15,9 @@ const rowData = ref({});
 const router = useRouter();
 const isDelete = ref(false);
 const changeStructure = computed(() => hasStructuralChange(data.value) || isDelete.value);
+const confirmDisplay = ref(false);
+const deleteType = ref('');
+const deleteData = ref(null);
 
 onMounted(async () => {
   data.value = await store.fetchSurvey();
@@ -69,7 +72,7 @@ const openDetailEditor = (detailValue) => {
   editMode.value = 'detail';
   if (detailValue) {
     detailData.value = {
-      sec_no: activeTab.value, // 이제 sec_no
+      sec_no: activeTab.value,
       d_no: detailValue.d_no,
       detail: detailValue.detail,
       info: detailValue.info
@@ -179,6 +182,12 @@ const saveAll = async (reason) => {
   router.push({ name: 'survey' });
 };
 
+const openConfirm = (type, data) => {
+  confirmDisplay.value = true;
+  deleteType.value = type;
+  deleteData.value = data;
+};
+
 const deleteRow = (row) => {
   const { sec_no, d_no, q_no } = row;
   const questions = data.value[sec_no].details[d_no].questions;
@@ -201,6 +210,24 @@ const deleteSection = (sec_no) => {
     const keys = Object.keys(data.value).filter((k) => k != sec_no);
     activeTab.value = keys.length ? keys[0] : '';
   }
+};
+
+const handleConfirm = () => {
+  switch (deleteType.value) {
+    case 'row':
+      deleteRow(deleteData.value);
+      break;
+    case 'detail':
+      deleteDetail(deleteData.value);
+      break;
+    case 'section':
+      deleteSection(deleteData.value);
+      break;
+  }
+
+  confirmDisplay.value = false;
+  deleteData.value = null;
+  deleteType.value = '';
 };
 
 const hasStructuralChange = (survey) => {
@@ -237,8 +264,10 @@ const hasStructuralChange = (survey) => {
         <TabList>
           <Tab v-for="(secValue, sec_no) in data" :value="sec_no" @click="() => (activeTab = sec_no)">
             {{ secValue.section }}
-            <i class="pi pi-fw pi-pen-to-square ml-2" @click.stop="openSectionEditor(sec_no, secValue)" />
-            <i class="pi pi-fw pi-times cursor-pointer ml-2" @click.stop="deleteSection(sec_no)" />
+            <span class="ml-8">
+              <i class="pi pi-fw pi-pen-to-square ml-2" @click.stop="openSectionEditor(sec_no, secValue)" />
+              <i class="pi pi-fw pi-times cursor-pointer ml-2" @click.stop="openConfirm('section', sec_no)" />
+            </span>
           </Tab>
           <Button class="m-3" @click="openSectionEditor()" text plain>대분류 추가</Button>
         </TabList>
@@ -249,8 +278,10 @@ const hasStructuralChange = (survey) => {
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-md text-xl">{{ slotProps.data.detail }}</span>
                   <span class="ml-8">{{ slotProps.data.info }}</span>
-                  <i class="pi pi-fw pi-pen-to-square cursor-pointer" @click="openDetailEditor(slotProps.data)" />
-                  <i class="pi pi-fw pi-times cursor-pointer" @click="deleteDetail(slotProps.data)" />
+                  <span class="ml-24">
+                    <i class="pi pi-fw pi-pen-to-square cursor-pointer" @click="openDetailEditor(slotProps.data)" />
+                    <i class="pi pi-fw pi-times cursor-pointer pl-4" @click="openConfirm('detail', slotProps.data)" />
+                  </span>
                 </div>
               </template>
               <Column field="detail"></Column>
@@ -280,7 +311,7 @@ const hasStructuralChange = (survey) => {
                 <template #body="slotProps">
                   <div class="flex gap-4">
                     <i class="pi pi-fw pi-pen-to-square cursor-pointer" @click="openRowEditor(slotProps.data, 0)" />
-                    <i class="pi pi-fw pi-times cursor-pointer" @click="deleteRow(slotProps.data)" />
+                    <i class="pi pi-fw pi-times cursor-pointer" @click="openConfirm('row', slotProps.data)" />
                   </div>
                 </template>
               </Column>
@@ -297,6 +328,7 @@ const hasStructuralChange = (survey) => {
         </TabPanels>
       </Tabs>
       <EditQuestionModal v-model="display" :mode="editMode" :section="sectionData" :detail="detailData" :row="rowData" :has-structure="changeStructure" @save="handleSave" @save-all="saveAll" />
+      <ConfirmDialog v-model:visible="confirmDisplay" confirm-label="삭제" cancel-label="취소" @confirm="handleConfirm"> 정말로 삭제하시겠습니까? </ConfirmDialog>
     </div>
   </div>
 </template>
