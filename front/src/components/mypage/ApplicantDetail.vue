@@ -11,7 +11,7 @@ import router from '@/router';
 const route = useRoute();
 const userStore = useUsersStore();
 const applicantDetail = computed(() => userStore.applicantDetail);
-const aNo = ref(null);
+const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 const visible = ref(false);
 const formData = ref({
   name: '',
@@ -100,8 +100,8 @@ async function delApplicant() {
   // API 호출
   try {
     await userStore.deleteApplicant(route.params.a_no);
-    await userStore.fetchApplicant();
-    router.push(`/myPage`);
+    await userStore.fetchApplicant(user.user_no);
+    router.push(`/mypage`);
     alert('삭제되었습니다.');
   } catch (err) {
     console.error(err);
@@ -122,73 +122,75 @@ const formatDate = (v) => {
 </script>
 <template>
   <div class="card flex flex-col gap-4 max-h-[calc(100vh-120px)] p-4">
-    <div class="font-semibold text-xl">{{ applicantDetail.name }} 정보</div>
-    <table class="w-full border-collapse">
-      <tbody>
-        <tr class="border-t-4 border-b border-gray-300">
-          <th class="text-left py-2 px-2 w-1/4 border-r">이름</th>
-          <td class="py-2 px-2">
-            <InputText type="text" class="w-full" v-model="formData.name" />
-          </td>
-        </tr>
+    <div v-if="applicantDetail">
+      <div class="font-semibold text-xl">{{ applicantDetail.name }} 정보</div>
+      <table class="w-full border-collapse">
+        <tbody>
+          <tr class="border-t-4 border-b border-gray-300">
+            <th class="text-left py-2 px-2 w-1/4 border-r">이름</th>
+            <td class="py-2 px-2">
+              <InputText type="text" class="w-full" v-model="formData.name" />
+            </td>
+          </tr>
 
-        <tr class="border-b">
-          <th class="text-left py-2 px-2 border-r">생년월일</th>
-          <td class="py-2 px-2">
-            <DatePicker v-model="formData.birth" showIcon fluid iconDisplay="input" inputId="icondisplay" />
-          </td>
-        </tr>
+          <tr class="border-b">
+            <th class="text-left py-2 px-2 border-r">생년월일</th>
+            <td class="py-2 px-2">
+              <DatePicker v-model="formData.birth" showIcon fluid iconDisplay="input" inputId="icondisplay" />
+            </td>
+          </tr>
 
-        <tr class="border-b">
-          <th class="text-left py-4 px-2 border-r">성별</th>
-          <td class="px-4 py-2">
-            <div class="flex gap-6 items-center h-full">
-              <label class="flex items-center gap-2">
-                <RadioButton v-model="formData.gender" inputId="male" value="남" />
-                <span>남</span>
-              </label>
-              <label class="flex items-center gap-2">
-                <RadioButton v-model="formData.gender" inputId="female" value="여" />
-                <span>여</span>
-              </label>
-            </div>
-          </td>
-        </tr>
+          <tr class="border-b">
+            <th class="text-left py-4 px-2 border-r">성별</th>
+            <td class="px-4 py-2">
+              <div class="flex gap-6 items-center h-full">
+                <label class="flex items-center gap-2">
+                  <RadioButton v-model="formData.gender" inputId="male" value="남" />
+                  <span>남</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <RadioButton v-model="formData.gender" inputId="female" value="여" />
+                  <span>여</span>
+                </label>
+              </div>
+            </td>
+          </tr>
 
-        <tr class="border-b">
-          <th class="text-left py-2 px-2 border-r">주소</th>
-          <td class="py-2 px-2 flex flex-col gap-2">
-            <div class="flex gap-2">
-              <InputText id="zipcode" type="text" placeholder="우편번호" v-model="formData.zipcode" disabled />
-              <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
-                <VueDaumPostcode @complete="addressSearched" />
-              </Dialog>
-              <Button label="우편번호 검색" @click="openAddress" />
-            </div>
-            <InputText id="address" type="text" placeholder="도로명주소" class="w-full" v-model="formData.address" disabled />
-            <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full" v-model="formData.address_detail" />
-          </td>
-        </tr>
+          <tr class="border-b">
+            <th class="text-left py-2 px-2 border-r">주소</th>
+            <td class="py-2 px-2 flex flex-col gap-2">
+              <div class="flex gap-2">
+                <InputText id="zipcode" type="text" placeholder="우편번호" v-model="formData.zipcode" disabled />
+                <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                  <VueDaumPostcode @complete="addressSearched" />
+                </Dialog>
+                <Button label="우편번호 검색" @click="openAddress" />
+              </div>
+              <InputText id="address" type="text" placeholder="도로명주소" class="w-full" v-model="formData.address" disabled />
+              <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full" v-model="formData.address_detail" />
+            </td>
+          </tr>
 
-        <tr class="border-b">
-          <th class="text-left py-2 px-2 border-r">장애유형</th>
-          <td class="py-2 px-2">
-            <InputText type="text" class="w-full" v-model="formData.disability" />
-          </td>
-        </tr>
+          <tr class="border-b">
+            <th class="text-left py-2 px-2 border-r">장애유형</th>
+            <td class="py-2 px-2">
+              <InputText type="text" class="w-full" v-model="formData.disability" />
+            </td>
+          </tr>
 
-        <tr class="border-b">
-          <th class="text-left py-4 px-2 border-r">등록일</th>
-          <td class="py-2 px-4">{{ formatDate(applicantDetail.created_date) }}</td>
-        </tr>
-      </tbody>
-    </table>
+          <tr class="border-b">
+            <th class="text-left py-4 px-2 border-r">등록일</th>
+            <td class="py-2 px-4">{{ formatDate(applicantDetail.created_date) }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="flex gap-2 justify-end mt-4">
-      <Button label="수정" @click="handleUpdate" />
-      <Button label="삭제" severity="danger" @click="openDelConfirm" />
+      <div class="flex gap-2 justify-end mt-4">
+        <Button label="수정" @click="handleUpdate" />
+        <Button label="삭제" severity="danger" @click="openDelConfirm" />
+      </div>
     </div>
-
+    <div v-else>Loading...</div>
     <ConfirmDialog v-model:visible="visible" @confirm="delApplicant"> 정말로 삭제하시겠습니까? </ConfirmDialog>
   </div>
 </template>
