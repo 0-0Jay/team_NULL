@@ -10,7 +10,6 @@ const insertApplicationAnswer = `insert into application_answer(application_no, 
 // 지원신청서 답변 수정
 const updateByQnoApplicationAnswer = `update application_answer set answer = ? where application_no = ? and q_no = ?`;
 
-// 지원신청서 기본 정보 조회
 const selectByAppNoApplication = `select a1.application_no, a1.a_no, a1.created_date, 
                                       a1.status, a1.approve_date,
                                       a2.name as ap_name,
@@ -18,14 +17,110 @@ const selectByAppNoApplication = `select a1.application_no, a1.a_no, a1.created_
                                from application a1
                                join applicant a2 on a1.a_no = a2.a_no
                                join users u1 on a2.user_no = u1.user_no
-                               left join manager m on a1.a_no = m.a_no and m.unassign is null
+                               left join manager m on a1.application_no = m.application_no and m.unassign is null
                                left join users u2 on m.user_no = u2.user_no
                                left join center c on u2.c_no = c.c_no
                                order by a1.application_no`;
+
+// 시스템 관리자용 전체 조회
+const selectAllApplication = `select distinct a1.application_no,
+                                              a1.a_no, a1.created_date, a1.status,
+                                              a1.approve_date, a2.name as ap_name,
+                                              u1.name as g_name, c.name as c_name
+                              from application a1
+                              join applicant a2 on a1.a_no = a2.a_no
+                              join users u1 on a2.user_no = u1.user_no
+                              left join manager m on a1.application_no = m.application_no and m.unassign is null
+                              left join users u2 on m.user_no = u2.user_no
+                              left join center c on u2.c_no = c.c_no
+                              order by a1.application_no desc`;
+
+// 기관 관리자용 조회
+const selectByCenterApplication = `select distinct a1.application_no,
+                                                   a1.a_no, a1.created_date, a1.status,
+                                                   a1.approve_date, a2.name as ap_name,
+                                                   u1.name as g_name, c.name as c_name
+                                   from application a1
+                                   join applicant a2 on a1.a_no = a2.a_no
+                                   join users u1 on a2.user_no = u1.user_no
+                                   join manager m on a1.application_no = m.application_no and m.unassign is null
+                                   join users u2 on m.user_no = u2.user_no
+                                   join center c on u2.c_no = c.c_no
+                                   where c.c_no = ?
+                                   order by a1.application_no desc`;
+
+// 기관 담당자용 조회
+const selectByManagerApplication = `select distinct a1.application_no,
+                                                    a1.a_no, a1.created_date, a1.status,
+                                                    a1.approve_date, a2.name as ap_name,
+                                                    u1.name as g_name, c.name as c_name
+                                    from application a1
+                                    join applicant a2 on a1.a_no = a2.a_no
+                                    join users u1 on a2.user_no = u1.user_no
+                                    join manager m
+                                      on a1.application_no = m.application_no
+                                    and m.unassign is null
+                                    join users u2 on m.user_no = u2.user_no
+                                    left join center c on u2.c_no = c.c_no
+                                    where m.user_no = ?
+                                    order by a1.application_no desc`;
+
+// 일반 회원용 조회
+const selectByUserApplication = ` select a1.application_no, a1.a_no,
+                                         a1.created_date, a1.status,
+                                         a1.approve_date, a2.name as ap_name,
+                                         u1.name as g_name, null as c_name
+                                  from application a1
+                                  join applicant a2 on a1.a_no = a2.a_no
+                                  join users u1 on a2.user_no = u1.user_no
+                                  where a2.user_no = ?
+                                  order by a1.application_no desc`;
+
+// 보호자의 지원자 여부 확인
+const selectByUserNoApplicant = `select 1
+                                 from applicant
+                                 where a_no = ? and user_no = ? `;
+
+// 담당자 자동 배정(담당자가 직접 신청하는 경우)
+const insertManager = `insert into manager(application_no, user_no) values (?,?)`;
+
+// 권한 체크
+// 보호자
+const selectByAppNoAndUserNoApplication = `select 1
+                                           from application a1
+                                           join applicant a2 on a1.a_no = a2.a_no
+                                           where a1.application_no = ? and a2.user_no = ?`;
+
+// 담당자
+const selectByAppNoAndUserNoManager = `select 1
+                                       from manager
+                                       where application_no = ?
+                                             and user_no = ?
+                                             and unassign_date is null`;
+
+// 기관 관리자
+const selectByAppNoAndCnoApplication = `select 1
+                                        from application a1
+                                        join applicant a2 on a1.a_no = a2.a_no
+                                        join users u on a2.user_no = u.user_no
+                                        where a1.application_no = ?
+                                              and u.c_no = ?`;
+// 대기단계 설정
+const updateByAppNoApplication = `update application set status = ? where application_no = ?`;
 
 module.exports = {
   insertApplication,
   insertApplicationAnswer,
   updateByQnoApplicationAnswer,
   selectByAppNoApplication,
+  selectByUserNoApplicant,
+  insertManager,
+  selectByAppNoAndUserNoApplication,
+  selectByAppNoAndUserNoManager,
+  selectByAppNoAndCnoApplication,
+  updateByAppNoApplication,
+  selectAllApplication,
+  selectByCenterApplication,
+  selectByManagerApplication,
+  selectByUserApplication,
 };

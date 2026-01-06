@@ -143,7 +143,7 @@ const router = createRouter({
     {
       path: '/counselDetail',
       name: 'counselDetail',
-      component: () => import('@/views/CounselDetail.vue')
+      component: () => import('@/views/CounselDetail.vue'),
       // meta: { showHeader: true }
       meta: { showHeader: true },
       children: [
