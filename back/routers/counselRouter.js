@@ -36,7 +36,6 @@ router.get("/counsel/:application_no", async (req, res) => {
     res.send(counselList);
   } catch (err) {
     console.error(err);
-    res.status(500).send("상담내역 조회 중 오류 발생");
   }
 });
 

@@ -2,10 +2,10 @@
 
 // 로그인
 const selectByIdAndPwUsers = `
-SELECT u.user_no, u.name AS u_name, u.status, u.type, c.name AS c_name
+SELECT u.user_no, u.name AS u_name, u.status, u.type, c.name AS c_name, u.c_no
 FROM users u LEFT OUTER JOIN center c
 ON u.c_no = c.c_no
-WHERE u.id = ? AND u.password = ?`;
+WHERE u.id = ? AND u.password = ? AND status != 2`;
 
 // 회원가입
 const insertUsers = `
@@ -51,9 +51,9 @@ const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.
                                  where u.status != 2 and u.type = 2`;
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
+//  count(m.a_no) as applicant_count,
 const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
                                            u.c_no, c.name as center_name,
-                                           count(m.a_no) as applicant_count,
                                            u.created_date, u.status
                                     from users u
                                     left join manager m
@@ -124,13 +124,13 @@ const insertApplicant = `INSERT INTO applicant (
                          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
 // 지원신청내역 담당자 조회
-const selectByUserNoManagerUsers = `select m.a_no,
+const selectByUserNoManagerUsers = `select m.application_no,
                                            group_concat(u.name order by u.name separator ', ') as m_name
                                     from manager m
                                     join users u
                                       on m.user_no = u.user_no
                                     where m.unassign is null
-                                    group by m.a_no`;
+                                    group by m.application_no`;
 
 module.exports = {
   selectByIdAndPwUsers,
