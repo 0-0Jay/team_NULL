@@ -27,7 +27,7 @@ const logout = () => {
 <template>
   <div class="layout-topbar relative">
     <div class="layout-topbar-logo-container flex items-center gap-10">
-      <router-link to="/test" class="layout-topbar-logo">
+      <router-link to="/main" class="layout-topbar-logo">
         <span class="w-80">발달장애인 지원 프로그램</span>
       </router-link>
       <div class="topbar-menu flex items-center gap-8 whitespace-nowrap">

@@ -11,7 +11,6 @@ router.get("/centers", async (req, res) => {
 // 기관 등록
 router.post("/centers", async (req, res) => {
   const data = req.body;
-  console.log(data);
   let result = await centersService.addCenter(data);
   res.send(result);
 });
