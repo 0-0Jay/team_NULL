@@ -62,72 +62,70 @@ const submitPlan = async () => {
 
 <!--------------------------------------------------------------------------->
 <template>
-  <div class="flex p-40">
+  <div class="flex">
     <div class="card flex flex-col w-full">
       <!----------------------------------------------->
       <div class="card">
-        <div class="p-30">
-          <div class="card flex flex-col gap-4">
-            <div class="text-2xl font-bold text-center mb-8">지원계획서 작성</div>
+        <div class="card flex flex-col gap-4">
+          <div class="text-2xl font-bold text-center">지원계획서 작성</div>
+        </div>
+
+        <!-------------------------------------------------------------------------------------------->
+        <div class="flex flex-col gap-2 mb-6 font-semibold">
+          <label for="name">작성자</label>
+          <InputText v-model="planAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+        </div>
+        <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
+
+        <div class="flex flex-wrap gap-6 mb-6 font-semibold">
+          <div class="flex flex-col gap-2 flex-1 pt-2">
+            <label for="title">목표</label>
+            <InputText v-model="title" placeholder="지원계획 목표를 입력하세요." id="title" type="text" />
           </div>
 
-          <!-------------------------------------------------------------------------------------------->
-          <div class="flex flex-col gap-2 mb-6 font-semibold">
-            <label for="name">작성자</label>
-            <InputText v-model="planAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+          <!--시작일-->
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-xl">지원시작일</div>
+            <DatePicker :showIcon="true" :showButtonBar="true" v-model="startDate"></DatePicker>
           </div>
-          <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
 
-          <div class="flex flex-wrap gap-6 mb-6 font-semibold">
-            <div class="flex flex-col gap-2 flex-1 pt-2">
-              <label for="title">목표</label>
-              <InputText v-model="title" placeholder="지원계획 목표를 입력하세요." id="title" type="text" />
+          <!--종료일-->
+          <div class="flex flex-col gap-2">
+            <div class="font-semibold text-xl">지원종료일</div>
+            <DatePicker :showIcon="true" :showButtonBar="true" v-model="endDate"></DatePicker>
+          </div>
+        </div>
+
+        <!--지원내용 작성란-->
+        <div class="flex flex-col gap-2 font-semibold">
+          <label for="content">지원내용</label>
+          <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="15" cols="30" />
+        </div>
+
+        <!--첨부파일 삽입-->
+        <div class="col-span-full lg:col-span-6">
+          <div class="card">
+            <div class="font-semibold text-xl mb-4">첨부파일</div>
+            <Toast />
+            <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" />
+          </div>
+        </div>
+
+        <!--등록, 목록 버튼-->
+        <div class="flex flex-wrap gap-2 justify-center mt-5">
+          <Button label="승인요청" style="width: auto" @click="submitPlan" />
+
+          <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+            <div class="flex items-center justify-center">
+              <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
+              <span>Are you sure you want to proceed?</span>
             </div>
-
-            <!--시작일-->
-            <div class="flex flex-col gap-2">
-              <div class="font-semibold text-xl">지원시작일</div>
-              <DatePicker :showIcon="true" :showButtonBar="true" v-model="startDate"></DatePicker>
-            </div>
-
-            <!--종료일-->
-            <div class="flex flex-col gap-2">
-              <div class="font-semibold text-xl">지원종료일</div>
-              <DatePicker :showIcon="true" :showButtonBar="true" v-model="endDate"></DatePicker>
-            </div>
-          </div>
-
-          <!--지원내용 작성란-->
-          <div class="flex flex-col gap-2 font-semibold">
-            <label for="content">지원내용</label>
-            <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="15" cols="30" />
-          </div>
-
-          <!--첨부파일 삽입-->
-          <div class="col-span-full lg:col-span-6">
-            <div class="card">
-              <div class="font-semibold text-xl mb-4">첨부파일</div>
-              <Toast />
-              <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" />
-            </div>
-          </div>
-
-          <!--등록, 목록 버튼-->
-          <div class="flex flex-wrap gap-2 justify-center mt-5">
-            <Button label="승인요청" style="width: auto" @click="submitPlan" />
-
-            <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-              <div class="flex items-center justify-center">
-                <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
-                <span>Are you sure you want to proceed?</span>
-              </div>
-              <template #footer>
-                <Button label="Yes" icon="pi pi-check" @click="submit" severity="danger" outlined autofocus />
-                <Button label="No" icon="pi pi-times" @click="closeConfirmation" text severity="secondary" />
-              </template>
-            </Dialog>
-            <Button label="목록" severity="danger" />
-          </div>
+            <template #footer>
+              <Button label="Yes" icon="pi pi-check" @click="submit" severity="danger" outlined autofocus />
+              <Button label="No" icon="pi pi-times" @click="closeConfirmation" text severity="secondary" />
+            </template>
+          </Dialog>
+          <Button label="목록" severity="danger" />
         </div>
       </div>
     </div>

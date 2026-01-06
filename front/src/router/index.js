@@ -22,12 +22,6 @@ const router = createRouter({
       meta: { showHeader: true }
     },
     {
-      path: '/planinsert',
-      name: 'planinsert',
-      component: () => import('@/views/PlanInsert.vue'),
-      meta: { showHeader: true } //머지하고 다시해볼예정
-    },
-    {
       path: '/resultinsert',
       name: 'resultinsert',
       component: () => import('@/views/ResultInsert.vue')
@@ -91,12 +85,6 @@ const router = createRouter({
       name: 'welfareMap',
       component: () => import('@/views/WelfareMapView.vue'),
       meta: { showHeader: true }
-    },
-    {
-      path: '/planDetail/:application_no',
-      name: 'planDetail',
-      component: () => import('@/views/PlanDetail.vue')
-      // meta: { showHeader: true }
     },
     {
       path: '/resultDetail',
@@ -170,7 +158,25 @@ const router = createRouter({
       component: () => import('@/views/PendingResultDetail.vue')
       // meta: { showHeader: true }
     },
-
+    {
+      path: '/application',
+      name: 'application',
+      component: () => import('@/views/ApplicationDetailView.vue'),
+      meta: { showHeader: true },
+      children: [
+        {
+          path: '/planinsert',
+          name: 'planinsert',
+          component: () => import('@/views/PlanInsert.vue')
+        },
+        {
+          path: '/planDetail/:application_no',
+          name: 'planDetail',
+          component: () => import('@/views/PlanDetail.vue')
+          // meta: { showHeader: true }
+        }
+      ]
+    },
     {
       path: '/counselDetail',
       name: 'counselDetail',
