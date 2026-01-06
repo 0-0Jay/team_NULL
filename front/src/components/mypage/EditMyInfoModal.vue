@@ -7,6 +7,7 @@ import router from '@/router';
 const userStore = useUsersStore();
 const visible = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0] ?? null;
+const userNo = user?.user_no;
 
 const props = defineProps({
   modalValue: Boolean,
@@ -118,10 +119,15 @@ async function changePassword() {
 
   // API 호출
   try {
+    if (!userNo) {
+      alert('로그인 정보가 없습니다.');
+      return;
+    }
     const res = await userStore.changePw({
-      user_no: props.myInfo.user_no,
+      user_no: userNo,
       pw: password.newPassword
     });
+    
     if (res.status === 'success') {
       alert('비밀번호 변경 완료');
     } else {
