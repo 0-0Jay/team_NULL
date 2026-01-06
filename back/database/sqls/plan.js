@@ -12,6 +12,13 @@ FROM plan
 WHERE application_no = ?
 AND   status = ?`; // 일단은 다 불러 올려고 ? 삽입
 
+//반려된 지원 계획서 조회
+const rejectPlan = `
+SELECT application_no, title, content, file, start, end, plan_no, status, reject_date, plan_author
+FROM plan
+WHERE application_no = ?
+AND   status = 2`;
+
 //승인대기 지원계획서 조회 (관리자판단) - 대기부분은 구조가 달라서 나눈 것임 - 데이터 검사완료
 const selectPendingPlan = `
 SELECT title, content, file, start, end, plan_no, plan_author
@@ -30,6 +37,7 @@ const selectCountPlan = `select p.application_no,
 module.exports = {
   insertPlan,
   selectPlan,
+  rejectPlan,
   selectPendingPlan,
   selectCountPlan,
 };

@@ -1,4 +1,4 @@
-//planRouter.js
+//planRouter.js - 작업완료
 
 const express = require("express");
 const router = express.Router();
@@ -32,6 +32,13 @@ router.get("/plan/:application_no", async (req, res) => {
   const { status } = req.query; // 0인지 1인지 판단
   const planList = await planService.findPlan(application_no, status); //달라고 요청
   res.send(planList); //결과 보여줌
+});
+
+// 반려된 지원계획서 조회
+router.get("/plan/reject/:application_no", async (req, res) => {
+  const { application_no } = req.params;
+  const rejectList = await planService.findRejectPlan(application_no);
+  res.send(rejectList);
 });
 
 //승인대기중인 지원계획서 조회  -  데이터 검사 완료

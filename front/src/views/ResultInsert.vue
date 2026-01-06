@@ -1,21 +1,22 @@
-<!-- 지원계획서 조회창-->
-<script setup>
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
-import { onBeforeMount, computed, ref, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+<!-- 지원결과서 입력 창입니다.-->
 
-const store = usePlanStore(); //pinia작업 위함
+<script setup>
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import { useResultStore } from '@/stores/result'; // pinia작업을 위함
+import axios from 'axios';
+
+const store = useResultStore(); //pinia작업 위함
 const router = useRouter();
 const route = useRoute(); // 현재 경로 확인용
-// const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
 
 // 상위 TAB 클릭하면 클릭 된 것 유지하기 위함
 const activeTab = ref('0');
 
 watch(
   () => route.path,
-  (Path) => {
-    if (Path?.startsWith('/plan')) activeTab.value = '1';
+  (newPath) => {
+    if (newPath?.startsWith('/plan')) activeTab.value = '1';
     else if (newPath?.startsWith('/result')) activeTab.value = '2';
     else if (newPath?.startsWith('/counsel')) activeTab.value = '3';
     else if (newPath?.startsWith('/calendar')) activeTab.value = '4';
@@ -63,30 +64,42 @@ watch(
   { immediate: true }
 );
 
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
-const rowNumber = (index) => index + 1;
+const resultAuthor = ref('');
+const title = ref('');
+const startDate = ref(null);
+const endDate = ref(null);
+const content = ref('');
 
-// onBeforeMount(() => {
-//   store.fetchPlanList(application_no, 1); //승인된 계획서
-// });
+const submitResult = async () => {
+  //axios 작업하기
+  if (!resultAuthor.value) {
+    alert('작성자를 입력해주세요.');
+    return;
+  }
+  console.log(title.value, content.value, resultAuthor.value, startDate.value, endDate.value);
 
-onBeforeMount(() => {
-  store.fetchPlanList(11, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
-});
+  //넘길 값들
+  const data = {
+    title: title.value,
+    content: content.value,
+    result_author: resultAuthor.value,
+    status: 0,
+    plan_no: 11, //지원계획서 11번으로 테스트 중임
+    start: startDate.value,
+    end: endDate.value
+  };
 
-//날짜 포멧 - 유민님 파일에서 따옴
-const formatDate = (v) => {
-  if (!v) return '-';
-  const d = new Date(v);
-  if (Number.isNaN(d.getTime())) return v;
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}.${m}.${day}`;
+  console.log(data);
+  try {
+    await axios.post('/api/result', data);
+    alert('저장 됨');
+  } catch (e) {
+    console.error(e);
+    alert('저장 안됨');
+  }
 };
 </script>
 
-<!--------------------------------------------------------------------------->
 <template>
   <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
   <Tabs v-model:value="activeTab">
@@ -147,91 +160,64 @@ const formatDate = (v) => {
   </Tabs>
 
   <!----------------------------------------------------------->
-  <div class="card flex flex-col">
-    <div class="font-bold text-2xl text-center mb-4">지원계획서 조회</div>
-    <DataTable :value="filterplan" :sortOrder="1" :rowHover="true" showGridlines>
-      <template #empty>
-        <div class="text-center">데이터 없음</div>
-      </template>
+  <div class="flex mt-8">
+    <div class="card flex flex-col gap-4 w-full">
+      <!----------------------------------------------->
+      <div class="card">
+        <div class="card flex flex-col gap-4">
+          <div class="font-bold text-2xl text-center">지원결과서 작성</div>
+          <div class="flex flex-col grow basis-0 gap-2">
+            <label for="name">작성자</label>
+            <InputText v-model="resultAuthor" id="name" type="text" placeholder="작성하신는 분의 성함을 입력하세요." />
+          </div>
+          <!--데이터 를 작성해서 넘길려고 v-model 사용함 -->
 
-      <Column selectionMode="multiple" headerStyle="width:48px" />
-      <!--삭제 때문에 행 선택 체크박스 필요함-->
+          <div class="flex flex-col gap-2">
+            <label for="title">목표</label>
+            <InputText v-model="title" placeholder="지원결과 입력하세요." id="title" type="text" />
+          </div>
 
-      <Column header="번호" headerClass="center-header" bodyClass="center-body" style="width: 80px">
-        <template #body="{ index }">
-          {{ rowNumber(index) }}
-        </template>
-      </Column>
+          <div class="flex gap-8 items-start">
+            <!--시작일-->
+            <div class="flex flex-col gap-2">
+              <div class="font-semibold text-xl">지원시작일</div>
+              <DatePicker :showIcon="true" :showButtonBar="true" v-model="startDate"></DatePicker>
+            </div>
 
-      <Column field="applicationNo" header="신청서 번호" headerClass="center-header" sortable style="width: 200px">
-        <template #body="{ data }">
-          {{ data.application_no ?? '-' }}
-        </template>
-      </Column>
-      <!--정렬의 기준이 됨-->
+            <!--종료일-->
+            <div class="flex flex-col gap-2">
+              <div class="font-semibold text-xl">지원종료일</div>
+              <DatePicker :showIcon="true" :showButtonBar="true" v-model="endDate"></DatePicker>
+            </div>
+          </div>
 
-      <Column header="목표" headerClass="center-header" bodyClass="center-body" style="width: 200px">
-        <template #body="{ data }">
-          {{ data.title ?? '-' }}
-        </template>
-      </Column>
+          <!--지원내용 작성란-->
+          <div class="flex flex-col gap-2">
+            <label for="content">내용</label>
+            <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="3" cols="30" />
+          </div>
 
-      <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.start) }}
-        </template>
-      </Column>
+          <!--첨부파일 삽입-->
+          <label for="file">첨부파일</label>
+          <!-- <input type="file" @change="onFilechange" /> -->
 
-      <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.end) }}
-        </template>
-      </Column>
-
-      <Column header="지원내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ data.content ?? '-' }}
-        </template>
-      </Column>
-
-      <Column header="첨부파일" headerClass="center-header" bodyClass="center-body" style="width: 100px"> </Column>
-    </DataTable>
+          <!--등록, 목록 버튼-->
+          <div class="flex flex-wrap gap-2 justify-center">
+            <Button label="등록" style="width: auto" @click="submitResult" />
+            <Dialog header="Confirmation" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+              <div class="flex items-center justify-center">
+                <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
+                <span>Are you sure you want to proceed?</span>
+              </div>
+              <template #footer>
+                <Button label="Yes" icon="pi pi-check" @click="submit" severity="danger" outlined autofocus />
+                <Button label="No" icon="pi pi-times" @click="closeConfirmation" text severity="secondary" />
+              </template>
+            </Dialog>
+            <Button label="목록" severity="danger" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background-color: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-:deep(.p-datatable-tbody > tr:hover) {
-  background-color: #f3f4f6;
-}
-
-:deep(.table-header .p-datatable-column-header-content) {
-  justify-content: center;
-}
-
-:deep(.table-body) {
-  text-align: center;
-  color: #374151;
-}
-
-:deep(.status-tag) {
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-}
-
-.edit-icon {
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: #6b7280;
-  transition: color 0.2s;
-}
-
-.edit-icon:hover {
-  color: #10b981;
-}
-</style>
