@@ -123,7 +123,7 @@ const insertApplicant = `INSERT INTO applicant (
                          user_no, name, birth, gender, zipcode, address, address_detail, disability
                          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-// 지원신청서 담당자 조회
+// 지원신청내역 담당자 조회
 const selectByUserNoManagerUsers = `select m.a_no,
                                            group_concat(u.name order by u.name separator ', ') as m_name
                                     from manager m

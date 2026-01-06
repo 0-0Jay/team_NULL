@@ -15,4 +15,11 @@ router.post("/survey", async (req, res) => {
   res.send(result);
 });
 
+// 조사지 기존 버전 수정
+router.put("/survey", async (req, res) => {
+  const data = req.body;
+  let result = await surveyService.modifySurvey(data);
+  res.send(result);
+});
+
 module.exports = router;

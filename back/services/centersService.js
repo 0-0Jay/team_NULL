@@ -24,9 +24,47 @@ const findByNameCenter = async (name) => {
   return list;
 };
 
+// 기관 등록
+const addCenter = async (data) => {
+  const {
+    centerName,
+    postcode,
+    fullAddress,
+    addressDetail,
+    email,
+    phone,
+    operation,
+  } = data;
+  const [sido, sigungu, ...rest] = fullAddress.split(" ");
+  const address = rest.join(" ");
+  let result = await mysql.query(
+    "insertCenters",
+    [
+      centerName,
+      sido,
+      sigungu,
+      address,
+      addressDetail,
+      postcode,
+      phone,
+      email,
+      operation,
+    ],
+    "center"
+  );
+  let resObj = {};
+  if (result.insertId > 0) {
+    resObj = { status: "success", user_no: result.insertId };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 module.exports = {
   findAllCenter,
   findByUsernoCenter,
   findAllAddressCenter,
   findByNameCenter,
+  addCenter,
 };
