@@ -190,7 +190,7 @@ const modifyPwByUsernoUsers = async (user_no, pw) => {
 
 // 회원탈퇴
 const modifyStatusByUsernoUsers = async (user_no) => {
-  let result = await mysql.query("");
+  let result = await mysql.query("updateStatusByUsernoUsers", [user_no], "users");
   let resObj = {};
   if (result.affectedRows > 0) {
     resObj = { status: "success", user_no: user_no };
@@ -206,6 +206,40 @@ const findByUserNoUsers = async (user_no) => {
   return result;
 };
 
+// 일반회원 마이페이지 - 나의 정보 수정
+const modifyByUserNoGeneralUsers = async ({
+  name,
+  phone,
+  email,
+  zipcode,
+  address,
+  address_detail,
+  user_no,
+} = {}) => {
+  if (
+    !name?.trim() ||
+    !phone?.trim() ||
+    !email?.trim() ||
+    zipcode == null ||
+    !address?.trim() ||
+    user_no == null
+  ) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "updateByUserNoGeneralUsers",
+    [name, phone, email, zipcode, address, address_detail, user_no],
+    "users"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", user_no: user_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 // 마이페이지 - 지원자 목록 조회
 const findByUserNoApplicant = async (user_no) => {
   let result = await mysql.query("selectByUserNoApplicant", [user_no], "users");
@@ -216,6 +250,99 @@ const findByUserNoApplicant = async (user_no) => {
 const findByANoApplicant = async (a_no) => {
   let result = await mysql.query("selectByANoApplicant", [a_no], "users");
   return result;
+};
+
+// 마이페이지 - 지원자 상세정보 수정
+const modifyByAnoApplicant = async ({
+  name,
+  birth,
+  gender,
+  zipcode,
+  address,
+  address_detail,
+  disability,
+  a_no,
+} = {}) => {
+  if (
+    !name?.trim() ||
+    !birth ||
+    gender === undefined ||
+    zipcode == null ||
+    !address?.trim() ||
+    !disability?.trim() ||
+    a_no == null
+  ) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "updateByANoApplicant",
+    [name, birth, gender, zipcode, address, address_detail, disability, a_no],
+    "users"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", a_no: a_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// 마이페이지 - 지원자 삭제
+const removeByANoApplicant = async (a_no) => {
+  let result = await mysql.query("deleteByANoApplicant", [a_no], "users");
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", a_no: a_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// 마이페이지 - 지원자 등록
+const addApplicant = async ({
+  user_no,
+  name,
+  birth,
+  gender,
+  zipcode,
+  address,
+  address_detail,
+  disability,
+} = {}) => {
+  if (
+    !user_no ||
+    !name?.trim() ||
+    !birth ||
+    gender === undefined ||
+    zipcode == null ||
+    !address?.trim() ||
+    !disability?.trim()
+  ) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "insertApplicant",
+    [
+      user_no,
+      name,
+      birth,
+      gender,
+      zipcode,
+      address,
+      address_detail,
+      disability,
+    ],
+    "users"
+  );
+  let resObj = {};
+  if (result && result.insertId) {
+    resObj = { status: "success", a_no: result.insertId };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
 };
 
 module.exports = {
@@ -233,6 +360,10 @@ module.exports = {
   sendCode,
   modifyStatusUsers,
   findByUserNoUsers,
+  modifyByUserNoGeneralUsers,
   findByUserNoApplicant,
   findByANoApplicant,
+  modifyByAnoApplicant,
+  removeByANoApplicant,
+  addApplicant,
 };

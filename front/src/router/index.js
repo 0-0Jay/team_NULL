@@ -105,10 +105,27 @@ const router = createRouter({
       meta: { showHeader: true }
     },
     {
-      path: '/myPage',
+      path: '/mypage',
       name: 'myPage',
       component: () => import('@/views/MyPage.vue'),
-      meta: { showHeader: true }
+      meta: { showHeader: true },
+      children: [
+        {
+          path: '',
+          name: 'myPageApplicantEmpty',
+          component: () => import('@/components/mypage/ApplicantEmpty.vue')
+        },
+        {
+          path: ':a_no',
+          name: 'myPageApplicantDetail',
+          component: () => import('@/components/mypage/ApplicantDetail.vue')
+        },
+        {
+          path: 'new',
+          name: 'myPageApplicantCreate',
+          component: () => import('@/components/mypage/ApplicantCreate.vue')
+        }
+      ]
     }
   ]
 });
