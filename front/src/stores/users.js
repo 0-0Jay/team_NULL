@@ -69,7 +69,7 @@ export const useUsersStore = defineStore('users', {
     // 로그아웃
     async logout() {
       this.user = undefined;
-      localStorage.removeItem('user');
+      localStorage.removeItem('users');
     },
 
     // 아이디 찾기
@@ -158,11 +158,11 @@ export const useUsersStore = defineStore('users', {
     // 마이페이지 - 회원탈퇴
     async withdrawUser() {
       const authStore = useAuthStore();
-        if (!authStore.user?.user_no) {
+      if (!authStore.user?.user_no) {
         return { status: 'error', message: 'unauthorized' };
       }
       try {
-        const payload  = { user_no: authStore.user.user_no };
+        const payload = { user_no: authStore.user.user_no };
         const { data } = await axios.put(`/api/users`, payload);
         if (data.status === 'success') {
           this.user = null;
@@ -172,7 +172,7 @@ export const useUsersStore = defineStore('users', {
       } catch (err) {
         console.log(err);
         return { status: 'error', message: '서버 에러 발생' };
-       }
+      }
     },
 
     // 마이페이지 - 일반회원 정보 불러오기

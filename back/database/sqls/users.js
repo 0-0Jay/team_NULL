@@ -5,7 +5,7 @@ const selectByIdAndPwUsers = `
 SELECT u.user_no, u.name AS u_name, u.status, u.type, c.name AS c_name, u.c_no
 FROM users u LEFT OUTER JOIN center c
 ON u.c_no = c.c_no
-WHERE u.id = ? AND u.password = ?`;
+WHERE u.id = ? AND u.password = ? AND status != 2`;
 
 // 회원가입
 const insertUsers = `
