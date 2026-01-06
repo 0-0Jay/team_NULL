@@ -8,6 +8,13 @@ router.get("/centers", async (req, res) => {
   res.send(centerList);
 });
 
+// 기관 등록
+router.post("/centers", async (req, res) => {
+  const data = req.body;
+  let result = await centersService.addCenter(data);
+  res.send(result);
+});
+
 // 기관 검색 (자동완성용)
 router.get("/searchCenter", async (req, res) => {
   const { name } = req.query;
