@@ -17,10 +17,10 @@ const model = ref([
   {
     label: '지원계획서',
     items: [
-      { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: '' },
+      { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/plandetail/${11}` },
       { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: '' },
       { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: '' },
-      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '' }
+      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/planinsert' }
     ]
   },
   {
