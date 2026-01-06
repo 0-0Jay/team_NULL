@@ -1,4 +1,4 @@
-<!--반려된 지원계획서 조회창-->
+<!--승인 대기중인 지원계획서 조회란-->
 
 <script setup>
 import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
@@ -12,6 +12,7 @@ const route = useRoute();
 const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
+//승인대기중인 계획서만 화면에 송출
 onBeforeMount(() => {
   const application_no = Number(route.params.application_no);
 
@@ -19,14 +20,10 @@ onBeforeMount(() => {
     console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchRejectPlanList(Number(route.params.application_no), 2); //반려된 계획서만 화면에 송출
+  store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
 });
 
-// onBeforeMount(() => {
-//   store.fetchPlanList(15, 2); //반려된 계획서 - 일단은 하드코딩으로 테스트 함
-// });
-
-//날짜 포멧 - 유민님 파일에서 따옴
+//날짜 포멧
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -42,7 +39,7 @@ const formatDate = (v) => {
   <div class="flex flex-col gap-6 p-40">
     <div v-for="(plan, index) in filterplan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
       <!-- 카드 헤더 -->
-      <div class="text-2xl font-bold text-center mb-6">반려된 지원계획서 {{ index + 1 }}</div>
+      <div class="text-2xl font-bold text-center mb-6">승인대기중인 지원계획서 {{ index + 1 }}</div>
 
       <!-- 신청서 번호 -->
       <div class="flex flex-col gap-2 mb-4 font-semibold">
@@ -67,25 +64,18 @@ const formatDate = (v) => {
           <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.end) }}</div>
         </div>
 
-        <div class="flex flex-col gap-2">
-          <label>반려된 날짜</label>
-          <div class="p-2 border rounded bg-gray-50 text-red-500 font-bold">
-            {{ formatDate(plan.reject_date) ?? '-' }}
-          </div>
+        <!-- 지원내용 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>지원내용</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
         </div>
-      </div>
 
-      <!-- 지원내용 -->
-      <div class="flex flex-col gap-2 mb-4 font-semibold">
-        <label>지원내용</label>
-        <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
-      </div>
-
-      <!-- 첨부파일 -->
-      <div class="flex flex-col gap-2 font-semibold">
-        <label>첨부파일</label>
-        <div class="p-2 border rounded bg-gray-50">
-          {{ plan.fileName ?? '첨부파일 없음' }}
+        <!-- 첨부파일 -->
+        <div class="flex flex-col gap-2 font-semibold">
+          <label>첨부파일</label>
+          <div class="p-2 border rounded bg-gray-50">
+            {{ plan.fileName ?? '첨부파일 없음' }}
+          </div>
         </div>
       </div>
     </div>

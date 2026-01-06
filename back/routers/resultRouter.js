@@ -6,25 +6,26 @@ const resultService = require("../services/resultService.js");
 
 //지원결과서 작성
 router.post("/result", async (req, res) => {
-  const { title, content, result_author, status, plan_no, start, end } = req.body;
+  const { title, content, file, result_author, status, plan_no, start, end } =
+    req.body;
 
   try {
-
-  let list = await resultService.addResult(
-    title,
-    content,
-    result_author,
-    status,
-    plan_no,
-    start,
-    end,
-  );
-  res.send(list);
-} catch (err) {
+    let list = await resultService.addResult(
+      title,
+      content,
+      file,
+      result_author,
+      status,
+      plan_no,
+      start,
+      end
+    );
+    res.send(list);
+  } catch (err) {
     console.error(err);
     res.status(500).send("서버에러 발생");
-}
-  });
+  }
+});
 
 //승인된 지원결과서 조회(일반, 관리자)
 router.get("/result/:plan_no", async (req, res) => {

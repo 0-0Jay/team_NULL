@@ -12,7 +12,7 @@ export const usePlanStore = defineStore('plan', {
   //actions
 
   actions: {
-     // 지원계획서 목록 조회
+    // 지원계획서 목록 조회
     async fetchPlanList(application_no, status) {
       try {
         const res = await axios.get(`/api/plan/${application_no}`, {
@@ -20,7 +20,7 @@ export const usePlanStore = defineStore('plan', {
         });
         this.planList = res.data;
       } catch (err) {
-        console.error(err);
+        console.error('승인된 지원계획서 조회 실패', err);
       }
     },
 
@@ -38,19 +38,18 @@ export const usePlanStore = defineStore('plan', {
     //반려된 지원계획서 조회
     async fetchRejectPlanList(application_no) {
       try {
-       const res = await axios.get(`/api/plan/reject/${application_no}`);
-       this.planList = res.data;
-     } catch (err) {
-       console.error('반려된 지원계획서 조회 실패', err);
-  }
-},
-
+        const res = await axios.get(`/api/plan/reject/${application_no}`);
+        this.planList = res.data;
+      } catch (err) {
+        console.error('반려된 지원계획서 조회 실패', err);
+      }
+    },
 
     //대기중인 지원계획서 조회
-    async fetchPlanDetail(application_no) {
+    async fetchPendingPlanDetail(application_no) {
       try {
         const res = await axios.get(`/api/plan/pending/${application_no}`);
-        this.planDetail = res.data;
+        this.planList = Array.isArray(res.data) ? res.data : [res.data]; //이부분 안넣으면 작동안됨
       } catch (err) {
         console.error('지원계획서 조회 실패', err);
       }

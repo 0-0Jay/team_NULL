@@ -13,6 +13,7 @@ const toDateString = (value) => {
 const addPlan = async (
   title,
   content,
+  file,
   plan_author,
   status,
   application_no,
@@ -25,7 +26,16 @@ const addPlan = async (
 
   let list = await mysql.query(
     "insertPlan",
-    [title, content, plan_author, status, application_no, startDate, endDate],
+    [
+      title,
+      content,
+      file,
+      plan_author,
+      status,
+      application_no,
+      startDate,
+      endDate,
+    ],
     "plan"
   );
   return list;
@@ -54,5 +64,4 @@ module.exports = {
   findPlan,
   findRejectPlan,
   findPendingPlan,
-  
 };

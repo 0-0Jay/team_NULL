@@ -1,26 +1,29 @@
-<!-- 지원결과서 조회창 -->
+<!--승인 대기중인 지원결과서 조회란-->
 
 <script setup>
 import { useResultStore } from '@/stores/result'; // pinia작업을 위함
-import { onBeforeMount, computed, ref, watch } from 'vue';
+import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 
-const store = useResultStore(); //pinia작업 위함
+const store = useResultStore();
 const router = useRouter();
 const route = useRoute();
 
 const filterresult = computed(() => store.resultList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
-// onBeforeMount(() => {
-//   store.fetchResultList(plan_no, 1); //승인된 결과서
-// });
-
+//승인대기중인 결과서만 화면에 송출
 onBeforeMount(() => {
-  store.fetchResultList(11, 0); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  const plan_no = Number(route.params.plan_no);
+
+  if (!plan_no) {
+    console.error('plan_no 없음:', route.params.plan_no);
+    return;
+  }
+  store.fetchPendingResultDetail(Number(route.params.plan_no), 0); // 0 대기/ 1승인 /2반려
 });
 
-//날짜 포멧 - 유민님 파일에서 따옴
+//날짜 포멧
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -36,12 +39,12 @@ const formatDate = (v) => {
   <div class="flex flex-col gap-6 p-40">
     <div v-for="(result, index) in filterresult" :key="result.plan_no" class="card flex flex-col w-full p-6 shadow-md">
       <!-- 카드 헤더 -->
-      <div class="text-2xl font-bold text-center mb-6">지원결과서 {{ index + 1 }}</div>
+      <div class="text-2xl font-bold text-center mb-6">승인대기중인 지원결과서 {{ index + 1 }}</div>
 
-      <!-- 계획서 번호 -->
+      <!-- 신청서 번호 -->
       <div class="flex flex-col gap-2 mb-4 font-semibold">
-        <label>계획서 번호</label>
-        <div class="p-2 border rounded bg-gray-50">{{ result.plan_no ?? '-' }}</div>
+        <label>신청서 번호</label>
+        <div class="p-2 border rounded bg-gray-50">{{ result.result_no ?? '-' }}</div>
       </div>
 
       <!-- 목표, 시작/종료일 -->
@@ -52,27 +55,27 @@ const formatDate = (v) => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label>시작일</label>
+          <label>지원시작일</label>
           <div class="p-2 border rounded bg-gray-50">{{ formatDate(result.start) }}</div>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label>종료일</label>
+          <label>지원종료일</label>
           <div class="p-2 border rounded bg-gray-50">{{ formatDate(result.end) }}</div>
         </div>
-      </div>
 
-      <!-- 결과내용 -->
-      <div class="flex flex-col gap-2 mb-4 font-semibold">
-        <label>결과내용</label>
-        <div class="p-2 border rounded bg-gray-50">{{ result.content ?? '-' }}</div>
-      </div>
+        <!-- 지원내용 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>지원내용</label>
+          <div class="p-2 border rounded bg-gray-50">{{ result.content ?? '-' }}</div>
+        </div>
 
-      <!-- 첨부파일 -->
-      <div class="flex flex-col gap-2 font-semibold">
-        <label>첨부파일</label>
-        <div class="p-2 border rounded bg-gray-50">
-          {{ result.fileName ?? '첨부파일 없음' }}
+        <!-- 첨부파일 -->
+        <div class="flex flex-col gap-2 font-semibold">
+          <label>첨부파일</label>
+          <div class="p-2 border rounded bg-gray-50">
+            {{ result.fileName ?? '첨부파일 없음' }}
+          </div>
         </div>
       </div>
     </div>
