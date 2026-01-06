@@ -14,20 +14,20 @@ const toDateString = (value) => {
 const addResult = async (
   title,
   content,
+  file,
   result_author,
   status,
   plan_no,
   start,
-  end,
+  end
 ) => {
-
   //###### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
   const startDate = toDateString(start);
   const endDate = toDateString(end);
 
   let list = await mysql.query(
     "insertResult",
-    [title, content, result_author, status, plan_no, startDate, endDate ],
+    [title, content, file, result_author, status, plan_no, startDate, endDate],
     "result"
   );
   return list;

@@ -93,7 +93,7 @@ const router = createRouter({
       meta: { showHeader: true }
     },
     {
-      path: '/planDetail',
+      path: '/planDetail/:application_no',
       name: 'planDetail',
       component: () => import('@/views/PlanDetail.vue')
       // meta: { showHeader: true }
@@ -157,6 +157,20 @@ const router = createRouter({
       component: () => import('@/views/RejectResultDetail.vue')
       // meta: { showHeader: true }
     },
+
+    {
+      path: '/pendingplanDetail/:application_no',
+      name: 'pendingplanDetail',
+      component: () => import('@/views/PendingPlanDetail.vue')
+      // meta: { showHeader: true }
+    },
+    {
+      path: '/pendingresultDetail/:plan_no',
+      name: 'pendingresultDetail',
+      component: () => import('@/views/PendingResultDetail.vue')
+      // meta: { showHeader: true }
+    },
+
     {
       path: '/counselDetail',
       name: 'counselDetail',

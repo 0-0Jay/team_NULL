@@ -4,15 +4,26 @@ const express = require("express");
 const router = express.Router();
 const planService = require("../services/planService.js");
 
+const multer = require("multer");
+
 // 지원계획서 작성  - 데이터 검사 완료
 router.post("/plan", async (req, res) => {
-  const { title, content, plan_author, status, application_no, start, end } =
-    req.body;
+  const {
+    title,
+    content,
+    file,
+    plan_author,
+    status,
+    application_no,
+    start,
+    end,
+  } = req.body;
 
   try {
     const list = await planService.addPlan(
       title,
       content,
+      file,
       plan_author,
       status,
       application_no,

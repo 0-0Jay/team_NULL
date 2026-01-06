@@ -35,176 +35,55 @@ const formatDate = (v) => {
 </script>
 
 <template>
-  <!--상단 지원신청서, 계획서, 결과서 상담내역, 결과서 선택창-->
-  <Tabs value="0">
-    <!-- 상위 탭 -->
-    <TabList>
-      <Tab value="0">지원신청서</Tab>
-      <Tab value="1">지원계획서</Tab>
-      <Tab value="2">지원결과서</Tab>
-      <Tab value="3">상담내역</Tab>
-      <Tab value="4">캘린더</Tab>
-    </TabList>
+  <div class="flex flex-col gap-6 p-40">
+    <div v-for="(result, index) in filterresult" :key="result.plan_no" class="card flex flex-col w-full p-6 shadow-md">
+      <!-- 카드 헤더 -->
+      <div class="text-2xl font-bold text-center mb-6">반려된 지원결과서 {{ index + 1 }}</div>
 
-    <TabPanels>
-      <!-- 지원신청서 -->
-      <TabPanel value="0"> 지원신청서 화면 출력돼야함 </TabPanel>
+      <!-- 계획서 번호 -->
+      <div class="flex flex-col gap-2 mb-4 font-semibold">
+        <label>계획서 번호</label>
+        <div class="p-2 border rounded bg-gray-50">{{ result.plan_no ?? '-' }}</div>
+      </div>
 
-      <!-- 지원계획서 -->
-      <TabPanel value="1">
-        <!-- 지원계획서 세부 탭 -->
-        <Tabs value="1-0">
-          <TabList>
-            <Tab value="1-0">지원계획서 조회</Tab>
-            <Tab value="1-1">승인대기 조회</Tab>
-            <Tab value="1-2">반려내역 조회</Tab>
-            <Tab value="1-3">지원계획서 작성</Tab>
-          </TabList>
+      <!-- 목표, 시작/종료일 -->
+      <div class="flex flex-wrap gap-6 mb-4 font-semibold">
+        <div class="flex flex-col gap-2 flex-1">
+          <label>목표</label>
+          <div class="p-2 border rounded bg-gray-50">{{ result.title ?? '-' }}</div>
+        </div>
 
-          <TabPanels>
-            <TabPanel value="1-0"> 지원계획서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="1-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="1-3"> 지원계획서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </TabPanel>
+        <div class="flex flex-col gap-2">
+          <label>시작일</label>
+          <div class="p-2 border rounded bg-gray-50">{{ formatDate(result.start) }}</div>
+        </div>
 
-      <!--지원결과서-->
-      <TabPanel value="2">
-        <!-- 지원결과서 세부 탭 -->
-        <Tabs value="2-0">
-          <TabList>
-            <Tab value="2-0">지원결과서 조회</Tab>
-            <Tab value="2-1">승인대기 조회</Tab>
-            <Tab value="2-2">반려내역 조회</Tab>
-            <Tab value="2-3">지원결과서 작성</Tab>
-          </TabList>
+        <div class="flex flex-col gap-2">
+          <label>종료일</label>
+          <div class="p-2 border rounded bg-gray-50">{{ formatDate(result.end) }}</div>
+        </div>
 
-          <TabPanels>
-            <TabPanel value="2-0"> 지원결과서 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-1"> 승인대기 화면 출력 돼야함</TabPanel>
-            <TabPanel value="2-2"> 반려내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="2-3"> 지원결과서 작성 화면 출력 돼야함 </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </TabPanel>
+        <div class="flex flex-col gap-2">
+          <label>반려된 날짜</label>
+          <div class="p-2 border rounded bg-gray-50 text-red-500 font-bold">
+            {{ formatDate(result.reject_date) ?? '-' }}
+          </div>
+        </div>
+      </div>
 
-      <!--상담내역-->
-      <TabPanel value="3">
-        <!-- 상담내역 세부 탭 -->
-        <Tabs value="3-0">
-          <TabList>
-            <Tab value="3-0">상담내역 조회</Tab>
-            <Tab value="3-1">상담내역 작성</Tab>
-          </TabList>
+      <!-- 결과내용 -->
+      <div class="flex flex-col gap-2 mb-4 font-semibold">
+        <label>결과내용</label>
+        <div class="p-2 border rounded bg-gray-50">{{ result.content ?? '-' }}</div>
+      </div>
 
-          <TabPanels>
-            <TabPanel value="3-0"> 상담내역 조회 화면 출력 돼야함 </TabPanel>
-            <TabPanel value="3-1"> 상담내역 화면 출력 돼야함</TabPanel>
-          </TabPanels>
-        </Tabs>
-      </TabPanel>
-
-      <!--캘린더-->
-      <TabPanel value="4"> 캘린더 화면 출력돼야함 </TabPanel>
-    </TabPanels>
-  </Tabs>
-
-  <!----------------------------------------------------------->
-  <div class="card flex flex-col">
-    <div class="font-bold text-2xl text-center mb-4">반려된 지원결과서 조회</div>
-    <DataTable :value="filterresult" :sortOrder="1" :rowHover="true" showGridlines>
-      <template #empty>
-        <div class="text-center">데이터 없음</div>
-      </template>
-
-      <Column selectionMode="multiple" headerStyle="width:48px" />
-      <!--삭제 때문에 행 선택 체크박스 필요함-->
-
-      <Column header="번호" headerClass="center-header" bodyClass="center-body" style="width: 80px">
-        <template #body="{ index }">
-          {{ rowNumber(index) }}
-        </template>
-      </Column>
-
-      <Column field="planNo" header="계획서 번호" headerClass="center-header" sortable style="width: 200px">
-        <template #body="{ data }">
-          {{ data.plan_no ?? '-' }}
-        </template>
-      </Column>
-      <!--정렬의 기준이 됨-->
-
-      <Column header="목표" headerClass="center-header" bodyClass="center-body" style="width: 200px">
-        <template #body="{ data }">
-          {{ data.title ?? '-' }}
-        </template>
-      </Column>
-
-      <Column header="시작날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.start) }}
-        </template>
-      </Column>
-
-      <Column header="종료날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ formatDate(data.end) }}
-        </template>
-      </Column>
-
-      <Column header="반려 된 날짜" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          <span class="text-red-500 font-bold">
-            {{ formatDate(data.reject_date) }}
-          </span>
-        </template>
-      </Column>
-
-      <Column header="결과내용" headerClass="center-header" bodyClass="center-body" style="width: 130px">
-        <template #body="{ data }">
-          {{ data.content ?? '-' }}
-        </template>
-      </Column>
-
-      <Column header="첨부파일" headerClass="center-header" bodyClass="center-body" style="width: 100px"> </Column>
-    </DataTable>
+      <!-- 첨부파일 -->
+      <div class="flex flex-col gap-2 font-semibold">
+        <label>첨부파일</label>
+        <div class="p-2 border rounded bg-gray-50">
+          {{ result.fileName ?? '첨부파일 없음' }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-:deep(.p-datatable-thead > tr > th) {
-  background-color: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-:deep(.p-datatable-tbody > tr:hover) {
-  background-color: #f3f4f6;
-}
-
-:deep(.table-header .p-datatable-column-header-content) {
-  justify-content: center;
-}
-
-:deep(.table-body) {
-  text-align: center;
-  color: #374151;
-}
-
-:deep(.status-tag) {
-  font-size: 0.8rem;
-  padding: 0.35rem 0.75rem;
-}
-
-.edit-icon {
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: #6b7280;
-  transition: color 0.2s;
-}
-
-.edit-icon:hover {
-  color: #10b981;
-}
-</style>

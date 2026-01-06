@@ -6,13 +6,14 @@ const resultService = require("../services/resultService.js");
 
 //지원결과서 작성
 router.post("/result", async (req, res) => {
-  const { title, content, result_author, status, plan_no, start, end } =
+  const { title, content, file, result_author, status, plan_no, start, end } =
     req.body;
 
   try {
     let list = await resultService.addResult(
       title,
       content,
+      file,
       result_author,
       status,
       plan_no,
