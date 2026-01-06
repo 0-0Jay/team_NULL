@@ -5,12 +5,11 @@ import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 import RadioButton from 'primevue/radiobutton';
 import DatePicker from 'primevue/datepicker';
-import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import router from '@/router';
 
+const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 const route = useRoute();
 const userStore = useUsersStore();
-const visible = ref(false);
 const formData = ref({
   name: '',
   gender: '',
@@ -35,7 +34,7 @@ function closeAddress() {
 
 // 등록 함수
 async function handleCreate() {
-  // 1. 입력값 유효성 검증
+  // 1. 입력값 검증
   if (!formData.value.name?.trim() || !formData.value.birth || formData.value.gender === undefined || formData.value.zipcode == null || !formData.value.address?.trim() || !formData.value.disability?.trim()) {
     alert('필수 항목을 입력해주세요');
     return;
@@ -54,12 +53,19 @@ async function handleCreate() {
     address_detail: formData.value.address_detail,
     disability: formData.value.disability
   };
-  // 4. API 호출
+
+  console.log('payload being sent:', {
+    user_no: user.user_no,
+    ...payload
+  });
+
   try {
-    const res = await userStore.addApplicant(payload);
+    // 4. API 호출
+    const res = await userStore.addApplicant(user.user_no, payload);
     if (res.status === 'success') {
+      await userStore.fetchApplicant(user.user_no);
       alert('등록되었습니다.');
-      router.push(`/myPage/${res.a_no}`);
+      router.push(`/mypage/${res.a_no}`);
     } else {
       alert('등록 실패');
     }

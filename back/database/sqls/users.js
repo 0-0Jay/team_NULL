@@ -90,7 +90,7 @@ SET status = 2
 WHERE user_no = ?`;
 
 // 일반회원 마이페이지 - 나의 정보 조회
-const selectByUserNoUsers = `SELECT name, id, phone, email, zipcode, address, address_detail, created_date
+const selectByUserNoUsers = `SELECT name, id, password, phone, email, zipcode, address, address_detail, created_date
                              FROM users
                              WHERE user_no = ?`;
 

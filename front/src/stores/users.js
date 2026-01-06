@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { useAuthStore } from './auth';
 
 export const useUsersStore = defineStore('users', {
   // state
@@ -96,6 +95,7 @@ export const useUsersStore = defineStore('users', {
 
     // 비밀번호 재설정
     async changePw(data) {
+      console.log('💡 changePw 호출, 넘기는 데이터:', data);
       try {
         const response = await axios.put(`/api/findPw`, data);
         return response.data;
@@ -155,15 +155,24 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
+    // 마이페이지 - 일반회원 정보 불러오기
+    async fetchMyInfo(userNo) {
+      if (!userNo) return;
+
+      const { data } = await axios.get(`/api/users/${userNo}`);
+      console.log('회원 정보: ', data);
+      this.myInfo = data[0];
+    },
+
     // 마이페이지 - 회원탈퇴
-    async withdrawUser() {
-      const authStore = useAuthStore();
-      if (!authStore.user?.user_no) {
+    async withdrawUser(userNo) {
+      if (!userNo) {
         return { status: 'error', message: 'unauthorized' };
       }
       try {
-        const payload = { user_no: authStore.user.user_no };
+        const payload = { user_no: userNo };
         const { data } = await axios.put(`/api/users`, payload);
+
         if (data.status === 'success') {
           this.user = null;
           await this.logout();
@@ -175,39 +184,29 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
-    // 마이페이지 - 일반회원 정보 불러오기
-    async fetchMyInfo() {
-      const authStore = useAuthStore();
-      if (!authStore.user?.user_no) return;
-
-      const userNo = authStore.user.user_no;
-      const { data } = await axios.get(`/api/users/${userNo}`);
-      console.log('회원 정보: ', data);
-      this.myInfo = data[0];
-    },
-
     // 일반회원 마이페이지 - 나의 정보 수정
-    async modifyMyInfo(formData) {
-      const authStore = useAuthStore();
-      if (!authStore.user?.user_no) return;
+    async modifyMyInfo(userNo, formData) {
+      if (!userNo) return;
       try {
-        const user_no = authStore.user.user_no;
-        const payload = { user_no, ...formData };
-        await axios.put(`/api/users/${user_no}`, payload);
+        const payload = { ...formData };
+        await axios.put(`/api/users/${userNo}`, payload);
       } catch (err) {
         console.log(err);
+        throw err;
       }
     },
 
     // 마이페이지 - 지원자 목록 불러오기
-    async fetchApplicant() {
-      const authStore = useAuthStore();
-      if (!authStore.user?.user_no) return;
-
-      const userNo = authStore.user.user_no;
-      const { data } = await axios.get(`/api/users/${userNo}/applicant`);
-      console.log('지원자 목록: ', data);
-      this.applicant = data;
+    async fetchApplicant(userNo) {
+      if (!userNo) return;
+      try {
+        const { data } = await axios.get(`/api/users/${userNo}/applicant`);
+        console.log('지원자 목록: ', data);
+        this.applicant = data;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
     },
     // 마이페이지 - 선택된 지원자 상세정보 불러오기
     async fetchApplicantDetail(a_no) {
@@ -230,23 +229,26 @@ export const useUsersStore = defineStore('users', {
         return res.data;
       } catch (e) {
         return { status: 'error' };
+        throw e;
       }
     },
     // 마이페이지 - 지원자 등록
-    async addApplicant(payload) {
-      const authStore = useAuthStore();
-      if (!authStore.user?.user_no) {
+    async addApplicant(userNo, payload) {
+      if (!userNo) {
         return { status: 'error', message: 'unauthorized' };
       }
-      const body = {
-        user_no: authStore.user.user_no,
-        ...payload
-      };
-      const { data } = await axios.post(`/api/users/applicant/new`, body);
-      if (data.status === 'success') {
-        await this.fetchApplicant();
+      try {
+        const body = {
+          user_no: userNo,
+          ...payload
+        };
+
+        const { data } = await axios.post(`/api/users/applicant/new`, body);
+        return data;
+      } catch (err) {
+        console.error(err);
+        throw err;
       }
-      return data;
     }
   },
   persist: true
