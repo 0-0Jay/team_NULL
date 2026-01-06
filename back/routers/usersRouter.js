@@ -115,6 +115,14 @@ router.get("/users/:user_no", async (req, res) => {
   res.send(result);
 });
 
+// 일반회원 마이페이지 - 나의 정보 수정
+router.put("/users/:user_no", async (req, res) => {
+  const generaluserInfo = req.body;
+  generaluserInfo.user_no = req.params.user_no;
+  let result = await usersService.modifyByUserNoGeneralUsers(generaluserInfo);
+  res.send(result);
+});
+
 // 마이페이지 - 지원자 목록 조회
 router.get("/users/:user_no/applicant", async (req, res) => {
   const user_no = req.params.user_no;
@@ -126,6 +134,28 @@ router.get("/users/:user_no/applicant", async (req, res) => {
 router.get("/users/applicant/:a_no", async (req, res) => {
   const a_no = req.params.a_no;
   let result = await usersService.findByANoApplicant(a_no);
+  res.send(result);
+});
+
+// 마이페이지 - 지원자 상세정보 수정
+router.put("/users/applicant/:a_no", async (req, res) => {
+  const applicantInfo = req.body;
+  applicantInfo.a_no = req.params.a_no;
+  let result = await usersService.modifyByAnoApplicant(applicantInfo);
+  res.send(result);
+});
+
+// 마이페이지 - 지원자 삭제
+router.delete("/users/applicant/:a_no", async (req, res) => {
+  const ano = req.params.a_no;
+  let result = await usersService.removeByANoApplicant(ano);
+  res.send(result);
+});
+
+// 마이페이지 - 지원자 등록
+router.post("/users/applicant/new", async (req, res) => {
+  const applicantInfo = req.body;
+  let result = await usersService.addApplicant(applicantInfo);
   res.send(result);
 });
 

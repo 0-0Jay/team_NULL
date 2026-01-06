@@ -20,9 +20,21 @@ export const useSurveyStore = defineStore('survey', {
       }
     },
 
-    async updateSurvey(data) {
+    // 조사지 업데이트(버전 업)
+    async insertSurvey(data) {
       try {
         const response = await axios.post('/api/survey', data);
+        this.survey = null;
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 조사지 업데이트(세부 수정)
+    async updateSurvey(data) {
+      try {
+        const response = await axios.put('/api/survey', data);
         this.survey = null;
         return response.data;
       } catch (err) {

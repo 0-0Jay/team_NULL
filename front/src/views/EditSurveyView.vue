@@ -1,8 +1,8 @@
 <script setup>
 import { useSurveyStore } from '@/stores/survey';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import EditQuestionModal from '@/components/EditQuestionModal.vue';
-import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useRouter } from 'vue-router';
 
 const store = useSurveyStore();
 const data = ref({});
@@ -12,8 +12,9 @@ const editMode = ref('');
 const sectionData = ref({});
 const detailData = ref({});
 const rowData = ref({});
-const openConfirm = ref(false);
-const delConfirm = ref(false);
+const router = useRouter();
+const isDelete = ref(false);
+const changeStructure = computed(() => hasStructuralChange(data.value) || isDelete.value);
 
 onMounted(async () => {
   data.value = await store.fetchSurvey();
@@ -28,52 +29,57 @@ watch(
   { immediate: true }
 );
 
-const makeTableRows = (secValue) => {
+const makeTableRows = (secValue, sec_no) => {
   const rows = [];
-
-  Object.entries(secValue).forEach(([detailKey, items]) => {
-    if (!Array.isArray(items)) return;
-    const [detail, info] = detailKey.split('*');
-    items.forEach((item, idx) => {
+  Object.entries(secValue.details).forEach(([d_no, detailValue]) => {
+    const { detail, info, questions } = detailValue;
+    Object.entries(questions).forEach(([q_no, questionValue], idx) => {
       rows.push({
-        detail: detail,
+        sec_no,
+        d_no,
+        q_no,
+        detail,
         info: info != 'null' ? info : '',
         no: idx + 1,
-        question: item.question,
-        type: item.type,
-        _origin: item
+        question: questionValue.question,
+        type: questionValue.type
       });
     });
   });
-
   return rows;
 };
 
-const openSectionEditor = (section) => {
+const openSectionEditor = (sec_no, sectionValue) => {
   editMode.value = 'section';
-  if (section) {
-    sectionData.value = { key: section };
+  if (sectionValue) {
+    sectionData.value = {
+      sec_no: sec_no,
+      section: sectionValue.section
+    };
   } else {
-    sectionData.value = { key: '' };
+    sectionData.value = {
+      sec_no: null,
+      section: ''
+    };
   }
   display.value = true;
 };
 
-const openDetailEditor = (detail) => {
+const openDetailEditor = (detailValue) => {
   editMode.value = 'detail';
-  if (detail) {
+  if (detailValue) {
     detailData.value = {
-      oldKey: `${detail.detail}*${detail.info || 'null'}`,
-      detail: detail.detail,
-      info: detail.info,
-      section: activeTab.value
+      sec_no: activeTab.value, // 이제 sec_no
+      d_no: detailValue.d_no,
+      detail: detailValue.detail,
+      info: detailValue.info
     };
   } else {
     detailData.value = {
-      oldKey: '',
+      sec_no: activeTab.value,
+      d_no: null,
       detail: '',
-      info: '',
-      section: activeTab.value
+      info: ''
     };
   }
   display.value = true;
@@ -81,17 +87,25 @@ const openDetailEditor = (detail) => {
 
 const openRowEditor = (row, mode) => {
   editMode.value = 'row';
-  if (mode == 0) {
-    rowData.value = row._origin;
-  } else {
-    detailData.value = {
-      detail: row.detail,
-      info: row.info,
-      section: activeTab.value
-    };
+  if (mode === 0) {
     rowData.value = {
+      q_no: row.q_no,
+      question: row.question,
+      type: row.type
+    };
+    detailData.value = {
+      sec_no: row.sec_no,
+      d_no: row.d_no
+    };
+  } else {
+    rowData.value = {
+      q_no: null,
       question: '',
       type: 0
+    };
+    detailData.value = {
+      sec_no: row.sec_no,
+      d_no: row.d_no
     };
   }
   display.value = true;
@@ -104,85 +118,113 @@ const openSaveAll = () => {
 
 const handleSave = (payload) => {
   if (editMode.value == 'row') {
-    if (!rowData.value?.question) {
-      data.value[activeTab.value][`${detailData.value.detail}*${detailData.value.info}`].push({
+    const { sec_no, d_no } = detailData.value;
+    const questions = data.value[sec_no].details[d_no].questions;
+    if (!rowData.value?.q_no) {
+      const tempKey = `temp_${Date.now()}`;
+      questions[tempKey] = {
         question: payload.question,
         type: payload.type
-      });
+      };
     } else {
-      rowData.value.question = payload.question;
-      rowData.value.type = payload.type;
+      const q_no = rowData.value.q_no;
+      questions[q_no].question = payload.question;
+      questions[q_no].type = payload.type;
     }
   } else if (editMode.value == 'detail') {
-    const { oldKey, detail, info, section } = payload;
-    const newKey = `${detail}*${info || 'null'}`;
-    if (!oldKey) {
-      data.value[section][newKey] = [{ question: '임시 문항입니다. 수정해서 사용하세요. 모든 문항을 삭제하면 자동으로 소분류가 삭제됩니다.', type: 0 }];
+    const { sec_no, d_no, detail, info } = payload;
+    if (!d_no) {
+      const tempKey = `temp_${Date.now()}`;
+      data.value[sec_no].details[tempKey] = {
+        detail,
+        info,
+        questions: {
+          [`temp_${Date.now()}`]: {
+            question: '임시 문항입니다. 수정해서 사용하세요. 모든 문항을 삭제하면 자동으로 소분류가 삭제됩니다.',
+            type: 0
+          }
+        }
+      };
     } else {
-      if (oldKey == newKey) return;
-      const sectionData = data.value[section];
-      sectionData[newKey] = sectionData[oldKey];
-      delete sectionData[oldKey];
+      const target = data.value[sec_no].details[d_no];
+      target.detail = detail;
+      target.info = info;
     }
   } else {
-    const oldKey = sectionData.value.key;
-    const newKey = payload.section;
-    if (!oldKey) {
-      if (data.value[newKey]) return;
-      data.value[newKey] = {};
-      activeTab.value = newKey;
+    const { sec_no, section } = payload;
+    if (!sec_no) {
+      const tempKey = `temp_${Date.now()}`;
+      data.value[tempKey] = {
+        section,
+        details: {}
+      };
+      activeTab.value = tempKey;
     } else {
-      if (oldKey == newKey) return;
-      data.value[newKey] = data.value[oldKey];
-      delete data.value[oldKey];
-      activeTab.value = newKey;
+      data.value[sec_no].section = section;
     }
   }
 };
 
 const saveAll = async (reason) => {
   const updateData = {};
-  updateData['content'] = reason.content;
-  const user = JSON.parse(localStorage.getItem('users'));
-  updateData['author'] = user.user[0].user_no;
-  console.log(data);
-  // await store.updateSurvey(updateData);
+  updateData['survey'] = data.value;
+  if (reason.update == '1') {
+    updateData['content'] = reason.content;
+    const user = JSON.parse(localStorage.getItem('users'));
+    updateData['author'] = user.user[0].user_no;
+    await store.insertSurvey(updateData);
+  } else {
+    await store.updateSurvey(updateData);
+  }
+  router.push({ name: 'survey' });
 };
 
 const deleteRow = (row) => {
-  const list = data.value[activeTab.value][`${row.detail}*${row.info || 'null'}`];
-  const idx = list.findIndex((item) => item.question == row.question && item.type == row.type);
-  list.splice(idx, 1);
+  const { sec_no, d_no, q_no } = row;
+  const questions = data.value[sec_no].details[d_no].questions;
+  if (questions[q_no]) {
+    delete questions[q_no];
+    isDelete.value = true;
+  }
 };
 
 const deleteDetail = (detail) => {
-  delete data.value[activeTab.value][`${detail.detail}*${detail.info || 'null'}`];
+  const { sec_no, d_no } = detail;
+  delete data.value[sec_no].details[d_no];
+  isDelete.value = true;
 };
 
-const deleteSection = (section) => {
-  delete data.value[section];
-  if (activeTab.value == section) {
-    const keys = Object.keys(data.value);
+const deleteSection = (sec_no) => {
+  delete data.value[sec_no];
+  isDelete.value = true;
+  if (activeTab.value == sec_no) {
+    const keys = Object.keys(data.value).filter((k) => k != sec_no);
     activeTab.value = keys.length ? keys[0] : '';
   }
 };
 
-const openDelComfirm = (action) => {
-  delConfirm.value = action;
-  openConfirm.value = true;
-};
-
-const onConfirm = () => {
-  if (delConfirm.value) {
-    delConfirm.value();
+const hasStructuralChange = (survey) => {
+  const secKeys = Object.keys(survey);
+  for (const secKey of secKeys) {
+    const sec = survey[secKey];
+    if (String(secKey).startsWith('temp_')) return true;
+    const detKeys = Object.keys(sec.details);
+    for (const detKey of detKeys) {
+      const det = sec.details[detKey];
+      if (String(detKey).startsWith('temp_')) return true;
+      const qKeys = Object.keys(det.questions);
+      for (const qKey of qKeys) {
+        const q = det.questions[qKey];
+        if (String(qKey).startsWith('temp_')) return true;
+      }
+    }
   }
-  openConfirm.value = false;
-  delConfirm.value = null;
+  return false;
 };
 </script>
 
 <template>
-  <div class="pt-16">
+  <div class="pt-20">
     <div class="card m-4">
       <div class="flex justify-between">
         <div class="font-semibold text-xl mb-4">조사지 수정</div>
@@ -193,16 +235,16 @@ const onConfirm = () => {
       </div>
       <Tabs :value="activeTab">
         <TabList>
-          <Tab v-for="(value, key) in data" :value="key" @click="() => (activeTab = key)">
-            {{ key }}
-            <i class="pi pi-fw pi-pen-to-square ml-2" @click.stop="openSectionEditor(key)" />
-            <i class="pi pi-fw pi-times cursor-pointer ml-2" @click.stop="deleteSection(key)" />
+          <Tab v-for="(secValue, sec_no) in data" :value="sec_no" @click="() => (activeTab = sec_no)">
+            {{ secValue.section }}
+            <i class="pi pi-fw pi-pen-to-square ml-2" @click.stop="openSectionEditor(sec_no, secValue)" />
+            <i class="pi pi-fw pi-times cursor-pointer ml-2" @click.stop="deleteSection(sec_no)" />
           </Tab>
           <Button class="m-3" @click="openSectionEditor()" text plain>대분류 추가</Button>
         </TabList>
         <TabPanels>
-          <TabPanel v-for="(sec_value, key) in data" :value="key">
-            <DataTable :value="makeTableRows(sec_value)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="800px" tableStyle="min-width: 50rem">
+          <TabPanel v-for="(secValue, sec_no) in data" :value="sec_no">
+            <DataTable :value="makeTableRows(secValue, sec_no)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="800px" tableStyle="min-width: 50rem">
               <template #groupheader="slotProps">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-md text-xl">{{ slotProps.data.detail }}</span>
@@ -254,7 +296,7 @@ const onConfirm = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-      <EditQuestionModal v-model="display" :mode="editMode" :section="sectionData" :detail="detailData" :row="rowData" @save="handleSave" @save-all="saveAll" />
+      <EditQuestionModal v-model="display" :mode="editMode" :section="sectionData" :detail="detailData" :row="rowData" :has-structure="changeStructure" @save="handleSave" @save-all="saveAll" />
     </div>
   </div>
 </template>

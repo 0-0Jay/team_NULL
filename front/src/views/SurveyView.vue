@@ -23,15 +23,18 @@ watch(
 const makeTableRows = (secValue) => {
   const rows = [];
 
-  Object.entries(secValue).forEach(([detailKey, items]) => {
-    const [detail, info] = detailKey.split(',');
-    items.forEach((item, idx) => {
+  Object.values(secValue.details).forEach((detailValue) => {
+    const { d_no, detail, info, questions } = detailValue;
+
+    Object.values(questions).forEach((questionValue, idx) => {
       rows.push({
-        detail: detail,
+        d_no,
+        q_no: questionValue.q_no,
+        detail,
         info: info != 'null' ? info : '',
         no: idx + 1,
-        question: item.question,
-        type: item.type
+        question: questionValue.question,
+        type: questionValue.type
       });
     });
   });
@@ -41,7 +44,7 @@ const makeTableRows = (secValue) => {
 </script>
 
 <template>
-  <div class="pt-16">
+  <div class="pt-20">
     <div class="card m-4">
       <div class="flex justify-between">
         <div class="font-semibold text-xl mb-4">조사지 조회</div>
@@ -49,7 +52,7 @@ const makeTableRows = (secValue) => {
       </div>
       <Tabs :value="activeTab">
         <TabList>
-          <Tab v-for="(value, key) in data" :value="key">{{ key }}</Tab>
+          <Tab v-for="(value, key) in data" :value="key">{{ value.section }}</Tab>
         </TabList>
         <TabPanels>
           <TabPanel v-for="(sec_value, key) in data" :value="key">
