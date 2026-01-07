@@ -26,6 +26,14 @@ FROM plan
 WHERE application_no = ?
 AND   status = 0`;
 
+// (기관관리자용) 지원신청서 승인, 반려  -작업 덜 끝남  //1승인 2반려
+const updatePlanStatus = `
+UPDATE plan
+SET status = ?,
+    appove_date = IF(? = 1, NOW(), approve_date),
+    reject_date = IF(? = 2, NOW(), reject_date)
+WHERE plan_no = ?`;
+
 // 지원계획서 승인, 반려, 검토 집계
 const selectCountPlan = `select p.application_no,
                                 sum(case when p.approve_date is null and p.reject_date is null then 1 else 0 end) as review_count,
@@ -41,5 +49,6 @@ module.exports = {
   selectPlan,
   rejectPlan,
   selectPendingPlan,
+  updatePlanStatus,
   selectCountPlan,
 };

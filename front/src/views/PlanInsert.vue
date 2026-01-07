@@ -12,7 +12,7 @@ const store = usePlanStore(); //pinia작업 위함
 const router = useRouter(); // 페이지 이동용
 const route = useRoute(); // 현재 경로 확인용
 const displayConfirmation = ref(false);
-const application_no = Number(route.params.application_no);
+const application_no = Number(route.params.application_no || 0);
 
 const planAuthor = ref('');
 const title = ref('');
@@ -23,7 +23,7 @@ const content = ref('');
 //목록으로 이동
 const goToPendingPlanDetail = () => {
   router.push({
-    name: 'pendingplanDetail',
+    name: 'pendingPlanDetail',
     params: {
       application_no: application_no
     }
@@ -47,8 +47,8 @@ const submitPlan = async () => {
     content: content.value,
     plan_author: planAuthor.value,
     status: 0, // 승인대기로 먼저 가야함 /0대기/1승인/2반려
-    application_no: 14, //지원신청서 14번으로 테스트 중
-    // application_no: Number(application_no),
+    // application_no: 14, //지원신청서 14번으로 테스트 중
+    application_no: Number(application_no),
     start: startDate.value,
     end: endDate.value
   };
