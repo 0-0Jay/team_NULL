@@ -2,15 +2,15 @@
 
 //지원결과서 작성 - *주의 : 지원'계획서'번호를 받아와야함
 const insertResult = `
-INSERT INTO result(title, content, result_author, status, plan_no, start, end )
-VALUES(?, ?, ?, ?, ?, ?, ?)`;
+INSERT INTO result(title, content, file, result_author, status, plan_no, start, end )
+VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
 
 //승인된 지원 결과서 조회
 const selectResult = `
 SELECT plan_no, title, content, file, start, end, result_no, status, approve_date, result_author
 FROM result
 WHERE plan_no = ? 
-AND   status = ?`;
+AND   status = 1`;
 
 //반려된 지원계획서 조회
 const rejectResult = `

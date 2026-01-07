@@ -20,7 +20,7 @@ export const useResultStore = defineStore('result', {
         });
         this.resultList = res.data;
       } catch (err) {
-        console.error(err);
+        console.error('승인된 지원계획서 조회 실패', err);
       }
     },
 
