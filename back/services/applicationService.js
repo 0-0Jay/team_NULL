@@ -231,17 +231,18 @@ const addManager = async (applicationNo, managerUserNo, user) => {
 
 // 지원자 정보 불러오기
 const findApplicantInfo = async (user) => {
+  // console.log(user);
   if (user.type === 0)
     return mysql.query(
       "selectInfoByUserNoApplicant",
       [user.user_no],
-      "applicantion"
+      "application"
     );
   if (user.type === 1)
     return mysql.query(
       "selectInfoByCnoApplicantUsers",
       [user.c_no],
-      "applicantion"
+      "application"
     );
 };
 

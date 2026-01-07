@@ -314,7 +314,7 @@ const columnData = computed(() => {
             </template>
           </Column>
 
-          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 100px; min-width: 100px; max-width: 140px">
+          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 140px; min-width: 140px; max-width: 140px">
             <template #body="{ data }">
               <div class="leading-tight">
                 <ul class="grid gap-2">

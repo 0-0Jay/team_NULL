@@ -51,18 +51,27 @@ const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.
                                  where u.status != 2 and u.type = 2`;
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
-//  count(m.a_no) as applicant_count,
-const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
-                                           u.c_no, c.name as center_name,
-                                           u.created_date, u.status
+// 시스템 관리자
+const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
+                                              c.name as center_name, u.created_date,
+                                              u.status, count(m.application_no) as applicant_count
+                                       from users u 
+                                       left join center c on u.c_no = c.c_no
+                                       left join manager m on u.user_no = m.user_no
+                                                              and m.unassign is null
+                                       where u.type = 1 and u.status != 2
+                                       group by u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
+                                                c.name, u.created_date, u.status
+                                       order by u.created_date desc`;
+
+// 기관 관리자
+const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.created_date,
+                                           u.status, count(m.application_no) as applicant_count
                                     from users u
-                                    left join manager m
-                                        on u.user_no = m.user_no
-                                        and m.unassign is null
-                                    left join center c on u.c_no = c.c_no
-                                    where u.type = 1 and u.status != 2
-                                    group by u.user_no, u.id, u.name,
-                                             u.phone, u.email, c.name,
+                                    left join manager m on u.user_no = m.user_no
+                                                           and m.unassign is null
+                                    where u.type = 1 and u.status != 2 and u.c_no = ?
+                                    group by u.user_no, u.id, u.name, u.phone, u.email,
                                              u.created_date, u.status
                                     order by u.created_date desc`;
 
@@ -104,11 +113,12 @@ const updateByUserNoGeneralUsers = `UPDATE users
 
 // 일반회원 마이페이지 - 지원자 목록 조회
 const selectByUserNoApplicant = `SELECT name, a_no
-                                                             FROM applicant
-                                                             WHERE user_no = ?`;
+                                 FROM applicant
+                                 WHERE user_no = ?`;
+
 // 기관담당자 마이페이지 - 나의 정보 조회
-const selectByUserNoStaffUsers = `SELECT u.type, u.name, u.id, u.password, u.phone, u.email, u.created_date, c.name as center_name, 
-                                         concat_ws(' ', c.address, c.address_detail) as center_address
+const selectByUserNoStaffUsers = `SELECT u.type, u.name, u.id, u.password, u.phone, u.email, u.created_date, 
+                                         c.name as center_name, concat_ws(' ', c.address, c.address_detail) as center_address, c.phone as center_phone
                                   FROM users u 
                                   JOIN center c
                                   ON u.c_no = c.c_no
@@ -121,10 +131,14 @@ const selectByCNoApplicant = `SELECT a_no, a.name
                               JOIN users m ON m.user_no = ?
                               WHERE g.c_no = m.c_no`;
 
+// 기관담당자 마이페이지 - 담당 지원자 목록 조회
+
 // 마이페이지 - 지원자 상세 정보 조회
-const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
-                              FROM applicant
-                              WHERE a_no= ?`;
+const selectByANoApplicant = `SELECT a.name, a.birth, a.gender, a.zipcode, a.address, a.address_detail, a.disability, a.created_date, 
+                                     u.name as nok_name, u.phone as nok_phone, u.email as nok_email
+                              FROM applicant a
+                              JOIN users u ON a.user_no = u.user_no
+                              WHERE a_no = ?`;
 
 // 마이페이지 - 지원자 상세 정보 수정
 const updateByANoApplicant = `UPDATE applicant
@@ -156,6 +170,7 @@ module.exports = {
   selectByIdAndEmailUsers,
   updatePwByUsernoUsers,
   selectByCnoUsersCenters,
+  selectByUserNoAllUsersManager,
   selectByUserNoUsersManager,
   updateStatusByUsernoUsers,
   selectByIdUsers,

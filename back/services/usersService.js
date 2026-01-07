@@ -120,9 +120,23 @@ const findByCnoUsersCenters = async () => {
   return list;
 };
 
-// 기관 관리자 페이지 - 기관 담당자 불러오기
-const findByUserNoUsersManager = async () => {
-  let list = await mysql.query("selectByUserNoUsersManager", null, "users");
+// 시스템 및 기관 관리자 페이지 - 기관 담당자 불러오기
+const findByUserNoUsersManager = async (user) => {
+  let list = [];
+
+  console.log("user 타입 : ", user.type);
+  console.log("user 기관번호 : ", user.c_no);
+
+  if (user.type === 3) {
+    list = await mysql.query("selectByUserNoAllUsersManager", [], "users");
+  }
+  if (user.type === 2) {
+    list = await mysql.query(
+      "selectByUserNoUsersManager",
+      [user.c_no],
+      "users"
+    );
+  }
   return list;
 };
 
