@@ -95,7 +95,6 @@ export const useUsersStore = defineStore('users', {
 
     // 비밀번호 재설정
     async changePw(data) {
-      console.log('💡 changePw 호출, 넘기는 데이터:', data);
       try {
         const response = await axios.put(`/api/findPw`, data);
         return response.data;
@@ -208,6 +207,7 @@ export const useUsersStore = defineStore('users', {
         throw err;
       }
     },
+
     // 마이페이지 - 선택된 지원자 상세정보 불러오기
     async fetchApplicantDetail(a_no) {
       const { data } = await axios.get(`/api/users/applicant/${a_no}`);

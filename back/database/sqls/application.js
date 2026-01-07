@@ -26,7 +26,8 @@ const selectByAppNoApplication = `select a1.application_no, a1.a_no, a1.created_
 const selectAllApplication = `select distinct a1.application_no,
                                               a1.a_no, a1.created_date, a1.status,
                                               a1.approve_date, a2.name as ap_name,
-                                              u1.name as g_name, c.name as c_name
+                                              u1.name as g_name, c.name as c_name,
+                                              a2.gender, a2.birth, a2.disability
                               from application a1
                               join applicant a2 on a1.a_no = a2.a_no
                               join users u1 on a2.user_no = u1.user_no
@@ -39,7 +40,8 @@ const selectAllApplication = `select distinct a1.application_no,
 const selectByCenterApplication = `select distinct a1.application_no,
                                                    a1.a_no, a1.created_date, a1.status,
                                                    a1.approve_date, a2.name as ap_name,
-                                                   u1.name as g_name, c.name as c_name
+                                                   u1.name as g_name, c.name as c_name,
+                                                   a2.gender, a2.birth, a2.disability
                                    from application a1
                                    join applicant a2 on a1.a_no = a2.a_no
                                    join users u1 on a2.user_no = u1.user_no
@@ -53,7 +55,8 @@ const selectByCenterApplication = `select distinct a1.application_no,
 const selectByManagerApplication = `select distinct a1.application_no,
                                                     a1.a_no, a1.created_date, a1.status,
                                                     a1.approve_date, a2.name as ap_name,
-                                                    u1.name as g_name, c.name as c_name
+                                                    u1.name as g_name, c.name as c_name,
+                                                    a2.gender, a2.birth, a2.disability
                                     from application a1
                                     join applicant a2 on a1.a_no = a2.a_no
                                     join users u1 on a2.user_no = u1.user_no
@@ -69,7 +72,8 @@ const selectByManagerApplication = `select distinct a1.application_no,
 const selectByUserApplication = ` select a1.application_no, a1.a_no,
                                          a1.created_date, a1.status,
                                          a1.approve_date, a2.name as ap_name,
-                                         u1.name as g_name, null as c_name
+                                         u1.name as g_name, null as c_name,
+                                         a2.gender, a2.birth, a2.disability
                                   from application a1
                                   join applicant a2 on a1.a_no = a2.a_no
                                   join users u1 on a2.user_no = u1.user_no
@@ -108,6 +112,16 @@ const selectByAppNoAndCnoApplication = `select 1
 // 대기단계 설정
 const updateByAppNoApplication = `update application set status = ? where application_no = ?`;
 
+// 지원자 정보 불러오기
+// 일반회원
+const selectInfoByUserNoApplicant = `select * from applicant where user_no = ?`;
+
+// 기관 담당자
+const selectInfoByCnoApplicantUsers = `select a.*
+                                       from applicant a
+                                       join users u on a.user_no = u.user_no
+                                       where u.c_no = ?`;
+
 module.exports = {
   insertApplication,
   insertApplicationAnswer,
@@ -123,4 +137,6 @@ module.exports = {
   selectByCenterApplication,
   selectByManagerApplication,
   selectByUserApplication,
+  selectInfoByUserNoApplicant,
+  selectInfoByCnoApplicantUsers,
 };

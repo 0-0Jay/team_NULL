@@ -117,4 +117,19 @@ router.post("/applications/:applicationNo/manager", async (req, res) => {
   res.send(result);
 });
 
+// 지원자 불러오기
+router.post("/findApplicant", async (req, res) => {
+  const { user } = req.body || {};
+
+  if (!user || user.type === undefined) {
+    return res.send({
+      status: "fail",
+      message: "사용자 정보 없음",
+    });
+  }
+
+  const result = await applicationService.findApplicantInfo(user);
+  res.send(result);
+});
+
 module.exports = router;

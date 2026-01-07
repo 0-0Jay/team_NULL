@@ -9,13 +9,11 @@ const router = useRouter();
 
 // 페이지네이션
 const page = ref(1);
-const rows = ref(10);
+const rows = ref(13);
 
 // 페이지 이동 함수
-const goPage = (type, applicationNo) => {
-  router.push({
-    path: `/application/${applicationNo}/${type}`
-  });
+const goPage = (name, params = {}) => {
+  router.push({ name, params });
 };
 
 // 상세 검색
@@ -56,7 +54,7 @@ watch(
 );
 
 onBeforeMount(() => {
-  store.fetchApplication(user);
+  store.fetchApplication();
 });
 
 const filteredData = computed(() => {
@@ -128,15 +126,18 @@ const getStatus = (row) => {
   }
 };
 
+const toNumber = (v) => Number(v) || 0;
+
 const columnData = computed(() => {
   const managers = new Map(store.manager.map((m) => [m.application_no, m.m_name]));
   const plans = new Map(store.planStat.map((p) => [p.application_no, p]));
   const results = new Map(store.resultStat.map((r) => [r.application_no, r]));
-  // const counsel = new Map(store.counselStats.map((c) => [c.application_no, c.counsel_count]));
+  const counsels = new Map(store.counselStat.map((c) => [c.application_no, c.counsel_count]));
 
   return store.appList.map((row) => {
     const plan = plans.get(row.application_no) || {};
     const result = results.get(row.application_no) || {};
+    const counselCount = counsels.get(row.application_no) || 0;
 
     // application 승인
     let appReview = 0;
@@ -148,9 +149,6 @@ const columnData = computed(() => {
       appReview = 1;
     }
 
-    // console.log(typeof plan.review_count, plan.review_count);
-    const toNumber = (v) => Number(v) || 0;
-
     return {
       ...row,
       status: getStatus(row),
@@ -158,8 +156,9 @@ const columnData = computed(() => {
       review_count: toNumber(appReview) + toNumber(plan.review_count) + toNumber(result.review_count),
       approve_count: toNumber(appApprove) + toNumber(plan.approve_count) + toNumber(result.approve_count),
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
-      result_count: toNumber(result.result_count)
-      // has_counsel: (counselMap.get(row.application_no) || 0) > 0
+      result_count: toNumber(result.result_count),
+      plan_count: toNumber(plan.plan_count),
+      counsel_count: toNumber(counselCount)
     };
   });
 });
@@ -214,7 +213,7 @@ const columnData = computed(() => {
 
       <div class="mb-4">
         <p class="text-gray-500 mb-2">대기단계</p>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-4">
           <Button v-for="s in ['전체', '검토중', '계획', '중점', '긴급']" :key="s" size="small" :severity="searchFields.stage === s ? 'success' : 'secondary'" @click="searchFields.stage = s">
             {{ s }}
           </Button>
@@ -223,7 +222,7 @@ const columnData = computed(() => {
 
       <div>
         <p class="text-gray-500 mb-2">계획 / 결과 진행</p>
-        <div class="flex flex-wrap gap-x-4 gap-y-2">
+        <div class="flex flex-wrap gap-x-2 gap-y-2">
           <label class="flex items-center gap-1">
             <Checkbox v-model="searchFields.progress.review" binary />
             <span>검토</span>
@@ -249,7 +248,7 @@ const columnData = computed(() => {
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-xl font-bold text-gray-800">지원신청내역</h2>
 
-        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" />
+        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" as="router-link" to="/application/write" />
       </div>
 
       <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
@@ -283,7 +282,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원신청서" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 90px; max-width: 90px">
-            <template #body="{ data }">보기</template>
+            <template #body="{ data }"><Button size="small" label="보기" /></template>
           </Column>
 
           <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
@@ -315,28 +314,37 @@ const columnData = computed(() => {
             </template>
           </Column>
 
-          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 140px; min-width: 140px; max-width: 140px">
+          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 100px; min-width: 100px; max-width: 140px">
             <template #body="{ data }">
               <div class="leading-tight">
-                <span class="ml-1">
-                  검토 {{ data.review_count }}, 승인 <span class="text-green-600">{{ data.approve_count }}</span
-                  >, 반려 <span class="text-red-500">{{ data.reject_count }}</span
-                  >, 결과 <span class="text-blue-600">{{ data.result_count }}</span>
-                </span>
+                <ul class="grid gap-2">
+                  <li>
+                    검토 <span class="ml-4">{{ data.review_count }}</span>
+                  </li>
+                  <li>
+                    승인 <span class="text-green-600 ml-4">{{ data.approve_count }}</span>
+                  </li>
+                  <li>
+                    반려 <span class="text-red-500 ml-4">{{ data.reject_count }}</span>
+                  </li>
+                  <li>
+                    결과 <span class="text-blue-600 ml-4">{{ data.result_count }}</span>
+                  </li>
+                </ul>
               </div>
             </template>
           </Column>
-
+          <Column v-if="user.type != 0" header="상담내역" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="user.type === 0 || data.counsel_count === 0" @click="goPage('counselDetail', { application_no: data.application_no })" /></template>
+          </Column>
           <Column header="지원계획" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }">보기</template>
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.plan_count === 0" @click="goPage('planDetail', { application_no: data.application_no })" /></template>
+            <!-- data.counsel_count === 0 || -->
           </Column>
 
           <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }">보기</template>
-          </Column>
-
-          <Column v-if="user.type != 0" header="상담내역" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }">보기</template>
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('resultDetail', { plan_no: data.plan_no })" /></template>
+            <!-- data.counsel_count === 0 || data.plan_count === 0 ||  -->
           </Column>
         </DataTable>
       </div>

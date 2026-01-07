@@ -1,21 +1,28 @@
 <!-- /component/mypage/EditMyInfoModal.vue -->
 <script setup>
-import { reactive, watch, ref } from 'vue';
+import { reactive, watch, ref, computed } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import router from '@/router';
 const userStore = useUsersStore();
 const visible = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0] ?? null;
+const userNo = user?.user_no;
 
 const props = defineProps({
   modalValue: Boolean,
   myInfo: { type: Object, default: () => ({}) }
 });
 
+const isStaff = computed(() => {
+  const type = Number(props.myInfo?.type);
+  return type === 1 || type === 2;
+});
+
 const emit = defineEmits(['update:modalValue', 'save']);
 
 const formData = reactive({
+  center_name: '',
   name: '',
   phone: '',
   email: '',
@@ -30,6 +37,7 @@ watch(
     if (!open) return;
     const info = props.myInfo ?? {};
 
+    formData.center_name = info.center_name ?? '';
     formData.name = info.name ?? '';
     formData.phone = info.phone ?? '';
     formData.email = info.email ?? '';
@@ -45,7 +53,6 @@ const close = () => emit('update:modalValue', false);
 
 const save = () => {
   emit('save', { ...formData });
-  close();
 };
 
 // 우편번호 검색
@@ -118,12 +125,23 @@ async function changePassword() {
 
   // API 호출
   try {
+    if (!userNo) {
+      alert('로그인 정보가 없습니다.');
+      return;
+    }
     const res = await userStore.changePw({
-      user_no: props.myInfo.user_no,
+      user_no: userNo,
       pw: password.newPassword
     });
+
     if (res.status === 'success') {
       alert('비밀번호 변경 완료');
+      password.currentPassword = '';
+      password.newPassword = '';
+      password.confirmPassword = '';
+      passwordErrors.currentPassword = '';
+      passwordErrors.newPassword = '';
+      passwordErrors.confirmPassword = '';
     } else {
       alert(res.message || '비밀번호 변경 실패');
     }
@@ -141,11 +159,12 @@ async function withdrawUser() {
     alert('로그인이 필요합니다.');
     return;
   }
-
   const result = await userStore.withdrawUser(user.user_no);
   if (result.status === 'success') {
-    alert('탈퇴 되었습니다.');
-    router.push('/');
+    close();
+    userStore.logout();
+    router.replace('/');
+    // 토스트 추가하기
   } else {
     alert(result.message);
   }
@@ -170,6 +189,10 @@ const formatDate = (v) => {
           <th class="text-left py-2 px-2 w-1/4 border-r">이름</th>
           <td class="py-2 px-2" colspan="2"><InputText v-model="formData.name" type="text" class="w-full" /></td>
         </tr>
+        <tr v-if="isStaff" class="border-b">
+          <th class="text-left py-2 px-2 border-r">기관</th>
+          <td class="py-2 px-2" colspan="2"><InputText v-model="myInfo.center_name" type="text" class="w-full" disabled /></td>
+        </tr>
         <tr class="border-b">
           <th class="text-left py-2 px-2 border-r">아이디</th>
           <td class="py-2 px-2" colspan="2"><InputText v-model="myInfo.id" type="text" class="w-full" disabled /></td>
@@ -182,7 +205,7 @@ const formatDate = (v) => {
           <th class="text-left py-2 px-2 border-r">이메일</th>
           <td class="py-2 px-2" colspan="2"><InputText v-model="formData.email" type="text" class="w-full" /></td>
         </tr>
-        <tr class="border-b">
+        <tr v-if="!isStaff" class="border-b">
           <th class="text-left py-2 px-2 border-r">주소</th>
           <td class="py-2 px-2" colspan="2">
             <!-- 우편번호 + 버튼 묶음 -->
@@ -201,7 +224,7 @@ const formatDate = (v) => {
         <!-- 비밀번호 -->
         <tr>
           <th class="py-2 px-2 border-r text-left" rowspan="4">비밀번호</th>
-          <td class="pt-2 py-1 px-4 w-1/5">현재 비밀번호</td>
+          <td class="pt-2 py-1 px-4 w-1/4">현재 비밀번호</td>
           <td class="pt-2 py-1 px-2 w-3/4">
             <InputText v-model="password.currentPassword" type="password" class="w-full" />
             <!-- 에러 메시지 -->

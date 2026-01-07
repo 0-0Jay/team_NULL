@@ -81,6 +81,7 @@ const router = createRouter({
       component: () => import('@/views/WelfareMapView.vue'),
       meta: { showHeader: true }
     },
+
     {
       path: '/survey',
       name: 'survey',
@@ -125,12 +126,17 @@ const router = createRouter({
       children: [
         // 지원계획서
         {
-          path: '/planinsert',
-          name: 'planinsert',
+          path: 'write',
+          name: 'write',
+          component: () => import('@/views/ApplicationWriteView.vue')
+        },
+        {
+          path: 'planInsert',
+          name: 'planInsert',
           component: () => import('@/views/PlanInsert.vue')
         },
         {
-          path: '/planDetail/:application_no',
+          path: 'planDetail/:application_no',
           name: 'planDetail',
           component: () => import('@/views/PlanDetail.vue')
         },
@@ -177,7 +183,7 @@ const router = createRouter({
           component: () => import('@/views/CounselDetail.vue')
         }
       ]
-    }
+    },
   ]
 });
 

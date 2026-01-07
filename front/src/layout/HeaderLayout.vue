@@ -26,11 +26,11 @@ const logout = () => {
 
 <template>
   <div class="layout-topbar relative">
-    <div class="layout-topbar-logo-container flex items-center gap-10">
+    <div class="layout-topbar-logo-container flex items-center gap-4">
       <router-link to="/main" class="layout-topbar-logo">
-        <span class="w-80">발달장애인 지원 프로그램</span>
+        <span class="w-65">발달장애인 지원 프로그램</span>
       </router-link>
-      <div class="topbar-menu flex items-center gap-8 whitespace-nowrap">
+      <div class="topbar-menu flex items-center gap-4 whitespace-nowrap">
         <router-link to="/main">지원신청내역</router-link>
         <router-link v-if="user.type != 3" to="/faq">문의</router-link>
         <router-link v-if="user.type == 0" to="/welfareMap">복지지도</router-link>

@@ -1,8 +1,9 @@
-<!-- components/mypage/MyPageInfo.vue -->
+<!-- components/mypage/StaffMyPageInfo.vue -->
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import MyInfoEditModal from './EditMyInfoModal.vue';
+import 'primeicons/primeicons.css';
 
 const userStore = useUsersStore();
 const myInfo = computed(() => userStore.myInfo);
@@ -21,7 +22,7 @@ function open() {
 // 나의 정보 수정 함수
 const updateMyInfo = async (formData) => {
   // 입력값 유효성 검증
-  if (!formData.name?.trim() || !formData.phone || !formData.email?.trim() || formData.zipcode == null || !formData.address?.trim()) {
+  if (!formData.name?.trim() || !formData.phone || !formData.email?.trim()) {
     alert('필수 항목을 입력해주세요');
     return false;
   }
@@ -62,9 +63,20 @@ const formatDate = (v) => {
     <div class="card flex flex-col gap-4 flex-1">
       <!-- 데이터 있을 때 -->
       <div v-if="myInfo" class="flex flex-col gap-4 flex-1">
-        <div class="font-semibold text-xl text-black mb-5">보호자 {{ myInfo.name }}님 반갑습니다.</div>
+        <div class="text-xl mb-5 text-gray-500">
+          기관담당자 <br /><span class="text-2xl font-bold text-black">{{ myInfo.name }} 님</span>
+        </div>
         <table class="w-full border-collapse">
           <tbody>
+            <tr>
+              <td class="text-left">기관</td>
+            </tr>
+            <tr>
+              <td class="flex items-center text-left text-lg py-2 font-medium border-b border-gray-300">
+                <span class="mr-2">{{ myInfo.center_name }}</span
+                ><span class="pi pi-exclamation-circle" style="color: gray"></span>
+              </td>
+            </tr>
             <tr>
               <td class="text-left pt-4">아이디</td>
             </tr>
@@ -84,12 +96,6 @@ const formatDate = (v) => {
               <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.email }}</td>
             </tr>
             <tr>
-              <td class="text-left pt-4">주소</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.address }} {{ myInfo.address_detail }}</td>
-            </tr>
-            <tr>
               <td class="text-left pt-4">가입일</td>
             </tr>
             <tr>
@@ -106,14 +112,14 @@ const formatDate = (v) => {
       <div v-else class="text-gray-400">회원 정보를 불러오는 중입니다...</div>
     </div>
     <!-- 수정 모달 -->
-    <MyInfoEditModal :modalValue="editOpen" :myInfo="myInfo" @update:modalValue="editOpen = $event" @save="handleSave"></MyInfoEditModal>
+    <MyInfoEditModal v-if="myInfo" :modalValue="editOpen" :myInfo="myInfo" :userType="myInfo.type" @update:modalValue="editOpen = $event" @save="handleSave"></MyInfoEditModal>
   </div>
 </template>
-<style>
+<style scoped>
 .card {
   margin-top: 38px;
 }
-.info-row {
+:deep(.info-row) {
   display: flex;
   flex-direction: column;
   gap: 4px;

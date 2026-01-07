@@ -10,14 +10,14 @@ const model = ref([
   {
     label: '상담내역', // 연결완료
     items: [
-      { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/counseldetail/${1}` },
+      { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/application/counselDetail/${1}` },
       { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/counselinsert' }
     ]
   },
   {
     label: '지원계획서', // 연결완료
     items: [
-      { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/plandetail/${11}` },
+      { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/planDetail/${11}` },
       { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/pendingplandetail/${14}` },
       { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/rejectplandetail/${15}` },
       { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/planinsert' }
@@ -36,7 +36,7 @@ const model = ref([
 </script>
 
 <template>
-  <div class="card flex flex-col gap-4 flex">
+  <div class="card flex flex-col gap-4">
     <ul class="layout-menu">
       <template v-for="(item, i) in model" :key="item">
         <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>

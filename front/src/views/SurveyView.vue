@@ -1,6 +1,6 @@
 <script setup>
 import { useSurveyStore } from '@/stores/survey';
-import { onMounted, ref, watch, reactive, onBeforeMount } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const store = useSurveyStore();
 const data = ref({});
