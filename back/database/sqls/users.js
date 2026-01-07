@@ -89,20 +89,37 @@ UPDATE users
 SET status = 2
 WHERE user_no = ?`;
 
+// 회원 타입 조회
+const selectTypeByuserNoUsers = `SELECT type FROM users WHERE user_no = ?`;
+
 // 일반회원 마이페이지 - 나의 정보 조회
-const selectByUserNoUsers = `SELECT name, id, password, phone, email, zipcode, address, address_detail, created_date
+const selectByUserNoUsers = `SELECT name, id, password, phone, email, zipcode, address, address_detail, created_date, type
                              FROM users
                              WHERE user_no = ?`;
 
-// 일반회원 마이페이지 - 나의 정보 수정
+// 마이페이지 - 나의 정보 수정
 const updateByUserNoGeneralUsers = `UPDATE users
                             SET name = ?, phone = ?, email = ?, zipcode = ?, address = ?, address_detail = ?
                             WHERE user_no = ?`;
 
-// 마이페이지 - 지원자 목록 조회
+// 일반회원 마이페이지 - 지원자 목록 조회
 const selectByUserNoApplicant = `SELECT name, a_no
-                                 FROM applicant
-                                 WHERE user_no = ?`;
+                                                             FROM applicant
+                                                             WHERE user_no = ?`;
+// 기관담당자 마이페이지 - 나의 정보 조회
+const selectByUserNoStaffUsers = `SELECT u.type, u.name, u.id, u.password, u.phone, u.email, u.created_date, c.name as center_name, 
+                                         concat_ws(' ', c.address, c.address_detail) as center_address
+                                  FROM users u 
+                                  JOIN center c
+                                  ON u.c_no = c.c_no
+                                  WHERE u.user_no = ?`;
+
+// 기관담당자 마이페이지 - 기관 소속 지원자 목록 조회
+const selectByCNoApplicant = `SELECT a_no, a.name
+                              FROM applicant a
+                              JOIN users g ON a.user_no = g.user_no
+                              JOIN users m ON m.user_no = ?
+                              WHERE g.c_no = m.c_no`;
 
 // 마이페이지 - 지원자 상세 정보 조회
 const selectByANoApplicant = `SELECT name, birth, gender, zipcode, address, address_detail, disability, created_date
@@ -144,8 +161,11 @@ module.exports = {
   selectByIdUsers,
   selectByEmailUsers,
   updateStatusUsers,
+  selectTypeByuserNoUsers,
   selectByUserNoUsers,
+  selectByCNoApplicant,
   updateByUserNoGeneralUsers,
+  selectByUserNoStaffUsers,
   updateUserWithPw,
   updateUserWithoutPw,
   selectByUserNoApplicant,

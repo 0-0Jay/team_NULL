@@ -86,12 +86,7 @@ const router = createRouter({
       component: () => import('@/views/WelfareMapView.vue'),
       meta: { showHeader: true }
     },
-    {
-      path: '/resultDetail',
-      name: 'resultDetail',
-      component: () => import('@/views/ResultDetail.vue')
-      // meta: { showHeader: true }
-    },
+
     {
       path: '/survey',
       name: 'survey',
@@ -170,23 +165,33 @@ const router = createRouter({
           component: () => import('@/views/ApplicationWriteView.vue')
         },
         {
-          path: '/planinsert',
-          name: 'planinsert',
+          path: 'planInsert',
+          name: 'planInsert',
           component: () => import('@/views/PlanInsert.vue')
         },
         {
-          path: '/planDetail/:application_no',
+          path: 'planDetail/:application_no',
           name: 'planDetail',
           component: () => import('@/views/PlanDetail.vue')
-          // meta: { showHeader: true }
+        },
+        {
+          path: 'counselDetail/:application_no',
+          name: 'counselDetail',
+          component: () => import('@/views/CounselDetail.vue')
+        },
+        {
+          path: 'resultDetail/:plan_no',
+          name: 'resultDetail',
+          component: () => import('@/views/ResultDetail.vue')
         }
       ]
     },
+
     {
-      path: '/counselDetail',
-      name: 'counselDetail',
-      component: () => import('@/views/CounselDetail.vue')
-      // meta: { showHeader: true }
+      path: '/apply',
+      name: 'apply',
+      component: () => import('@/views/ApplyInsert.vue'),
+      meta: { showHeader: true }
     }
   ]
 });
