@@ -133,10 +133,11 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
-    // 기관 관리자 페이지 - 기관 담당자 불러오기
+    // 시스템 및 기관 관리자 페이지 - 기관 담당자 불러오기
     async fetchStaff() {
       try {
-        const response = await axios.get(`/api/usersStaff`);
+        const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+        const response = await axios.post(`/api/usersStaff`, { user });
         this.staff = response.data;
         console.log(response.data);
       } catch (err) {

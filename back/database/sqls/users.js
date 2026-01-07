@@ -51,18 +51,27 @@ const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.
                                  where u.status != 2 and u.type = 2`;
 
 // 기관 관리자 페이지 - 기관 담당자 불러오기
-//  count(m.a_no) as applicant_count,
-const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
-                                           u.c_no, c.name as center_name,
-                                           u.created_date, u.status
+// 시스템 관리자
+const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
+                                              c.name as center_name, u.created_date,
+                                              u.status, count(m.application_no) as applicant_count
+                                       from users u 
+                                       left join center c on u.c_no = c.c_no
+                                       left join manager m on u.user_no = m.user_no
+                                                              and m.unassign is null
+                                       where u.type = 1 and u.status != 2
+                                       group by u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
+                                                c.name, u.created_date, u.status
+                                       order by u.created_date desc`;
+
+// 기관 관리자
+const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.created_date,
+                                           u.status, count(m.application_no) as applicant_count
                                     from users u
-                                    left join manager m
-                                        on u.user_no = m.user_no
-                                        and m.unassign is null
-                                    left join center c on u.c_no = c.c_no
-                                    where u.type = 1 and u.status != 2
-                                    group by u.user_no, u.id, u.name,
-                                             u.phone, u.email, c.name,
+                                    left join manager m on u.user_no = m.user_no
+                                                           and m.unassign is null
+                                    where u.type = 1 and u.status != 2 and u.c_no = ?
+                                    group by u.user_no, u.id, u.name, u.phone, u.email,
                                              u.created_date, u.status
                                     order by u.created_date desc`;
 
@@ -156,6 +165,7 @@ module.exports = {
   selectByIdAndEmailUsers,
   updatePwByUsernoUsers,
   selectByCnoUsersCenters,
+  selectByUserNoAllUsersManager,
   selectByUserNoUsersManager,
   updateStatusByUsernoUsers,
   selectByIdUsers,
