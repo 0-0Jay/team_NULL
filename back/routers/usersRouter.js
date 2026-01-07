@@ -52,9 +52,18 @@ router.get("/usersManager", async (req, res) => {
   res.send(list);
 });
 
-// 기관 관리자 페이지 - 기관 담당자 불러오기
-router.get("/usersStaff", async (req, res) => {
-  let list = await usersService.findByUserNoUsersManager();
+// 시스템 및 기관 관리자 페이지 - 기관 담당자 불러오기
+router.post("/usersStaff", async (req, res) => {
+  const { user } = req.body || {};
+  console.log("user 정보 -> ", user);
+  if (!user || user.type === undefined) {
+    return res.send({
+      status: "fail",
+      message: "사용자 정보 없음",
+    });
+  }
+  let list = await usersService.findByUserNoUsersManager(user);
+  console.log(list);
   res.send(list);
 });
 

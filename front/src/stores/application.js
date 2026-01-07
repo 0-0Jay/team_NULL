@@ -9,8 +9,7 @@ export const useApplicationStore = defineStore('application', {
     planStat: [],
     resultStat: [],
     counselStat: [],
-    application: {},
-    applicant: {}
+    application: {}
   }),
   // getters
   // actions
@@ -21,7 +20,7 @@ export const useApplicationStore = defineStore('application', {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post('/api/applicationList', { user });
 
-        console.log(response.data.planList);
+        console.log(response.data.appList);
 
         this.appList = response.data.appList || [];
         this.manager = response.data.managerList || [];
@@ -39,18 +38,18 @@ export const useApplicationStore = defineStore('application', {
         const response = await axios.post('/api/application', data);
         this.application = data.answers;
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
     },
-    
+
+    // 지원자 목록 불러오기
     async fetchApplicant() {
       try {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post('/api/findApplicant', { user });
 
-        console.log(response.data);
-
-        this.applicant = response.data || {};
+        // console.log(response.data);
+        return response.data;
       } catch (err) {
         console.log(err);
       }

@@ -193,6 +193,10 @@ const selectCenter = (e) => {
   editUser.value.c_no = e.value.c_no;
 };
 
+const loadAllCenters = async () => {
+  autoFilteredValue.value = await centerStore.searchCenter('');
+};
+
 const submitEdit = async () => {
   const info = {
     name: editUser.value.name,
@@ -341,7 +345,19 @@ const submitEdit = async () => {
           <label class="block font-bold mb-3">기관명</label>
           <IconField iconPosition="left">
             <InputIcon class="pi pi-search" />
-            <AutoComplete v-model="selectedAutoValue" :suggestions="autoFilteredValue" optionLabel="name" placeholder="기관명 검색" @complete="searchCenter" @item-select="selectCenter" forceSelection fluid />
+            <AutoComplete
+              v-model="selectedAutoValue"
+              :suggestions="autoFilteredValue"
+              optionLabel="name"
+              placeholder="기관명 검색"
+              complete-on-focus
+              @focus="loadAllCenters"
+              dropdown
+              @complete="searchCenter"
+              @item-select="selectCenter"
+              forceSelection
+              fluid
+            />
           </IconField>
         </div>
 
