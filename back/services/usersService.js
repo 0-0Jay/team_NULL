@@ -190,7 +190,11 @@ const modifyPwByUsernoUsers = async (user_no, pw) => {
 
 // 회원탈퇴
 const modifyStatusByUsernoUsers = async (user_no) => {
-  let result = await mysql.query("updateStatusByUsernoUsers", [user_no], "users");
+  let result = await mysql.query(
+    "updateStatusByUsernoUsers",
+    [user_no],
+    "users"
+  );
   let resObj = {};
   if (result.affectedRows > 0) {
     resObj = { status: "success", user_no: user_no };
@@ -200,13 +204,25 @@ const modifyStatusByUsernoUsers = async (user_no) => {
   return resObj;
 };
 
+// 회원 타입 조회
+const findTypeByuserNoUsers = async (user_no) => {
+  let rows = await mysql.query("selectTypeByuserNoUsers", [user_no], "users");
+  return rows[0]?.type ?? null;
+};
+
 // 일반회원 마이페이지 - 나의 정보 조회
 const findByUserNoUsers = async (user_no) => {
   let result = await mysql.query("selectByUserNoUsers", [user_no], "users");
   return result;
 };
 
-// 일반회원 마이페이지 - 나의 정보 수정
+// 일반회원 마이페이지 - 지원자 목록 조회
+const findByUserNoApplicant = async (user_no) => {
+  let result = await mysql.query("selectByUserNoApplicant", [user_no], "users");
+  return result;
+};
+
+// 마이페이지 - 나의 정보 수정
 const modifyByUserNoGeneralUsers = async ({
   name,
   phone,
@@ -240,9 +256,19 @@ const modifyByUserNoGeneralUsers = async ({
   return resObj;
 };
 
-// 마이페이지 - 지원자 목록 조회
-const findByUserNoApplicant = async (user_no) => {
-  let result = await mysql.query("selectByUserNoApplicant", [user_no], "users");
+// 기관담당자 마이페이지 - 나의 정보 조회
+const findByUserNoStaffUsers = async (user_no) => {
+  let result = await mysql.query(
+    "selectByUserNoStaffUsers",
+    [user_no],
+    "users"
+  );
+  return result;
+};
+
+// 기관담당자 마이페이지 - 기관 소속 지원자 목록 조회
+const findByCNoApplicant = async (user_no) => {
+  let result = await mysql.query("selectByCNoApplicant", [user_no], "users");
   return result;
 };
 
@@ -359,11 +385,14 @@ module.exports = {
   findByEmailUsers,
   sendCode,
   modifyStatusUsers,
+  findTypeByuserNoUsers,
   findByUserNoUsers,
   modifyByUserNoGeneralUsers,
+  findByUserNoStaffUsers,
   findByUserNoApplicant,
   findByANoApplicant,
   modifyByAnoApplicant,
   removeByANoApplicant,
   addApplicant,
+  findByCNoApplicant,
 };

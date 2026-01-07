@@ -107,10 +107,25 @@ router.put("/users", async (req, res) => {
   res.send(result);
 });
 
-// 일반회원 마이페이지 - 나의 정보 조회
+// 권한별 마이페이지 - 나의 정보 조회
 router.get("/users/:user_no", async (req, res) => {
   const user_no = req.params.user_no;
-  let result = await usersService.findByUserNoUsers(user_no);
+  // 1. 사용자 타입 조회
+  const userType = await usersService.findTypeByuserNoUsers(user_no);
+  if (userType == null) {
+    return res.status(404).send({ message: "사용자 없음" });
+  }
+  const type = Number(userType);
+  let result;
+
+  // 2. 타입 기준으로 서비스 분기
+  if (type === 0) {
+    result = await usersService.findByUserNoUsers(user_no);
+  } else if (type === 1 || type === 2) {
+    result = await usersService.findByUserNoStaffUsers(user_no);
+  } else {
+    return res.status(403).send({ message: "권한 없음" });
+  }
   res.send(result);
 });
 
@@ -125,7 +140,22 @@ router.put("/users/:user_no", async (req, res) => {
 // 마이페이지 - 지원자 목록 조회
 router.get("/users/:user_no/applicant", async (req, res) => {
   const user_no = req.params.user_no;
-  let result = await usersService.findByUserNoApplicant(user_no);
+  // 1. 사용자 타입 조회
+  const userType = await usersService.findTypeByuserNoUsers(user_no);
+  if (userType == null) {
+    return res.status(404).send({ message: "사용자 없음" });
+  }
+  const type = Number(userType);
+  let result;
+
+  // 2. 타입 기준으로 서비스 분기
+  if (type === 0) {
+    result = await usersService.findByUserNoApplicant(user_no);
+  } else if (type === 1) {
+    result = await usersService.findByCNoApplicant(user_no);
+  } else {
+    return res.status(403).send({ message: "권한 없음" });
+  }
   res.send(result);
 });
 
