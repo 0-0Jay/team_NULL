@@ -3,7 +3,7 @@ import ApplicationTabs from '@/components/ApplicationTabs.vue';
 import { useApplicationStore } from '@/stores/application';
 import { useRoute } from 'vue-router';
 import { ref, computed, watch, onMounted } from 'vue';
-  import { useUsersStore } from '@/stores/users';
+import { useUsersStore } from '@/stores/users';
 
 const aStore = useApplicationStore();
 const route = useRoute();
@@ -19,13 +19,14 @@ const uStore = useUsersStore();
 const name = ref('');
 
 onMounted(async () => {
-  if (user.type == 0) {
-    // 일반회원
-    applicant.value = await uStore.fetchApplicant();
-  } else if (user.type == 1) {
-    // 담당자
-    applicant.value = await uStore.fetchCenterApplicant();
-  }
+  if (route.path === '/application/write')
+    if (user.type == 0) {
+      // 일반회원
+      applicant.value = await uStore.fetchApplicant();
+    } else if (user.type == 1) {
+      // 담당자
+      applicant.value = await uStore.fetchCenterApplicant();
+    }
 });
 
 // 날짜 포맷
@@ -41,8 +42,8 @@ const formatDate = (v) => {
 
 const appNo = Number(route.params.application_no);
 const applicantInfo = computed(() => {
-  if (!store.appList.length) return null;
-  return store.appList.find((a) => a.application_no === appNo) ?? null;
+  if (!aStore.appList.length) return null;
+  return aStore.appList.find((a) => a.application_no === appNo) ?? null;
 });
 
 watch(
@@ -111,12 +112,12 @@ const searchApplicant = (event) => {
 
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4 m-4">
       <ApplicationTabs class="md:w-1/5 flex h-full" />
-      <div class="md:w-4/5 flex h-full">
+      <div class="md:w-4/5 flex h-full overflow-auto">
         <router-view class="flex-1" />
       </div>
     </div>
-    <div v-else>
-      <router-view class="flex-1" />
+    <div v-else class="h-full overflow-hidden">
+      <router-view class="flex-1 overflow-auto" />
     </div>
   </div>
 </template>

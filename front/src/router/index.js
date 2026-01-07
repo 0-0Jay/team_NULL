@@ -124,12 +124,19 @@ const router = createRouter({
       component: () => import('@/views/ApplicationDetailView.vue'),
       meta: { showHeader: true },
       children: [
-        // 지원계획서
+        // 지원신청서 작성
         {
           path: 'write',
           name: 'write',
           component: () => import('@/views/ApplicationWriteView.vue')
         },
+        // 지원신청서 조회
+        {
+          path: 'view/:application_no',
+          name: 'view',
+          component: () => import('@/views/ApplicationView.vue')
+        },
+        // 지원계획서
         {
           path: 'planInsert',
           name: 'planInsert',
@@ -183,7 +190,7 @@ const router = createRouter({
           component: () => import('@/views/CounselDetail.vue')
         }
       ]
-    },
+    }
   ]
 });
 

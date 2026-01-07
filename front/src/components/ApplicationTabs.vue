@@ -1,11 +1,15 @@
 <script setup>
 import AppMenuItem from '@/layout/AppMenuItem.vue';
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const applicationNo = route.params.application_no;
 
 const model = ref([
   {
     label: '지원신청서',
-    items: [{ label: '지원신청서 조회', icon: 'pi pi-fw pi-pen-to-square', to: '' }]
+    items: [{ label: '지원신청서 조회', icon: 'pi pi-fw pi-pen-to-square', to: `/application/view/${applicationNo}` }]
   },
   {
     label: '상담내역', // 연결완료

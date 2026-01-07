@@ -61,19 +61,7 @@ router.post("/applicationList", async (req, res) => {
 // 지원신청서 조회
 router.get("/applications/:applicationNo", async (req, res) => {
   const applicationNo = req.params.applicationNo;
-  const { user } = req.body || {};
-
-  if (!user) {
-    return res.send({
-      status: "fail",
-      message: "사용자 정보 없음",
-    });
-  }
-
-  const result = await applicationService.findByAppNoApplication(
-    applicationNo,
-    user
-  );
+  const result = await applicationService.findByAppNoApplication(applicationNo);
   res.send(result);
 });
 

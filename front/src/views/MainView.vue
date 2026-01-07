@@ -282,7 +282,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원신청서" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 90px; max-width: 90px">
-            <template #body="{ data }"><Button size="small" label="보기" /></template>
+            <template #body="{ data }"><Button size="small" label="보기" @click="goPage('view', { application_no: data.application_no })" /></template>
           </Column>
 
           <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">

@@ -9,7 +9,7 @@ export const useApplicationStore = defineStore('application', {
     planStat: [],
     resultStat: [],
     counselStat: [],
-    application: {},
+    application: [],
     applicant: {}
   }),
   // getters
@@ -33,16 +33,37 @@ export const useApplicationStore = defineStore('application', {
       }
     },
 
-    // 지원신청서 작성
+    // 지원신청서 작성 // 미완
     async submitApplication(data) {
       try {
         const response = await axios.post('/api/application', data);
         this.application = data.answers;
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
     },
-    
+
+    // 지원신청서 조회
+    async fetchApplicationDetail(application_no) {
+      try {
+        const response = await axios.get(`/api/applications/${application_no}`);
+        this.application = response.data;
+        return this.application;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 지원신청서 수정
+    async updateApplication(data) {
+      try {
+        const response = await axios.put('/api/application', data);
+        this.application = data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
     async fetchApplicant() {
       try {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
