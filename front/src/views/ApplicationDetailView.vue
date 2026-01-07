@@ -1,6 +1,7 @@
 <script setup>
 import ApplicationTabs from '@/components/ApplicationTabs.vue';
 import { ref, onMounted } from 'vue';
+import { useUsersStore } from '@/stores/users';
 
 const applicant = ref([]);
 const selectedApplicantValue = ref(null);
@@ -8,12 +9,20 @@ const applicantFilteredValue = ref([]);
 const disability = ref('');
 const gender = ref('');
 const birth = ref('');
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const store = useUsersStore();
 
-onMounted(() => {
-  // applicant로 값 가져오는 로직 여기에 입력 데이터는 [{name: '', ...}, ...] 형식
+onMounted(async () => {
+  if (user.type == 0) {
+    // 일반회원
+    applicant.value = await store.fetchApplicant();
+  } else if (user.type == 1) {
+    // 담당자
+    applicant.value = await store.fetchCenterApplicant();
+  }
 });
 
-function searchApplicant(event) {
+const searchApplicant = (event) => {
   setTimeout(() => {
     if (!event.query.trim().length) {
       applicantFilteredValue.value = [...applicant.value];
@@ -23,11 +32,11 @@ function searchApplicant(event) {
       });
     }
   }, 250);
-}
+};
 </script>
 <template>
   <div class="pt-20 h-screen">
-    <div class="bg-white m-4 rounded-lg p-4">
+    <div class="card m-4 rounded-lg p-4">
       <div class="font-semibold text-xl">지원자 정보</div>
       <hr />
       <table class="text-center w-full table-fixed -ml-4">
@@ -58,17 +67,20 @@ function searchApplicant(event) {
     </div>
 
     <!-- 담당자 지정 -> 권한에 따라 그냥 담당자만 뜨거나, 담당자 지정 버튼이 뜨게 -->
-    <div class="bg-white m-4 rounded-lg p-4 flex gap-4">
+    <div class="card m-4 rounded-lg p-4 flex gap-4">
       <label for="name" class="block text-surface-900 dark:text-surface-0 text-xl font-medium ml-2">담당자</label>
       <AutoComplete id="name" class="" v-model="selectedApplicantValue" :suggestions="applicantFilteredValue" optionLabel="name" placeholder="담당자명" dropdown multiple display="chip" @complete="searchApplicant($event)" />
       <Button label="담당자 지정" />
     </div>
 
-    <div class="md:flex-row flex gap-4 m-4">
+    <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4 m-4">
       <ApplicationTabs class="md:w-1/5 flex h-full" />
       <div class="md:w-4/5 flex h-full">
         <router-view class="flex-1" />
       </div>
+    </div>
+    <div v-else>
+      <router-view class="flex-1" />
     </div>
   </div>
 </template>

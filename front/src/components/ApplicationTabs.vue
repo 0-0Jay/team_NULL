@@ -36,7 +36,7 @@ const model = ref([
 </script>
 
 <template>
-  <div class="card flex flex-col gap-4 flex">
+  <div class="card flex flex-col gap-4">
     <ul class="layout-menu">
       <template v-for="(item, i) in model" :key="item">
         <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>

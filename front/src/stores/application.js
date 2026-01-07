@@ -8,7 +8,8 @@ export const useApplicationStore = defineStore('application', {
     manager: [],
     planStat: [],
     resultStat: [],
-    counselStat: []
+    counselStat: [],
+    application: {}
   }),
   // getters
   // actions
@@ -25,6 +26,16 @@ export const useApplicationStore = defineStore('application', {
         this.planStat = response.data.planList || [];
         this.resultStat = response.data.resultList || [];
         this.counselStat = response.data.counselList || [];
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 지원신청서 작성
+    async submitApplication(data) {
+      try {
+        const response = await axios.post('/api/application', data);
+        this.application = data.answers;
       } catch (err) {
         console.log(err);
       }
