@@ -112,14 +112,14 @@ const router = createRouter({
           component: () => import('@/components/mypage/ApplicantEmpty.vue')
         },
         {
-          path: ':a_no',
-          name: 'myPageApplicantDetail',
-          component: () => import('@/components/mypage/ApplicantDetail.vue')
-        },
-        {
           path: 'new',
           name: 'myPageApplicantCreate',
           component: () => import('@/components/mypage/ApplicantCreate.vue')
+        },
+        {
+          path: ':a_no',
+          name: 'myPageApplicantDetail',
+          component: () => import('@/components/mypage/ApplicantDetail.vue')
         }
       ]
     },
@@ -130,12 +130,19 @@ const router = createRouter({
       component: () => import('@/views/ApplicationDetailView.vue'),
       meta: { showHeader: true },
       children: [
-        // 지원계획서
+        // 지원신청서 작성
         {
           path: 'write',
           name: 'write',
           component: () => import('@/views/ApplicationWriteView.vue')
         },
+        // 지원신청서 조회
+        {
+          path: 'view/:application_no',
+          name: 'view',
+          component: () => import('@/views/ApplicationView.vue')
+        },
+        // 지원계획서
         {
           path: 'planInsert',
           name: 'planInsert',

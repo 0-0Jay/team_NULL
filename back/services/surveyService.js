@@ -1,8 +1,13 @@
 const mysql = require("../database/mappers.js");
 
 // 조사지 조회
-const findAllSurvey = async () => {
-  let list = await mysql.query("selectAllSurvey", null, "survey");
+const findAllSurvey = async (applicationNo = null) => {
+  let list = null;
+  if (applicationNo == null) {
+    list = await mysql.query("selectAllSurvey", null, "survey");
+  } else {
+    list = await mysql.query("selectSurveyByAppNo", [applicationNo], "survey");
+  }
   const data = {};
   for (let i = 0; i < list.length; i++) {
     const sec_no = list[i].sec_no;

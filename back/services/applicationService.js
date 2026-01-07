@@ -124,13 +124,7 @@ const addApplication = async (appInfo) => {
 };
 
 // 지원신청서 조회
-const findByAppNoApplication = async (applicationNo, user) => {
-  // 권한 확인
-  const hasPermission = await checkPermission(applicationNo, user);
-  if (!hasPermission) {
-    throw new Error("조회 권한 없음");
-  }
-
+const findByAppNoApplication = async (applicationNo) => {
   // 신청서 기본 정보 + 담당자
   const result = await mysql.query(
     "selectByAppNoApplication",
@@ -237,17 +231,18 @@ const addManager = async (applicationNo, managerUserNo, user) => {
 
 // 지원자 정보 불러오기
 const findApplicantInfo = async (user) => {
+  // console.log(user);
   if (user.type === 0)
     return mysql.query(
       "selectInfoByUserNoApplicant",
       [user.user_no],
-      "applicantion"
+      "application"
     );
   if (user.type === 1)
     return mysql.query(
       "selectInfoByCnoApplicantUsers",
       [user.c_no],
-      "applicantion"
+      "application"
     );
 };
 
