@@ -53,6 +53,16 @@ export const usePlanStore = defineStore('plan', {
       } catch (err) {
         console.error('지원계획서 조회 실패', err);
       }
-    }
+    },
+
+     //(관리자용) 지원계획서 조회
+    async fetchAdminPendingPlanDetail(application_no) {
+      try {
+        const res = await axios.get(`/api/plan/admin/pending/${application_no}`);
+        this.planList = res.data;
+      } catch (err) {
+        console.error('관리자용 지원계획서 조회 실패', err);
+      }
+    },
   }
 });

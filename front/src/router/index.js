@@ -4,8 +4,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/adminPendingPlanDetail',
-      name: 'adminPendingPlanDetail',
+      path: '/AdminPendingPlanDetail',
+      name: 'AdminPendingPlanDetail',
       component: () => import('@/views/adminPendingPlanDetail.vue')
     },
     {

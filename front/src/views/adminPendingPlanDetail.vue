@@ -13,7 +13,7 @@ const filterplan = computed(() => store.planList); // 화면에 보여질 테이
 const rowNumber = (index) => index + 1;
 
 onBeforeMount(() => {
-  store.fetchPendingPlanDetail(11, 0); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  store.fetchAdminPendingPlanDetail(11, 0); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
 });
 
 //승인대기중인 계획서만 화면에 송출
