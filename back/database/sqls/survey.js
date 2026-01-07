@@ -8,6 +8,16 @@ JOIN survey_question q ON d.d_no = q.d_no
 WHERE v.active = 1
 ORDER BY s.sec_no, d.d_no, q.q_no`;
 
+// 지원신청서 조사지 조회
+const selectSurveyByAppNo = `
+SELECT s.sec_no, s.section, d.d_no, d.detail, d.info, q.q_no, q.question, q.type
+FROM survey_version v
+JOIN survey_section s ON s.version_id = v.version_id
+JOIN survey_detail d ON d.sec_no = s.sec_no
+JOIN survey_question q ON d.d_no = q.d_no
+WHERE v.version_id = (SELECT version_id FROM application WHERE application_no = ?)
+ORDER BY s.sec_no, d.d_no, q.q_no`;
+
 // 조사지 구버전 비활성화
 const updateSurveyVersion = `
 UPDATE survey_version SET active = 0`;
@@ -56,6 +66,7 @@ WHERE q_no = ?`;
 
 module.exports = {
   selectAllSurvey,
+  selectSurveyByAppNo,
   updateSurveyVersion,
   updateSurveyVersionName,
   insertSurveyDetail,

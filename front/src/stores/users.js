@@ -252,6 +252,15 @@ export const useUsersStore = defineStore('users', {
         console.error(err);
         throw err;
       }
+    },
+
+    // 기관소속 모든 지원자 불러오기
+    async fetchCenterApplicant(userNo) {
+      try {
+        const data = await axios.get(`/api/center/applicant/${userNo}`);
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   persist: true

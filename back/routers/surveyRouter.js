@@ -8,6 +8,13 @@ router.get("/survey", async (req, res) => {
   res.send(data);
 });
 
+// 지원신청서 조사지 조회
+router.get("/survey/:application_no", async (req, res) => {
+  const applicationNo = req.params.application_no;
+  let data = await surveyService.findAllSurvey(applicationNo);
+  res.send(data);
+});
+
 // 조사지 새 버전 추가
 router.post("/survey", async (req, res) => {
   const data = req.body;

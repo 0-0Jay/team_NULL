@@ -137,12 +137,12 @@ const searchManager = (event) => {
 
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4 m-4">
       <ApplicationTabs class="md:w-1/5 flex h-full" />
-      <div class="md:w-4/5 flex h-full">
+      <div class="md:w-4/5 flex h-full overflow-auto">
         <router-view class="flex-1" />
       </div>
     </div>
-    <div v-else>
-      <router-view class="flex-1" />
+    <div v-else class="h-full overflow-hidden">
+      <router-view class="flex-1 overflow-auto" />
     </div>
   </div>
 </template>
