@@ -30,7 +30,9 @@ AND   status = 0`;
 const selectCountPlan = `select p.application_no,
                                 sum(case when p.approve_date is null and p.reject_date is null then 1 else 0 end) as review_count,
                                 sum(case when p.approve_date is not null then 1 else 0 end) as approve_count,
-                                sum(case when p.reject_date is not null then 1 else 0 end) as reject_count
+                                sum(case when p.reject_date is not null then 1 else 0 end) as reject_count,
+                                count(p.plan_no) as plan_count
+
                          from plan p
                          group by p.application_no;`;
 

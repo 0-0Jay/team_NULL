@@ -13,11 +13,10 @@ WHERE application_no = ?
 AND   save = ?`; // 임시저장 여부는 쿼리문이 동일해서 따로 쿼리문 안 만듦
 
 // 상담내역 존재여부
-const selectCountCounsel = `select application_no, 
-                                               count(*) as counsel_count
-                                        from counsel
-                                        where save = 1
-                                        group by application_no`;
+const selectCountCounsel = `select application_no, count(*) as counsel_count
+                            from counsel
+                            where save = 1
+                            group by application_no`;
 
 module.exports = {
   insertCounsel,
