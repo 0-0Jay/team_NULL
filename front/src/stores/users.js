@@ -201,7 +201,9 @@ export const useUsersStore = defineStore('users', {
       try {
         const { data } = await axios.get(`/api/users/${userNo}/applicant`);
         console.log('지원자 목록: ', data);
-        this.applicant = data;
+
+        // 최신 지원자가 위로 오도록 정렬
+        this.applicant = data.sort((a, b) => b.a_no - a.a_no);
       } catch (err) {
         console.error(err);
         throw err;

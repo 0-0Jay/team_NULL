@@ -106,14 +106,14 @@ const router = createRouter({
           component: () => import('@/components/mypage/ApplicantEmpty.vue')
         },
         {
-          path: ':a_no',
-          name: 'myPageApplicantDetail',
-          component: () => import('@/components/mypage/ApplicantDetail.vue')
-        },
-        {
           path: 'new',
           name: 'myPageApplicantCreate',
           component: () => import('@/components/mypage/ApplicantCreate.vue')
+        },
+        {
+          path: ':a_no',
+          name: 'myPageApplicantDetail',
+          component: () => import('@/components/mypage/ApplicantDetail.vue')
         }
       ]
     },
@@ -183,7 +183,7 @@ const router = createRouter({
           component: () => import('@/views/CounselDetail.vue')
         }
       ]
-    },
+    }
   ]
 });
 

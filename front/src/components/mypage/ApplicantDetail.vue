@@ -12,6 +12,12 @@ const route = useRoute();
 const userStore = useUsersStore();
 const applicantDetail = computed(() => userStore.applicantDetail);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
+
+const isStaff = computed(() => {
+  const type = Number(user?.type);
+  return type === 1;
+});
+
 const visible = ref(false);
 const formData = ref({
   name: '',
@@ -20,7 +26,10 @@ const formData = ref({
   zipcode: '',
   address: '',
   address_detail: '',
-  type: ''
+  disability: '',
+  nok_name: '',
+  nok_phone: '',
+  nok_email: ''
 });
 const addressSearched = (data) => {
   formData.value.zipcode = data.zonecode;
@@ -53,8 +62,12 @@ watch(applicantDetail, (detail) => {
     zipcode: detail.zipcode,
     address: detail.address,
     address_detail: detail.address_detail,
-    disability: detail.disability
+    disability: detail.disability,
+    nok_name: detail.nok_name,
+    nok_phone: detail.nok_phone,
+    nok_email: detail.nok_email
   };
+  console.log('상세정보: ', detail);
 });
 
 // 수정 함수
@@ -64,11 +77,20 @@ async function handleUpdate() {
     alert('필수 항목을 입력해주세요');
     return;
   }
-  // 2. 날짜 포맷
+
+  // 2. 담당자일 때만 보호자 필수 검증
+  if (isStaff.value) {
+    if (!formData.value.nok_name?.trim() || !formData.value.nok_phone?.trim() || !formData.value.nok_email?.trim()) {
+      alert('필수 항목을 입력해주세요');
+      return;
+    }
+  }
+
+  // 3. 날짜 포맷
   const d = formData.value.birth;
   const birth = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
 
-  // 3. payload(서버 전송 객체) 생성
+  // 4. payload(서버 전송 객체) 생성
   const payload = {
     a_no: route.params.a_no,
     name: formData.value.name,
@@ -77,9 +99,12 @@ async function handleUpdate() {
     zipcode: formData.value.zipcode,
     address: formData.value.address,
     address_detail: formData.value.address_detail,
-    disability: formData.value.disability
+    disability: formData.value.disability,
+    nok_name: formData.value.nok_name,
+    nok_phone: formData.value.nok_phone,
+    nok_email: formData.value.nok_email
   };
-  // 4. API 호출
+  // 5. API 호출
   try {
     await userStore.modifyApplicant(payload);
     await userStore.fetchApplicantDetail(route.params.a_no);
@@ -101,7 +126,7 @@ async function delApplicant() {
   try {
     await userStore.deleteApplicant(route.params.a_no);
     await userStore.fetchApplicant(user.user_no);
-    router.push(`/mypage`);
+    router.replace({ name: 'myPageApplicantEmpty' });
     alert('삭제되었습니다.');
   } catch (err) {
     console.error(err);
@@ -121,9 +146,9 @@ const formatDate = (v) => {
 };
 </script>
 <template>
-  <div class="card flex flex-col gap-4 max-h-[calc(100vh-120px)] p-4">
+  <div class="card flex flex-col gap-4 h-full">
     <div v-if="applicantDetail">
-      <div class="font-semibold text-xl">{{ applicantDetail.name }} 정보</div>
+      <div class="font-semibold text-xl pb-2">{{ applicantDetail.name }} 정보</div>
       <table class="w-full border-collapse">
         <tbody>
           <tr class="border-t-4 border-b border-gray-300">
@@ -175,6 +200,27 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">장애유형</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.disability" />
+            </td>
+          </tr>
+
+          <tr v-if="isStaff" class="border-b">
+            <th class="text-left py-2 px-2 border-r">보호자</th>
+            <td class="py-2 px-2">
+              <InputText type="text" class="w-full" v-model="formData.nok_name" disabled />
+            </td>
+          </tr>
+
+          <tr v-if="isStaff" class="border-b">
+            <th class="text-left py-2 px-2 border-r">보호자 연락처</th>
+            <td class="py-2 px-2">
+              <InputText type="text" class="w-full" v-model="formData.nok_phone" disabled />
+            </td>
+          </tr>
+
+          <tr v-if="isStaff" class="border-b">
+            <th class="text-left py-2 px-2 border-r">보호자 이메일</th>
+            <td class="py-2 px-2">
+              <InputText type="text" class="w-full" v-model="formData.nok_email" disabled />
             </td>
           </tr>
 

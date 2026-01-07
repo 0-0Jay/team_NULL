@@ -58,53 +58,52 @@ const formatDate = (v) => {
 };
 </script>
 <template>
-  <div class="h-full flex flex-col max-h-[calc(100vh-80px)]">
-    <div class="card flex flex-col gap-4 flex-1">
-      <!-- 데이터 있을 때 -->
-      <div v-if="myInfo" class="flex flex-col gap-4 flex-1">
-        <div class="font-semibold text-xl text-black mb-5">보호자 {{ myInfo.name }}님 반갑습니다.</div>
-        <table class="w-full border-collapse">
-          <tbody>
-            <tr>
-              <td class="text-left pt-4">아이디</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.id }}</td>
-            </tr>
-            <tr>
-              <td class="text-left pt-4">연락처</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.phone }}</td>
-            </tr>
-            <tr>
-              <td class="text-left pt-4">이메일</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.email }}</td>
-            </tr>
-            <tr>
-              <td class="text-left pt-4">주소</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.address }} {{ myInfo.address_detail }}</td>
-            </tr>
-            <tr>
-              <td class="text-left pt-4">가입일</td>
-            </tr>
-            <tr>
-              <td class="text-left text-lg py-2 font-medium">{{ formatDate(myInfo.created_date) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="flex justify-center w-full mt-auto">
-          <Button severity="success" class="mt-8 w-100 h-12" label="나의 정보 수정" @click="open" />
-        </div>
+  <div class="card h-full flex flex-col">
+    <!-- 데이터 있을 때 -->
+    <div v-if="myInfo" class="flex flex-col gap-4 flex-1">
+      <div class="font-semibold text-xl text-black mb-5">보호자 {{ myInfo.name }}님 반갑습니다.</div>
+      <table class="w-full border-collapse">
+        <tbody>
+          <tr>
+            <td class="text-left pt-4">아이디</td>
+          </tr>
+          <tr>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.id }}</td>
+          </tr>
+          <tr>
+            <td class="text-left pt-4">연락처</td>
+          </tr>
+          <tr>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.phone }}</td>
+          </tr>
+          <tr>
+            <td class="text-left pt-4">이메일</td>
+          </tr>
+          <tr>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.email }}</td>
+          </tr>
+          <tr>
+            <td class="text-left pt-4">주소</td>
+          </tr>
+          <tr>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.address }} {{ myInfo.address_detail }}</td>
+          </tr>
+          <tr>
+            <td class="text-left pt-4">가입일</td>
+          </tr>
+          <tr>
+            <td class="text-left text-lg py-2 font-medium">{{ formatDate(myInfo.created_date) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="flex justify-center w-full mt-auto">
+        <Button severity="success" class="mt-8 w-100 h-12" label="나의 정보 수정" @click="open" />
       </div>
-
-      <!-- 데이터 없을 때 -->
-      <div v-else class="text-gray-400">회원 정보를 불러오는 중입니다...</div>
     </div>
+
+    <!-- 데이터 없을 때 -->
+    <div v-else class="text-gray-400">회원 정보를 불러오는 중입니다...</div>
+
     <!-- 수정 모달 -->
     <MyInfoEditModal :modalValue="editOpen" :myInfo="myInfo" @update:modalValue="editOpen = $event" @save="handleSave"></MyInfoEditModal>
   </div>
