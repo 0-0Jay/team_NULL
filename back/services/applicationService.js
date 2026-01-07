@@ -235,6 +235,22 @@ const addManager = async (applicationNo, managerUserNo, user) => {
   return resObj;
 };
 
+// 지원자 정보 불러오기
+const findApplicantInfo = async (user) => {
+  if (user.type === 0)
+    return mysql.query(
+      "selectInfoByUserNoApplicant",
+      [user.user_no],
+      "applicantion"
+    );
+  if (user.type === 1)
+    return mysql.query(
+      "selectInfoByCnoApplicantUsers",
+      [user.c_no],
+      "applicantion"
+    );
+};
+
 module.exports = {
   findAllApplication,
   addApplication,
@@ -242,4 +258,5 @@ module.exports = {
   modifyByQnoApplicationAnswer,
   modifyApplicationStatus,
   addManager,
+  findApplicantInfo,
 };

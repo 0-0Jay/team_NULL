@@ -187,6 +187,7 @@ const searchCenter = async (e) => {
   }
   autoFilteredValue.value = await centerStore.searchCenter(name);
 };
+
 const selectCenter = (e) => {
   selectedAutoValue.value = e.value;
   editUser.value.c_no = e.value.c_no;
