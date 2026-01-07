@@ -89,8 +89,8 @@ const formatDate = (v) => {
 const today = computed(() => formatDate(new Date()));
 </script>
 <template>
-  <div class="card flex flex-col gap-4 max-h-[calc(100vh-120px)] p-4">
-    <div class="font-semibold text-xl">지원자 등록</div>
+  <div class="card h-full flex flex-col">
+    <div class="font-semibold text-xl pb-2">지원자 등록</div>
 
     <table class="w-full border-collapse">
       <tbody>
