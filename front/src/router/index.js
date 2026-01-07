@@ -21,12 +21,7 @@ const router = createRouter({
       component: () => import('@/views/MainView.vue'),
       meta: { showHeader: true }
     },
-    {
-      path: '/resultinsert',
-      name: 'resultinsert',
-      component: () => import('@/views/ResultInsert.vue')
-      // meta: { showHeader: true }  //머지하고 다시해볼예정
-    },
+
     { path: '/faq', name: 'faq', component: () => import('@/views/FaqList.vue') },
     {
       path: '/faq/create',
@@ -122,43 +117,14 @@ const router = createRouter({
         }
       ]
     },
-    {
-      path: '/counselInsert',
-      name: 'counselInsert',
-      component: () => import('@/views/CounselInsert.vue')
-      // meta: { showHeader: true }
-    },
-    {
-      path: '/rejectplanDetail/:application_no',
-      name: 'rejectplanDetail',
-      component: () => import('@/views/RejectPlanDetail.vue')
-      // meta: { showHeader: true }
-    },
-    {
-      path: '/rejectresultDetail/:plan_no',
-      name: 'rejectresultDetail',
-      component: () => import('@/views/RejectResultDetail.vue')
-      // meta: { showHeader: true }
-    },
 
-    {
-      path: '/pendingplanDetail/:application_no',
-      name: 'pendingplanDetail',
-      component: () => import('@/views/PendingPlanDetail.vue')
-      // meta: { showHeader: true }
-    },
-    {
-      path: '/pendingresultDetail/:plan_no',
-      name: 'pendingresultDetail',
-      component: () => import('@/views/PendingResultDetail.vue')
-      // meta: { showHeader: true }
-    },
     {
       path: '/application',
       name: 'application',
       component: () => import('@/views/ApplicationDetailView.vue'),
       meta: { showHeader: true },
       children: [
+        // 지원계획서
         {
           path: 'write',
           name: 'write',
@@ -175,24 +141,49 @@ const router = createRouter({
           component: () => import('@/views/PlanDetail.vue')
         },
         {
-          path: 'counselDetail/:application_no',
-          name: 'counselDetail',
-          component: () => import('@/views/CounselDetail.vue')
+          path: '/pendingplanDetail/:application_no',
+          name: 'pendingplanDetail',
+          component: () => import('@/views/PendingPlanDetail.vue')
         },
         {
-          path: 'resultDetail/:plan_no',
+          path: '/rejectplanDetail/:application_no',
+          name: 'rejectplanDetail',
+          component: () => import('@/views/RejectPlanDetail.vue')
+        },
+        // 지원결과서
+        {
+          path: '/resultDetail/:plan_no',
           name: 'resultDetail',
           component: () => import('@/views/ResultDetail.vue')
+        },
+        {
+          path: '/rejectresultDetail/:plan_no',
+          name: 'rejectresultDetail',
+          component: () => import('@/views/RejectResultDetail.vue')
+        },
+        {
+          path: '/pendingresultDetail/:plan_no',
+          name: 'pendingresultDetail',
+          component: () => import('@/views/PendingResultDetail.vue')
+        },
+        {
+          path: '/resultinsert',
+          name: 'resultinsert',
+          component: () => import('@/views/ResultInsert.vue')
+        },
+        // 상담내역
+        {
+          path: '/counselInsert',
+          name: 'counselInsert',
+          component: () => import('@/views/CounselInsert.vue')
+        },
+        {
+          path: '/counselDetail/:application_no',
+          name: 'counselDetail',
+          component: () => import('@/views/CounselDetail.vue')
         }
       ]
     },
-
-    {
-      path: '/apply',
-      name: 'apply',
-      component: () => import('@/views/ApplyInsert.vue'),
-      meta: { showHeader: true }
-    }
   ]
 });
 

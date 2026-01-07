@@ -12,14 +12,6 @@ const route = useRoute(); // 현재 경로 확인용
 const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
-// onBeforeMount(() => {
-//   store.fetchPlanList(application_no, 1); //승인된 계획서
-// });
-
-// onBeforeMount(() => {
-//   store.fetchPlanList(11, 1); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
-// });
-
 onBeforeMount(() => {
   const application_no = Number(route.params.application_no);
 
@@ -44,46 +36,61 @@ const formatDate = (v) => {
 
 <!--------------------------------------------------------------------------->
 <template>
-  <div class="flex flex-col gap-6 p-40">
-    <div v-for="(plan, index) in filterplan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
-      <!-- 카드 헤더 -->
-      <div class="text-2xl font-bold text-center mb-6">승인된 지원계획서 {{ index + 1 }}</div>
+  <div class="flex flex-col w-full h-175 gap-6">
+    <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
+      <div v-for="(plan, index) in filterplan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
+        <!-- 카드 헤더 -->
+        <div class="text-2xl font-bold text-center">승인된 지원계획서 {{ index + 1 }}</div>
 
-      <!-- 작성자 -->
-      <div class="flex flex-col gap-2 mb-4 font-semibold">
-        <label>작성자</label>
-        <div class="p-2 border rounded bg-gray-50">{{ plan.plan_author ?? '-' }}</div>
-      </div>
-
-      <!-- 목표, 시작/종료일 -->
-      <div class="flex flex-wrap gap-6 mb-4 font-semibold">
-        <div class="flex flex-col gap-2 flex-1">
-          <label>목표</label>
-          <div class="p-2 border rounded bg-gray-50">{{ plan.title ?? '-' }}</div>
+        <!-- 신청서 번호 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>신청서 번호</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.application_no ?? '-' }}</div>
         </div>
 
-        <div class="flex flex-col gap-2">
-          <label>지원시작일</label>
-          <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.start) }}</div>
+        <!-- 작성자 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>작성자</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.plan_author ?? '-' }}</div>
         </div>
 
-        <div class="flex flex-col gap-2">
-          <label>지원종료일</label>
-          <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.end) }}</div>
+        <!-- 목표, 시작/종료일 -->
+        <div class="flex flex-wrap gap-6 mb-4 font-semibold">
+          <div class="flex flex-col gap-2 flex-1">
+            <label>목표</label>
+            <div class="p-2 border rounded bg-gray-50">{{ plan.title ?? '-' }}</div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label>지원시작일</label>
+            <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.start) }}</div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label>지원종료일</label>
+            <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.end) }}</div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label>승인된 날짜</label>
+            <div class="p-2 border rounded bg-gray-50 text-blue-500 font-bold">
+              {{ formatDate(plan.approve_date) ?? '-' }}
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- 지원내용 -->
-      <div class="flex flex-col gap-2 mb-4 font-semibold">
-        <label>지원내용</label>
-        <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
-      </div>
+        <!-- 지원내용 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>지원내용</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
+        </div>
 
-      <!-- 첨부파일 -->
-      <div class="flex flex-col gap-2 font-semibold">
-        <label>첨부파일</label>
-        <div class="p-2 border rounded bg-gray-50">
-          {{ plan.fileName ?? '첨부파일 없음' }}
+        <!-- 첨부파일 -->
+        <div class="flex flex-col gap-2 font-semibold">
+          <label>첨부파일</label>
+          <div class="p-2 border rounded bg-gray-50">
+            {{ plan.fileName ?? '첨부파일 없음' }}
+          </div>
         </div>
       </div>
     </div>

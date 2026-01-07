@@ -8,28 +8,28 @@ const model = ref([
     items: [{ label: '지원신청서 조회', icon: 'pi pi-fw pi-pen-to-square', to: '' }]
   },
   {
-    label: '상담내역',
+    label: '상담내역', // 연결완료
     items: [
       { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/application/counselDetail/${1}` },
-      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: '' }
+      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/counselinsert' }
     ]
   },
   {
-    label: '지원계획서',
+    label: '지원계획서', // 연결완료
     items: [
       { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/planDetail/${11}` },
-      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: '' },
-      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: '' },
-      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/application/planInsert' }
+      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/pendingplandetail/${14}` },
+      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/rejectplandetail/${15}` },
+      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/planinsert' }
     ]
   },
   {
-    label: '지원결과서',
+    label: '지원결과서', // 연결완료
     items: [
-      { label: '지원결과서 조회', icon: 'pi pi-fw pi-fw pi-book', to: '' },
-      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: '' },
-      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: '' },
-      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '' }
+      { label: '지원결과서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/resultdetail/${10}` },
+      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/pendingresultdetail/${10}` },
+      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/rejectresultdetail/${10}` },
+      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/resultinsert' }
     ]
   }
 ]);
