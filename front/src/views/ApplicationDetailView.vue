@@ -3,7 +3,7 @@ import ApplicationTabs from '@/components/ApplicationTabs.vue';
 import { useApplicationStore } from '@/stores/application';
 import { useRoute } from 'vue-router';
 import { ref, computed, watch, onMounted } from 'vue';
-  import { useUsersStore } from '@/stores/users';
+import { useUsersStore } from '@/stores/users';
 
 const aStore = useApplicationStore();
 const route = useRoute();
@@ -41,8 +41,8 @@ const formatDate = (v) => {
 
 const appNo = Number(route.params.application_no);
 const applicantInfo = computed(() => {
-  if (!store.appList.length) return null;
-  return store.appList.find((a) => a.application_no === appNo) ?? null;
+  if (!aStore.appList.length) return null;
+  return aStore.appList.find((a) => a.application_no === appNo) ?? null;
 });
 
 watch(
