@@ -207,6 +207,7 @@ export const useUsersStore = defineStore('users', {
         throw err;
       }
     },
+
     // 마이페이지 - 선택된 지원자 상세정보 불러오기
     async fetchApplicantDetail(a_no) {
       const { data } = await axios.get(`/api/users/applicant/${a_no}`);

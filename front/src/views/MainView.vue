@@ -248,7 +248,7 @@ const columnData = computed(() => {
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-xl font-bold text-gray-800">지원신청내역</h2>
 
-        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" @click="$router.push('/apply')" />
+        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" as="router-link" to="/application/write" />
       </div>
 
       <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
@@ -314,14 +314,23 @@ const columnData = computed(() => {
             </template>
           </Column>
 
-          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 140px; min-width: 140px; max-width: 140px">
+          <Column header="계획/결과 진행" headerClass="table-header" bodyClass="table-body" style="width: 100px; min-width: 100px; max-width: 140px">
             <template #body="{ data }">
               <div class="leading-tight">
-                <span class="ml-1">
-                  검토 {{ data.review_count }}, 승인 <span class="text-green-600">{{ data.approve_count }}</span
-                  >, 반려 <span class="text-red-500">{{ data.reject_count }}</span
-                  >, 결과 <span class="text-blue-600">{{ data.result_count }}</span>
-                </span>
+                <ul class="grid gap-2">
+                  <li>
+                    검토 <span class="ml-4">{{ data.review_count }}</span>
+                  </li>
+                  <li>
+                    승인 <span class="text-green-600 ml-4">{{ data.approve_count }}</span>
+                  </li>
+                  <li>
+                    반려 <span class="text-red-500 ml-4">{{ data.reject_count }}</span>
+                  </li>
+                  <li>
+                    결과 <span class="text-blue-600 ml-4">{{ data.result_count }}</span>
+                  </li>
+                </ul>
               </div>
             </template>
           </Column>

@@ -9,6 +9,7 @@ export const useApplicationStore = defineStore('application', {
     planStat: [],
     resultStat: [],
     counselStat: [],
+    application: {},
     applicant: {}
   }),
   // getters
@@ -31,6 +32,17 @@ export const useApplicationStore = defineStore('application', {
         console.log(err);
       }
     },
+
+    // 지원신청서 작성
+    async submitApplication(data) {
+      try {
+        const response = await axios.post('/api/application', data);
+        this.application = data.answers;
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    
     async fetchApplicant() {
       try {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];

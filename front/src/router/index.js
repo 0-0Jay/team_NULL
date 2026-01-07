@@ -160,6 +160,11 @@ const router = createRouter({
       meta: { showHeader: true },
       children: [
         {
+          path: 'write',
+          name: 'write',
+          component: () => import('@/views/ApplicationWriteView.vue')
+        },
+        {
           path: 'planInsert',
           name: 'planInsert',
           component: () => import('@/views/PlanInsert.vue')
