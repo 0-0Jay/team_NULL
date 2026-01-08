@@ -16,6 +16,10 @@ const goPage = (name, params = {}) => {
   router.push({ name, params });
 };
 
+onBeforeMount(() => {
+  store.fetchApplication();
+});
+
 // 상세 검색
 const initSearchFields = {
   startDate: null,
@@ -52,10 +56,6 @@ watch(
   },
   { deep: true }
 );
-
-onBeforeMount(() => {
-  store.fetchApplication();
-});
 
 const filteredData = computed(() => {
   const f = searchFields.value;
@@ -112,8 +112,10 @@ const onPageChange = (e) => {
 
 // 신청내역 관련
 const getStatus = (row) => {
+  // 관리자 승인 전 → 무조건 검토중
   if (!row.approve_date) return '검토중';
 
+  // 승인 후에만 status 의미 있음
   switch (row.status) {
     case 1:
       return '계획';
@@ -122,7 +124,7 @@ const getStatus = (row) => {
     case 3:
       return '긴급';
     default:
-      return '-';
+      return '검토중';
   }
 };
 
@@ -138,6 +140,7 @@ const columnData = computed(() => {
     const plan = plans.get(row.application_no) || {};
     const result = results.get(row.application_no) || {};
     const counselCount = counsels.get(row.application_no) || 0;
+    const manager = managers.get(row.application_no) || '';
 
     // application 승인
     // let appReview = 0;
@@ -152,7 +155,7 @@ const columnData = computed(() => {
     return {
       ...row,
       status: getStatus(row),
-      manager_name: managers.get(row.application_no) || '미지정',
+      manager_name: manager || '미지정',
       review_count: toNumber(plan.review_count) + toNumber(result.review_count), // toNumber(appReview)
       approve_count: toNumber(plan.approve_count) + toNumber(result.approve_count), // toNumber(appApprove)
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
@@ -285,7 +288,7 @@ const columnData = computed(() => {
             <template #body="{ data }"><Button size="small" label="보기" :disabled="data.application_no === 0" @click="goPage('view', { application_no: data.application_no })" /></template>
           </Column>
 
-          <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
+          <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 90px; min-width: 80px; max-width: 90px">
             <template #body="{ data }">
               {{ data.manager_name }}
             </template>
@@ -343,7 +346,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('resultDetail', { plan_no: data.plan_no })" /></template>
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('resultDetail', { application_no: data.application_no })" /></template>
             <!-- data.counsel_count === 0 || data.plan_count === 0 ||  -->
           </Column>
         </DataTable>

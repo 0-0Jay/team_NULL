@@ -39,7 +39,7 @@ const selectAllApplication = `select distinct a1.application_no,
                               order by a1.application_no`;
 
 // 기관 관리자용 조회
-const selectByCenterApplication = `select a1.application_no, a1.a_no, a1.created_date, a1.status,
+const selectByCenterApplication = `select distinct a1.application_no, a1.a_no, a1.created_date, a1.status,
                                           a1.approve_date, a2.name as ap_name, u1.name as g_name,
                                           c.name as c_name, a2.gender, a2.birth, a2.disability
                                    from application a1
@@ -52,7 +52,8 @@ const selectByCenterApplication = `select a1.application_no, a1.a_no, a1.created
 // 기관 담당자용 조회
 const selectByManagerApplication = `select distinct a1.application_no,
                                                     a1.a_no, a1.created_date, a1.status,
-                                                    a1.approve_date, a2.name as ap_name,
+                                                    a1.approve_date, a1.request_date,
+                                                    a2.name as ap_name,
                                                     u1.name as g_name, c.name as c_name,
                                                     a2.gender, a2.birth, a2.disability
                                     from application a1
@@ -113,7 +114,7 @@ const selectByAppNoAndUserNoManager = `select 1
                                        from manager
                                        where application_no = ?
                                              and user_no = ?
-                                             and unassign_date is null`;
+                                             and unassign is null`;
 
 // 기관 관리자
 const selectByAppNoAndCnoApplication = `select 1
@@ -123,7 +124,10 @@ const selectByAppNoAndCnoApplication = `select 1
                                         where a1.application_no = ?
                                               and u.c_no = ?`;
 // 대기단계 설정
-const updateByAppNoApplication = `update application set status = ? where application_no = ?`;
+const updateByAppNoApplication = `update application
+                                  set status = ?, request_date = now()
+                                  where application_no = ? and approve_date is null
+                                        and request_date is null`;
 
 // 지원자 정보 불러오기
 // 일반회원

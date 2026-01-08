@@ -22,16 +22,16 @@ const router = createRouter({
       meta: { showHeader: true }
     },
 
-    { path: '/faq', name: 'faq', component: () => import('@/views/FaqList.vue') },
+    { path: '/faq', name: 'faq', component: () => import('@/views/faq/FaqList.vue') },
     {
       path: '/faq/create',
       name: 'faq-create',
-      component: () => import('@/views/FaqCreate.vue')
+      component: () => import('@/views/faq/FaqCreate.vue')
     },
     {
       path: '/faq/update/:faq_no',
       name: 'faq-update',
-      component: () => import('@/views/FaqUpdate.vue')
+      component: () => import('@/views/faq/FaqUpdate.vue')
     },
     {
       path: '/center',

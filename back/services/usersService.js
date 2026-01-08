@@ -299,6 +299,16 @@ const findByCNoApplicant = async (user_no) => {
   return result;
 };
 
+// 기관담당자 마이페이지 - 담당 지원자 목록 조회
+const findApplicantByStaff = async (user_no) => {
+  let result = await mysql.query(
+    "selectApplicantByStaff",
+    [user_no, user_no],
+    "users"
+  );
+  return result;
+};
+
 // 마이페이지 - 지원자 상세정보 조회
 const findByANoApplicant = async (a_no) => {
   let result = await mysql.query("selectByANoApplicant", [a_no], "users");
@@ -469,4 +479,5 @@ module.exports = {
   findCenterByManager,
   findStaffByManager,
   modifyCenterByManager,
+  findApplicantByStaff,
 };
