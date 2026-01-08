@@ -197,4 +197,26 @@ router.post("/users/applicant/new", async (req, res) => {
   res.send(result);
 });
 
+// 기관관리자 마이페이지 - 기관정보 조회
+router.get("/users/:user_no/center", async (req, res) => {
+  const user_no = req.params.user_no;
+  let result = await usersService.findCenterByManager(user_no);
+  res.send(result);
+});
+
+// 기관관리자 마이페이지 - 기관 소속 담당자 목록
+router.get("/users/:user_no/center/staff", async (req, res) => {
+  const user_no = req.params.user_no;
+  let result = await usersService.findStaffByManager(user_no);
+  res.send(result);
+});
+
+// 기관관리자 마이페이지 - 기관 정보 수정
+router.put("/users/:user_no/center", async (req, res) => {
+  const centerInfo = req.body;
+  centerInfo.user_no = req.params.user_no;
+  let result = await usersService.modifyCenterByManager(centerInfo);
+  res.send(result);
+});
+
 module.exports = router;
