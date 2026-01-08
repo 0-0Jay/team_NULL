@@ -5,7 +5,6 @@ import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 
 const store = usePlanStore(); //pinia작업 위함
-const router = useRouter();
 const route = useRoute(); // 현재 경로 확인용
 // const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
 

@@ -50,5 +50,5 @@ module.exports = {
   rejectPlan,
   selectPendingPlan,
   updatePlanStatus,
-  selectCountPlan,
+  selectCountPlan
 };

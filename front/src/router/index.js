@@ -4,11 +4,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/adminPendingPlanDetail',
-      name: 'adminPendingPlanDetail',
-      component: () => import('@/views/adminPendingPlanDetail.vue')
-    },
-    {
       path: '/',
       name: 'Login',
       component: () => import('@/views/LoginView.vue'),
@@ -154,9 +149,10 @@ const router = createRouter({
           component: () => import('@/views/PlanInsert.vue')
         },
         {
+          //지원계획서 조회 - 관리자, 일반사용자 화면을 분리 함
           path: 'planDetail/:application_no',
           name: 'planDetail',
-          component: () => import('@/views/PlanDetail.vue')
+          component: () => import('@/views/PlanDetailContainer.vue')
         },
         {
           path: 'pendingPlanDetail/:application_no',
@@ -170,17 +166,17 @@ const router = createRouter({
         },
         // 지원결과서
         {
-          path: 'resultDetail/:plan_no',
+          path: 'resultDetail/:application_no',
           name: 'resultDetail',
           component: () => import('@/views/ResultDetail.vue')
         },
         {
-          path: 'rejectResultDetail/:plan_no',
+          path: 'rejectResultDetail/:application_no',
           name: 'rejectResultDetail',
           component: () => import('@/views/RejectResultDetail.vue')
         },
         {
-          path: 'pendingResultDetail/:plan_no',
+          path: 'pendingResultDetail/:application_no',
           name: 'pendingResultDetail',
           component: () => import('@/views/PendingResultDetail.vue')
         },

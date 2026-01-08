@@ -59,13 +59,22 @@ const findPendingPlan = async (application_no) => {
   return list;
 };
 
-// (기관 관리자용) 승인, 반려 - 작업 덜 끝남
-const changePlanStatus = async (plan_no, status) => {
-  return await mysql.query(
-    "updatePlanStatus",
-    [status, status, status, plan_no],
-    "plan"
-  );
+// const changePlanStatus = async (plan_no, status) => {
+//   return await mysql.query(
+//     "updatePlanStatus",
+//     [status, status, status, plan_no],
+//     "plan"
+//   );
+// };
+
+// (기관 관리자용) 승인, 반려
+const updatePlanStatus = async (application_no, status) => {
+  const sql = `
+    UPDATE plan
+    SET status = ?
+    WHERE application_no = ?
+  `;
+  return mysql.query(sql, [status, application_no]);
 };
 
 module.exports = {
@@ -73,5 +82,5 @@ module.exports = {
   findPlan,
   findRejectPlan,
   findPendingPlan,
-  changePlanStatus,
+  updatePlanStatus,
 };

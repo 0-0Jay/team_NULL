@@ -13,13 +13,13 @@ const filterresult = computed(() => store.resultList); // 화면에 보여질 �
 const rowNumber = (index) => index + 1;
 
 onBeforeMount(() => {
-  const plan_no = Number(route.params.plan_no);
+  const application_no = Number(route.params.application_no);
 
-  if (!plan_no) {
-    console.error('plan_no 없음:', route.params.plan_no);
+  if (!application_no) {
+    console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchRejectResultList(Number(route.params.plan_no), 2); //반려된 계획서만 화면에 송출
+  store.fetchRejectResultList(Number(route.params.application_no), 2); //반려된 계획서만 화면에 송출
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -51,7 +51,7 @@ const formatDate = (v) => {
         <div class="flex flex-wrap gap-6 mb-4 font-semibold">
           <div class="flex flex-col gap-2 flex-1">
             <label>목표</label>
-            <div class="p-2 border rounded bg-gray-50">{{ result.title ?? '-' }}</div>
+            <div class="p-2 border rounded bg-gray-50">{{ result.result_title ?? '-' }}</div>
           </div>
 
           <div class="flex flex-col gap-2">
