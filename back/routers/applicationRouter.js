@@ -50,7 +50,7 @@ router.patch("/applications/:applicationNo/status", async (req, res) => {
     });
   }
 
-  const result = await applicationService.modifyApplicationStatus(
+  const result = await applicationService.requestApplicationStatus(
     applicationNo,
     status,
     user

@@ -188,34 +188,42 @@ const modifyApplicationAnswer = async (data) => {
   return resObj;
 };
 
-// 대기단계 선택
-const modifyApplicationStatus = async (applicationNo, status, user) => {
-  // 담당자만 가능
-  const res = await mysql.query(
+// 대기단계 선택 후 요청(담당자)
+const requestApplicationStatus = async (applicationNo, status, user) => {
+  // 담당자 권한 확인
+  const manager = await mysql.query(
     "selectByAppNoAndUserNoManager",
     [applicationNo, user.user_no],
     "application"
   );
 
-  if (res.length === 0) {
-    throw new Error("단계 변경 권한 없음");
+  if (manager.length === 0) {
+    throw new Error("단계 요청 권한 없음");
   }
 
+  // status 값 확인
+  if (![1, 2, 3].includes(status)) {
+    throw new Error("잘못된 대기단계 값");
+  }
+
+  // 승인 전 + 미요청 상태에서만 요청 가능
   const result = await mysql.query(
     "updateByAppNoApplication",
     [status, applicationNo],
     "application"
   );
 
-  let resObj;
-
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", applicationNo };
-  } else {
-    resObj = { status: "fail" };
+  if (result.affectedRows === 0) {
+    return {
+      status: "fail",
+      message: "이미 승인되었거나 승인 요청된 신청서입니다.",
+    };
   }
 
-  return resObj;
+  return {
+    status: "success",
+    applicationNo,
+  };
 };
 
 // 담당자 지정
@@ -297,7 +305,7 @@ module.exports = {
   addApplication,
   findByAppNoApplication,
   modifyApplicationAnswer,
-  modifyApplicationStatus,
+  requestApplicationStatus,
   addManager,
   findApplicantInfo,
 };

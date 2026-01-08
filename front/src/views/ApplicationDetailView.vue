@@ -1,5 +1,6 @@
 <script setup>
 import ApplicationTabs from '@/components/ApplicationTabs.vue';
+import ApplicationStageRequest from '@/components/ApplicationStatusRequest.vue';
 import { useToast } from 'primevue/usetoast';
 import { useApplicationStore } from '@/stores/application';
 import { useUsersStore } from '@/stores/users';
@@ -24,7 +25,6 @@ const managerFilteredValue = ref([]);
 onMounted(async () => {
   applicant.value = await aStore.fetchApplicant();
   manager.value = await uStore.fetchStaff();
-  // console.log('fetchStaff result:', res);
 });
 
 // 날짜 포맷
@@ -38,13 +38,14 @@ const formatDate = (v) => {
   return `${y}.${m}.${day}`;
 };
 
+// 지원자(조회)
 const applicationNo = Number(route.params.application_no);
 const applicantInfo = computed(() => {
   if (!aStore.appList.length) return null;
   return aStore.appList.find((a) => a.application_no === applicationNo) ?? null;
 });
 
-// 지원자(조회)
+// console.log(applicantInfo);
 watch(
   applicantInfo,
   (val) => {
@@ -176,6 +177,9 @@ const assignManager = async () => {
       <AutoComplete id="name" class="" v-model="selectedManagerValue" :suggestions="managerFilteredValue" optionLabel="name" placeholder="담당자명" dropdown display="chip" completeOnFocus @complete="searchManager($event)" />
       <Button label="담당자 지정" @click="assignManager" />
     </div>
+
+    <!-- 대기단계 지정 -> 자식 컴포넌트 만듦 -->
+    <ApplicationStageRequest :applicationNo="applicationNo" :applicantInfo="applicantInfo" :user="user" @requested="aStore.fetchApplication()" />
 
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4">
       <ApplicationTabs class="md:w-1/5 flex h-175" />

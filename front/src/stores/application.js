@@ -87,6 +87,19 @@ export const useApplicationStore = defineStore('application', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 대기단계 요청(담당자)
+    async requestApplicationStatus(applicationNo, status, user) {
+      try {
+        const response = await axios.patch(`/api/applications/${applicationNo}/status`, {
+          status,
+          user
+        });
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   persist: true
