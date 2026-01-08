@@ -2,6 +2,7 @@
 import ApplicationTabs from '@/components/ApplicationTabs.vue';
 import ApplicationStageRequest from '@/components/ApplicationStatusRequest.vue';
 import ApplicationAssignManager from '@/components/ApplicationAssignManager.vue';
+import ApplicationStatusApprove from '@/components/ApplicationStatusApprove.vue';
 import { useApplicationStore } from '@/stores/application';
 import { useRoute } from 'vue-router';
 import { ref, computed, watch, onMounted } from 'vue';
@@ -72,15 +73,21 @@ const searchApplicant = (event) => {
     });
   }
 };
+
+// 담당자 확인
+const assignedManager = computed(() => {
+  if (!Array.isArray(aStore.manager)) return null;
+  return aStore.manager.find((m) => Number(m.application_no) === Number(applicationNo)) ?? null;
+});
 </script>
 <template>
   <div class="grid pt-20 h-screen m-4 gap-4">
-    <div class="card rounded-lg p-4">
+    <div class="card rounded-lg p-3">
       <div class="font-semibold text-xl">지원자 정보</div>
       <!-- 담당자 표시 -->
-      <span v-if="applicantInfo?.m_name" class="text-sm text-gray-500">
-        (담당자: <span class="text-green-600 font-medium">{{ applicantInfo.m_name }}</span
-        >)
+      <span v-if="assignedManager" class="text-sm text-gray-500">
+        (담당자:
+        <span class="text-green-600 font-medium"> {{ assignedManager.m_name }} </span>)
       </span>
       <hr />
       <div class="grid grid-cols-5 gap-4 mt-4">
@@ -119,19 +126,15 @@ const searchApplicant = (event) => {
         </div>
       </div>
 
-      <div v-if="$route.name === 'view'" class="mt-6 pt-4 border-t border-gray-200">
-        <div class="flex items-center gap-2 mb-3 text-sm text-gray-600">
-          <i class="pi pi-user" />
-          <span>담당자 정보</span>
-        </div>
-        <!-- 담당자 지정 -> 권한에 따라 그냥 담당자만 뜨거나, 담당자 지정 버튼이 뜨게 -->
-        <ApplicationAssignManager v-if="user.type === 2 && $route.name === 'view'" :applicationNo="applicationNo" :user="user" @assigned="aStore.fetchApplication()" />
+      <div v-if="!assignedManager && user.type === 2 && $route.name === 'view'" class="mt-6 pt-4 border-t border-gray-200">
+        <ApplicationAssignManager :applicationNo="applicationNo" :user="user" @assigned="aStore.fetchApplication()" />
       </div>
     </div>
 
     <!-- 대기단계 지정 -> 자식 컴포넌트 만듦 -->
-    <ApplicationStageRequest :applicationNo="applicationNo" :applicantInfo="applicantInfo" :user="user" @requested="aStore.fetchApplication()" />
-
+    <ApplicationStageRequest :applicationNo="applicationNo" :applicantInfo="applicantInfo" :assignedManager="assignedManager" :user="user" @requested="aStore.fetchApplication()" />
+    <!-- 대기단계 승인/반려 -> 자식 컴포넌트 만듦 -->
+    <ApplicationStatusApprove :applicationNo="applicationNo" :applicantInfo="applicantInfo" :assignedManager="assignedManager" :user="user" @processed="aStore.fetchApplication()" />
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4">
       <ApplicationTabs class="md:w-1/5 flex h-175" />
       <div class="md:w-4/5 flex h-full overflow-auto">

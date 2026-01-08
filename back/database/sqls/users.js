@@ -223,7 +223,8 @@ const updateCenterByManager = `UPDATE center
 
 // 지원신청내역 담당자 조회
 const selectByUserNoManagerUsers = `select m.application_no,
-                                           group_concat(u.name order by u.name separator ', ') as m_name
+                                           group_concat(u.name order by u.name separator ', ') as m_name,
+                                           m.user_no
                                     from manager m
                                     join users u
                                       on m.user_no = u.user_no

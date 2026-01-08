@@ -285,6 +285,49 @@ const addManager = async (applicationNo, mUserNo, user) => {
   return { status: "fail", message: "담당자 지정 실패" };
 };
 
+// 대기단계 승인 및 반려(관리자)
+const approveApplicationStatus = async (
+  applicationNo,
+  action,
+  reason,
+  user
+) => {
+  // 관리자만 가능
+  if (user.type !== 2) {
+    throw new Error("관리자 권한 없음");
+  }
+
+  let result;
+  if (action === "approve") {
+    result = await mysql.query(
+      "updateStatusApprove",
+      [applicationNo],
+      "application"
+    );
+  } else if (action === "reject") {
+    if (!reason || !reason.trim()) {
+      throw new Error("반려 사유를 입력해주세요.");
+    }
+
+    result = await mysql.query(
+      "updateStatusReject",
+      [reason, applicationNo],
+      "application"
+    );
+  } else {
+    throw new Error("잘못된 승인 처리 요청");
+  }
+
+  if (result.affectedRows === 0) {
+    return {
+      status: "fail",
+      message: "처리 실패",
+    };
+  }
+
+  return { status: "success" };
+};
+
 // 지원자 정보 불러오기
 const findApplicantInfo = async (user) => {
   // console.log(user);
@@ -310,4 +353,5 @@ module.exports = {
   requestApplicationStatus,
   addManager,
   findApplicantInfo,
+  approveApplicationStatus,
 };

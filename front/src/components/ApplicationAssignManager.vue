@@ -45,6 +45,7 @@ const assignManager = async () => {
       severity: 'warn',
       summary: '담당자 선택',
       detail: '담당자를 선택해주세요.',
+      closable: false,
       life: 2000
     });
     return;
@@ -58,6 +59,7 @@ const assignManager = async () => {
       severity: 'success',
       summary: '지정 완료',
       detail: '담당자가 지정되었습니다.',
+      closable: false,
       life: 2000
     });
 
@@ -68,34 +70,17 @@ const assignManager = async () => {
       severity: 'error',
       summary: '지정 실패',
       detail: result.message || '담당자 지정 실패',
+      closable: false,
       life: 2500
     });
   }
 };
-
-// 담당자 확인
-const assignedManager = computed(() => {
-  if (!Array.isArray(aStore.manager)) return null;
-  return aStore.manager.find((m) => Number(m.application_no) === Number(props.applicationNo)) ?? null;
-});
 </script>
 
 <template>
   <Toast />
 
-  <!-- 이미 담당자 있음 -->
-  <div v-if="assignedManager" class="flex items-center gap-2 text-sm text-gray-600">
-    <i class="pi pi-user text-gray-400" />
-    <span>
-      담당자 :
-      <span class="font-medium text-gray-800">
-        {{ assignedManager.m_name }}
-      </span>
-    </span>
-  </div>
-
-  <!-- 담당자 미지정 + 기관 관리자 -->
-  <div v-else-if="user.type === 2" class="card rounded-lg p-4 flex gap-4">
+  <div class="card rounded-lg p-4 flex gap-4">
     <label class="text-xl font-medium">담당자</label>
 
     <AutoComplete v-model="selectedManagerValue" :suggestions="managerFilteredValue" optionLabel="name" placeholder="담당자명" dropdown completeOnFocus @complete="searchManager" />

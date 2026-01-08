@@ -95,7 +95,7 @@ export const useApplicationStore = defineStore('application', {
     setSelectedApplicant(applicant) {
       this.applicant = applicant;
     },
-    
+
     // 대기단계 요청(담당자)
     async requestApplicationStatus(applicationNo, status, user) {
       try {
@@ -103,6 +103,23 @@ export const useApplicationStore = defineStore('application', {
           status,
           user
         });
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    // 대기단계 승인 및 반려(관리자)
+    async approveApplicationStatus(applicationNo, action, reason) {
+      try {
+        const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+
+        const response = await axios.patch(`/api/applications/${applicationNo}/approve`, {
+          action,
+          reason,
+          user
+        });
+
         return response.data;
       } catch (err) {
         console.log(err);
