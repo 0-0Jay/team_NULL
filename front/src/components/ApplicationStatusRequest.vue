@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useApplicationStore } from '@/stores/application';
 
+const route = useRoute();
 const props = defineProps({
   applicationNo: Number,
   applicantInfo: Object,
@@ -24,7 +26,7 @@ const statusOptions = [
 
 // 요청 조건
 const canRequest = computed(() => {
-  return props.user.type === 1 && !props.applicantInfo?.approve_date && !props.applicantInfo?.request_date;
+  return props.user.type === 1 && !props.applicantInfo?.approve_date && !props.applicantInfo?.request_date && route.name === 'view';
 });
 
 // 요청 버튼 클릭

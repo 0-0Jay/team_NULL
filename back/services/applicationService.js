@@ -258,29 +258,16 @@ const addManager = async (applicationNo, mUserNo, user) => {
     throw new Error("다른 기관 신청서");
   }
 
-  // 현재 담당자 수 확인 (최대 2명)
-  const cntRes = await mysql.query(
-    "selectCurrentManager",
+  // 이미 담당자 있는지 확인
+  const existRes = await mysql.query(
+    "selectExistManagerByApplication",
     [applicationNo],
     "application"
   );
-  if (cntRes[0].cnt >= 2) {
+  if (existRes.length > 0) {
     return {
       status: "fail",
-      message: "담당자는 최대 2명까지 지정할 수 있습니다.",
-    };
-  }
-
-  // 동일 담당자 중복 확인
-  const dupRes = await mysql.query(
-    "selectDuplicateManager",
-    [applicationNo, mUserNo],
-    "application"
-  );
-  if (dupRes.length > 0) {
-    return {
-      status: "fail",
-      message: "이미 지정된 담당자입니다.",
+      message: "이미 담당자가 지정된 신청서입니다.",
     };
   }
 

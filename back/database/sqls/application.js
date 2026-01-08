@@ -85,22 +85,22 @@ const selectByUserNoApplicant = `select 1
                                  where a_no = ? and user_no = ? `;
 
 // 현재 담당자 수 조회
-const selectCurrentManager = `select count(*) as cnt
-                              from manager
-                              where application_no = ? and unassign is null`;
+// const selectCurrentManager = `select count(*) as cnt
+//                               from manager
+//                               where application_no = ? and unassign is null`;
 
-// 동일 담당자 중복 체크
-const selectDuplicateManager = `select 1
+// 담당자 중복 체크
+const selectExistManagerByApplication = `select 1
                                 from manager
-                                where application_no = ? and user_no = ? and unassign is null`;
+                                where application_no = ? and unassign is null`;
 
 // 담당자 지정(담당자가 직접 신청하는 경우 + 기관관리자가 지정하는 경우)
 const insertManager = `insert into manager(application_no, user_no) values (?,?)`;
 
 // 담당자 해제(일단 넣어둠)
-const updateUnassignManager = `update manager
-                               set unassign = now()
-                               where application_no = ? and user_no = ? and unassign is null`;
+// const updateUnassignManager = `update manager
+//                                set unassign = now()
+//                                where application_no = ? and user_no = ? and unassign is null`;
 
 // 권한 체크
 // 보호자
@@ -146,8 +146,8 @@ module.exports = {
   insertHistory,
   selectByAppNoApplication,
   selectByUserNoApplicant,
-  selectCurrentManager,
-  selectDuplicateManager,
+  //selectCurrentManager,
+  selectExistManagerByApplication,
   insertManager,
   selectByAppNoAndUserNoApplication,
   selectByAppNoAndUserNoManager,
@@ -159,5 +159,5 @@ module.exports = {
   selectByUserApplication,
   selectInfoByUserNoApplicant,
   selectInfoByCnoApplicantUsers,
-  updateUnassignManager,
+  //updateUnassignManager,
 };
