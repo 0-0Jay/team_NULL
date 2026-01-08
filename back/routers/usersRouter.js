@@ -161,7 +161,7 @@ router.get("/users/:user_no/applicant", async (req, res) => {
   if (type === 0) {
     result = await usersService.findByUserNoApplicant(user_no);
   } else if (type === 1) {
-    result = await usersService.findByCNoApplicant(user_no);
+    result = await usersService.findApplicantByStaff(user_no);
   } else {
     return res.status(403).send({ message: "권한 없음" });
   }
