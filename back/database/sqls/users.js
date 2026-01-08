@@ -170,6 +170,35 @@ const insertApplicant = `INSERT INTO applicant (
                          user_no, name, birth, gender, zipcode, address, address_detail, disability
                          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
+// 기관관리자 마이페이지 - 기관정보 조회 + 소속 담당자 수(COUNT)
+const selectCenterByManager = `SELECT c.name, c.zipcode, c.address, c.address_detail, c.phone, 
+                                      COUNT(*) AS staff_count
+                               FROM center c
+                               JOIN users u ON u.c_no = c.c_no
+                               LEFT JOIN users s
+                                 ON s.c_no = c.c_no
+                                 AND s.type = 1
+                               WHERE u.user_no = ?
+                               GROUP BY c.c_no`;
+
+// 기관관리자 마이페이지 - 기관 소속 담당자 정보
+const selectStaffByManager = `SELECT name, phone
+                              FROM users
+                              WHERE c_no = (
+                                  SELECT c_no FROM users
+                                  WHERE user_no = ?
+                              )
+                              AND type = 1
+                              ORDER BY name`;
+
+// 기관관리자 마이페이지 - 기관 정보 수정
+const updateCenterByManager = `UPDATE center
+                               SET name = ?, phone = ?, zipcode = ?, address = ?, address_detail = ?
+                               WHERE c_no = (
+                                 SELECT c_no FROM users
+                                 WHERE user_no = ?
+                               )`;
+
 // 지원신청내역 담당자 조회
 const selectByUserNoManagerUsers = `select m.application_no,
                                            group_concat(u.name order by u.name separator ', ') as m_name
@@ -205,5 +234,8 @@ module.exports = {
   updateByANoApplicant,
   deleteByANoApplicant,
   insertApplicant,
+  selectCenterByManager,
+  selectStaffByManager,
+  updateCenterByManager,
   selectByUserNoManagerUsers,
 };

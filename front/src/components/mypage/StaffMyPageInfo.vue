@@ -1,6 +1,6 @@
 <!-- components/mypage/StaffMyPageInfo.vue -->
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useUsersStore } from '@/stores/users';
 import MyInfoEditModal from './EditMyInfoModal.vue';
 import 'primeicons/primeicons.css';
@@ -10,8 +10,6 @@ const myInfo = computed(() => userStore.myInfo);
 const editOpen = ref(false);
 const display = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
-
-console.log(myInfo);
 
 onMounted(() => {
   if (!user) return;
@@ -122,7 +120,9 @@ const formatDate = (v) => {
     <div v-else class="text-gray-400">회원 정보를 불러오는 중입니다...</div>
 
     <!-- 수정 모달 -->
+
     <MyInfoEditModal v-if="myInfo" :modalValue="editOpen" :myInfo="myInfo" :userType="myInfo.type" @update:modalValue="editOpen = $event" @save="handleSave"></MyInfoEditModal>
+    <!-- 기관정보 Dialog -->
     <Dialog header="기관정보" class="text-center" v-model:visible="display" :style="{ width: '20vw' }" :modal="true">
       <p class="text-2xl font-bold">{{ myInfo.center_name }}</p>
       <p class="text-lg">{{ myInfo.center_address }}<br />{{ myInfo.center_phone }}</p>

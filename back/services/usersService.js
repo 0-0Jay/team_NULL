@@ -398,6 +398,50 @@ const addApplicant = async ({
   return resObj;
 };
 
+// 기관관리자 마이페이지 - 기관정보 조회
+const findCenterByManager = async (user_no) => {
+  let result = await mysql.query("selectCenterByManager", [user_no], "users");
+  return result[0];
+};
+
+// 기관관리자 마이페이지 - 기관 소속 담당자 목록
+const findStaffByManager = async (user_no) => {
+  let result = await mysql.query("selectStaffByManager", [user_no], "users");
+  return result;
+};
+
+// 기관관리자 마이페이지 - 기관 정보 수정
+const modifyCenterByManager = async ({
+  name,
+  phone,
+  zipcode,
+  address,
+  address_detail,
+  user_no,
+} = {}) => {
+  if (
+    !name?.trim() ||
+    !phone?.trim() ||
+    zipcode == null ||
+    !address?.trim() ||
+    user_no == null
+  ) {
+    return { status: "error", message: "invalid input" };
+  }
+  let result = await mysql.query(
+    "updateCenterByManager",
+    [name, phone, zipcode, address, address_detail, user_no],
+    "users"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", user_no: user_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -422,4 +466,7 @@ module.exports = {
   removeByANoApplicant,
   addApplicant,
   findByCNoApplicant,
+  findCenterByManager,
+  findStaffByManager,
+  modifyCenterByManager,
 };
