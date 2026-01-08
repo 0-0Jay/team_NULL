@@ -14,6 +14,9 @@ console.log('isAdmin:', usersStore.isAdmin);
 </script>
 
 <template>
-  <AdminPlanDetail v-if="usersStore.isAdmin" :application_no="application_no" />
-  <PlanDetail v-else :application_no="application_no" />
+  <div v-if="usersStore.user">
+    <AdminPlanDetail v-if="usersStore.isAdmin" :application_no="application_no" />
+    <PlanDetail v-else :application_no="application_no" />
+  </div>
+  <div v-else>Loading...</div>
 </template>

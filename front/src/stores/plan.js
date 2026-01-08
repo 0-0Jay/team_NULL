@@ -48,9 +48,11 @@ export const usePlanStore = defineStore('plan', {
     //대기중인 지원계획서 조회
     async fetchPendingPlanDetail(application_no) {
       try {
-        this.planList = []; // 초기화
-        const res = await axios.get(`/api/plan/pending/${application_no}`);
-        this.planList = Array.isArray(res.data) ? res.data : [res.data]; //이부분 안넣으면 작동안됨
+        this.planList = [];
+        const res = await axios.get(`/api/plan/pending/${application_no}`, {
+          params: { status: 0 } // 0 = 승인대기
+        });
+        this.planList = Array.isArray(res.data) ? res.data : [res.data];
       } catch (err) {
         console.error('지원계획서 조회 실패', err);
       }
