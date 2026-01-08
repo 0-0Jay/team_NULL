@@ -36,7 +36,8 @@ const formatDate = (v) => {
 
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
-    <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
+    <div class="flex-1 overflow-auto rounded-lg border border-gray-200 flex flex-col gap-6 p-4">
+      <!--#####-->
       <div v-for="(result, index) in filterresult" :key="result.plan_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center mb-6">반려된 지원결과서 {{ index + 1 }}</div>

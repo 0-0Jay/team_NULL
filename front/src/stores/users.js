@@ -16,9 +16,9 @@ export const useUsersStore = defineStore('users', {
   // getters
   //곽현우 작성함 - 관리자 화면 분기용
   getters: {
-    isAdmin: (state) => state.user?.user?.[0]?.type === 2, //관리자가 보는 조회 창 분리하기 위함
-    isManager: (state) => state.user?.user?.[0]?.type === 1,
-    isUser: (state) => state.user?.user?.[0]?.type === 0
+    isAdmin: (state) => state.user?.[0]?.type === 2,
+    isManager: (state) => state.user?.[0]?.type === 1,
+    isUser: (state) => state.user?.[0]?.type === 0
   },
 
   // actions

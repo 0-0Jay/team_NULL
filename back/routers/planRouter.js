@@ -63,11 +63,11 @@ router.get("/plan/pending/:application_no", async (req, res) => {
 router.patch("/plan/status", async (req, res) => {
   try {
     const { application_no, status } = req.body;
+    console.log("status 변경 요청:", application_no, status); //
     await planService.updatePlanStatus(application_no, status);
     res.send({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("status값 변경 실패");
+    console.error("updatePlanStatus 에러:", err); //     res.status(500).send("status값 변경 실패");
   }
 });
 module.exports = router;

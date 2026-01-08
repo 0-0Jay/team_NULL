@@ -48,6 +48,7 @@ export const usePlanStore = defineStore('plan', {
     //대기중인 지원계획서 조회
     async fetchPendingPlanDetail(application_no) {
       try {
+        this.planList = []; // 초기화
         const res = await axios.get(`/api/plan/pending/${application_no}`);
         this.planList = Array.isArray(res.data) ? res.data : [res.data]; //이부분 안넣으면 작동안됨
       } catch (err) {
@@ -55,7 +56,7 @@ export const usePlanStore = defineStore('plan', {
       }
     },
 
-    //(관리자용) 지원계획서 조회
+    //(관리자용) 지원계획서 조회 - 지울예정
     async fetchAdminPlanDetail(application_no) {
       try {
         const res = await axios.get(`/api/plan/admin/${application_no}`);
@@ -67,10 +68,12 @@ export const usePlanStore = defineStore('plan', {
 
     //승인, 반려 하면 status값 변경하기 위함
     async updatePlanStatus(application_no, status) {
-      return axios.patch(`/api/plan/status`, {
-        application_no,
-        status
-      });
+      try {
+        const res = await axios.patch('/api/plan/status', { application_no, status });
+        return res.data;
+      } catch (err) {
+        console.error('status 값 변경 실패', err);
+      }
     }
   }
 });
