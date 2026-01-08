@@ -2,9 +2,10 @@
 import { useApplicationStore } from '@/stores/application';
 import { useSurveyStore } from '@/stores/survey';
 import { onMounted, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const sStore = useSurveyStore();
 const aStore = useApplicationStore();
 const data = ref({});
@@ -71,6 +72,7 @@ const makeTableRows = (secValue) => {
 
 // 수정
 const edit = () => {
+  router.push({ path: `/application/write/${route.params.application_no}` });
   // 수정 페이지로 넘겨야됨. 수정페이지는 작성페이지와 동일하되, store에 기존 application 데이터가 있으면 수정으로
 };
 </script>

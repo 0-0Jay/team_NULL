@@ -10,9 +10,9 @@ export const useSurveyStore = defineStore('survey', {
   // actions
   actions: {
     // 조사지 불러오기
-    async fetchSurvey(applicationNo = null) {
+    async fetchSurvey(applicationNo = undefined) {
       try {
-        if (applicationNo == null) {
+        if (applicationNo == undefined) {
           const response = await axios.get('/api/survey');
           this.survey = response.data;
         } else {

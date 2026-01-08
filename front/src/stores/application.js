@@ -20,8 +20,6 @@ export const useApplicationStore = defineStore('application', {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post('/api/applicationList', { user });
 
-        console.log(response.data.appList);
-
         this.appList = response.data.appList || [];
         this.manager = response.data.managerList || [];
         this.planStat = response.data.planList || [];
@@ -35,7 +33,7 @@ export const useApplicationStore = defineStore('application', {
     // 지원신청서 작성 // 미완
     async submitApplication(data) {
       try {
-        const response = await axios.post('/api/application', data);
+        const response = await axios.post('/api/applications', data);
         this.application = data.answers;
       } catch (err) {
         console.log(err);
@@ -56,7 +54,7 @@ export const useApplicationStore = defineStore('application', {
     // 지원신청서 수정
     async updateApplication(data) {
       try {
-        const response = await axios.put('/api/application', data);
+        const response = await axios.put('/api/applications', data);
         this.application = data;
       } catch (err) {
         console.log(err);

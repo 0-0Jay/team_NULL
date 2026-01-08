@@ -8,8 +8,17 @@ const insertApplicationAnswer = `insert into application_answer(application_no, 
                                         values(?,?,?)`;
 
 // 지원신청서 답변 수정
-const updateByQnoApplicationAnswer = `update application_answer set answer = ? where application_no = ? and q_no = ?`;
+const updateByAnsNoApplicationAnswer = `
+UPDATE application_answer
+SET OX = ?, reason = ?, start = ?, end = ?
+WHERE answer_no = ?`;
 
+// 지원신청서 답변 수정 이력 저장
+const insertHistory = `
+INSERT INTO history(answer_no, author, before_ans, after_ans)
+VALUES(?, ?, ?, ?)`;
+
+// 지원신청서 답변 조회
 const selectByAppNoApplication = `
 SELECT answer_no, q_no, reason, OX, start, end
 FROM application_answer
@@ -114,7 +123,8 @@ const selectInfoByCnoApplicantUsers = `select a.*
 module.exports = {
   insertApplication,
   insertApplicationAnswer,
-  updateByQnoApplicationAnswer,
+  updateByAnsNoApplicationAnswer,
+  insertHistory,
   selectByAppNoApplication,
   selectByUserNoApplicant,
   insertManager,

@@ -1,22 +1,34 @@
 <script setup>
+import EditApplicationModal from '@/components/EditApplicationModal.vue';
 import { useApplicationStore } from '@/stores/application';
 import { useSurveyStore } from '@/stores/survey';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, reactive, toRaw } from 'vue';
+import { useRoute } from 'vue-router';
 
 const sStore = useSurveyStore();
 const aStore = useApplicationStore();
+const route = useRoute();
 const data = ref({});
 const activeTab = ref('');
 const answers = ref({});
+const answersOrigin = ref({});
+const display = ref(false);
+const editData = reactive({
+  whoEdit: JSON.parse(localStorage.getItem('users'))?.user[0].u_name,
+  originAnswer: null,
+  answer: null
+});
 
 onMounted(async () => {
-  data.value = await sStore.fetchSurvey();
-
+  data.value = await sStore.fetchSurvey(route.params.application_no);
+  // 답변 저장소 초기화
   Object.values(data.value).forEach((section) => {
     Object.values(section.details).forEach((detail) => {
       Object.entries(detail.questions).forEach(([key, value]) => {
         if (!answers.value[key]) {
           answers.value[key] = {
+            answer_no: '',
+            question: value.question,
             ox: null,
             reason: '',
             start: null,
@@ -26,6 +38,17 @@ onMounted(async () => {
       });
     });
   });
+  if (route.params.application_no) {
+    const tmp = ref(aStore.application);
+    Object.values(tmp.value).forEach((answer) => {
+      answers.value[answer.q_no].answer_no = answer.answer_no;
+      answers.value[answer.q_no].ox = answer.OX;
+      answers.value[answer.q_no].reason = answer.reason;
+      answers.value[answer.q_no].start = new Date(answer.start);
+      answers.value[answer.q_no].end = new Date(answer.end);
+    });
+    answersOrigin.value = structuredClone(toRaw(answers.value));
+  }
 });
 
 // 조사지 로드 => 첫 번 째 탭으로 이동
@@ -38,6 +61,7 @@ watch(
   { immediate: true }
 );
 
+// 조사지 문항 로드
 const makeTableRows = (secValue) => {
   const rows = [];
 
@@ -61,13 +85,19 @@ const makeTableRows = (secValue) => {
 
 // 제출
 const submit = async () => {
-  // 여기에 새 지원신청서(insert application) 추가하는 요청
+  if (route.params.application_no) {
+    editData.originAnswer = answersOrigin.value;
+    editData.answer = answers.value;
+    display.value = true;
+  } else {
+    await aStore.submitApplication(answers.value);
+  }
   console.log(answers.value);
 };
 </script>
 
 <template>
-  <div class="card m-4">
+  <div class="card">
     <div class="flex justify-between">
       <div class="font-semibold text-xl mb-4">지원신청서 작성</div>
       <Button label="작성 완료" @click="submit" />
@@ -125,5 +155,6 @@ const submit = async () => {
         </TabPanel>
       </TabPanels>
     </Tabs>
+    <EditApplicationModal v-model="display" :editData="editData" />
   </div>
 </template>

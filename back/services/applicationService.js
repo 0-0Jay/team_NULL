@@ -94,7 +94,7 @@ const addApplication = async (appInfo) => {
   // 지원 신청서 생성
   const appResult = await mysql.query(
     "insertApplication",
-    [aNo, versionId],
+    [aNo],
     "application"
   );
 
@@ -136,28 +136,51 @@ const findByAppNoApplication = async (applicationNo) => {
 };
 
 // 지원신청서 답변 수정
-const modifyByQnoApplicationAnswer = async (applicationNo, answers, user) => {
-  // 권한 확인
-  const hasPermission = await checkPermission(applicationNo, user);
-  if (!hasPermission) {
-    throw new Error("수정 권한 없음");
-  }
+const modifyApplicationAnswer = async (data) => {
+  const { whoEdit, originAnswer, answer } = data;
+  let result = 0;
 
-  let cnt = 0;
+  Object.keys(originAnswer).forEach(async (qNo) => {
+    const origin = originAnswer[qNo];
+    const modify = answer[qNo];
+    const answer_no = origin.answer_no;
+    const before = {};
+    const after = {};
 
-  for (let answer of answers) {
-    const result = await mysql.query(
-      "updateByQnoApplicationAnswer",
-      [answer.answer, applicationNo, answer.qNo],
-      "application"
-    );
-    if (result.affectedRows > 0) cnt++;
-  }
+    Object.keys(origin).forEach((key) => {
+      if (origin[key] != modify[key]) {
+        before[key] = origin[key];
+        after[key] = modify[key];
+      }
+    });
+
+    const before_ans = JSON.stringify(before);
+    const after_ans = JSON.stringify(after);
+    if (Object.keys(before).length > 0) {
+      const rows = await mysql.query(
+        "updateByAnsNoApplicationAnswer",
+        [
+          modify.ox,
+          modify.reason,
+          new Date(modify.start),
+          new Date(modify.end),
+          answer_no,
+        ],
+        "application"
+      );
+      await mysql.query(
+        "insertHistory",
+        [answer_no, whoEdit, before_ans, after_ans],
+        "application"
+      );
+      result += rows.affectedRows;
+    }
+  });
 
   let resObj = {};
 
-  if (cnt == answers.length) {
-    resObj = { status: "success", applicationNo };
+  if (result > 0) {
+    resObj = { status: "success", result };
   } else {
     resObj = { status: "fail" };
   }
@@ -250,7 +273,7 @@ module.exports = {
   findAllApplication,
   addApplication,
   findByAppNoApplication,
-  modifyByQnoApplicationAnswer,
+  modifyApplicationAnswer,
   modifyApplicationStatus,
   addManager,
   findApplicantInfo,

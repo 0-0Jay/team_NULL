@@ -136,6 +136,11 @@ const router = createRouter({
           name: 'write',
           component: () => import('@/views/ApplicationWriteView.vue')
         },
+        {
+          path: 'write/:application_no',
+          name: 'edit',
+          component: () => import('@/views/ApplicationWriteView.vue')
+        },
         // 지원신청서 조회
         {
           path: 'view/:application_no',
