@@ -148,6 +148,28 @@ const selectByCNoApplicant = `SELECT a_no, a.name
                               WHERE g.c_no = m.c_no`;
 
 // 기관담당자 마이페이지 - 담당 지원자 목록 조회
+const selectApplicantByStaff = `SELECT a_no, name, 
+                                       CASE WHEN SUM(type = 'direct') > 0 
+                                       THEN 'direct'	
+                                       ELSE 'assigned' 
+                                       END AS type
+                                 FROM (
+                                   SELECT a.a_no, a.name, 'direct' AS type
+                                   FROM applicant a
+                                   JOIN users u
+                                   ON a.user_no = u.user_no
+                                   WHERE u.user_no = ?
+
+                                   UNION ALL
+
+                                   SELECT a.a_no, a.name, 'assigned' AS type
+                                   FROM applicant a
+                                   JOIN application app ON a.a_no = app.a_no
+                                   JOIN manager m ON app.application_no = m.application_no
+                                   JOIN users u ON m.user_no = u.user_no
+                                   WHERE u.user_no = ?
+                                 ) t
+                                 GROUP BY a_no, name`;
 
 // 마이페이지 - 지원자 상세 정보 조회
 const selectByANoApplicant = `SELECT a.name, a.birth, a.gender, a.zipcode, a.address, a.address_detail, a.disability, a.created_date, 
@@ -238,4 +260,5 @@ module.exports = {
   selectStaffByManager,
   updateCenterByManager,
   selectByUserNoManagerUsers,
+  selectApplicantByStaff,
 };
