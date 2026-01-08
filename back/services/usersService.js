@@ -171,18 +171,31 @@ const modifyByUserNoUsers = async (userInfo, userNo) => {
 
 // 회원상태(사용승인 및 비활성화)
 const modifyStatusUsers = async (userNos, status) => {
-  let result = await mysql.query(
-    "updateStatusUsers",
-    [status, userNos],
-    "users"
-  );
-  let resObj = {};
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", userNos: userNos };
-  } else {
-    resObj = { status: "fail" };
+  if (status === 1) {
+    await mysql.query("updateStatusApprove", [userNos], "users");
+    return { status: "success" };
   }
-  return resObj;
+
+  if (status === 2) {
+    const result = await mysql.query(
+      "updateStatusDeactivate",
+      [userNos],
+      "users"
+    );
+
+    if (result.affectedRows === 0) {
+      return {
+        status: "fail",
+        message: "지원자가 있는 담당자는 비활성화할 수 없습니다.",
+      };
+    }
+
+    return { status: "success" };
+  }
+  return {
+    status: "fail",
+    message: "잘못된 상태값입니다.",
+  };
 };
 
 // 비밀번호 재설정

@@ -42,7 +42,7 @@ const selectCountPlan = `select p.application_no,
                                 count(p.plan_no) as plan_count
 
                          from plan p
-                         group by p.application_no;`;
+                         group by p.application_no`;
 
 module.exports = {
   insertPlan,

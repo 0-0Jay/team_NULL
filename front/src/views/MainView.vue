@@ -140,23 +140,23 @@ const columnData = computed(() => {
     const counselCount = counsels.get(row.application_no) || 0;
 
     // application 승인
-    let appReview = 0;
-    let appApprove = 0;
+    // let appReview = 0;
+    // let appApprove = 0;
 
-    if (row.approve_date) {
-      appApprove = 1;
-    } else {
-      appReview = 1;
-    }
+    // if (row.approve_date) {
+    //   appApprove = 1;
+    // } else {
+    //   appReview = 1;
+    // }
 
     return {
       ...row,
       status: getStatus(row),
       manager_name: managers.get(row.application_no) || '미지정',
-      review_count: toNumber(appReview) + toNumber(plan.review_count) + toNumber(result.review_count),
-      approve_count: toNumber(appApprove) + toNumber(plan.approve_count) + toNumber(result.approve_count),
+      review_count: toNumber(plan.review_count) + toNumber(result.review_count), // toNumber(appReview)
+      approve_count: toNumber(plan.approve_count) + toNumber(result.approve_count), // toNumber(appApprove)
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
-      result_count: toNumber(result.result_count),
+      result_count: toNumber(result.approve_count),
       plan_count: toNumber(plan.plan_count),
       counsel_count: toNumber(counselCount)
     };
@@ -282,7 +282,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원신청서" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 90px; max-width: 90px">
-            <template #body="{ data }"><Button size="small" label="보기" @click="goPage('view', { application_no: data.application_no })" /></template>
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.application_no === 0" @click="goPage('view', { application_no: data.application_no })" /></template>
           </Column>
 
           <Column header="담당자" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">

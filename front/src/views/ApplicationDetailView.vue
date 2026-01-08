@@ -1,5 +1,6 @@
 <script setup>
 import ApplicationTabs from '@/components/ApplicationTabs.vue';
+import { useToast } from 'primevue/usetoast';
 import { useApplicationStore } from '@/stores/application';
 import { useUsersStore } from '@/stores/users';
 import { useRoute } from 'vue-router';
@@ -9,6 +10,7 @@ const aStore = useApplicationStore();
 const uStore = useUsersStore();
 const route = useRoute();
 const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const toast = useToast();
 
 const applicant = ref([]);
 const selectedApplicant = ref({ name: '', disability: '', gender: '', birth: '' });
@@ -16,12 +18,13 @@ const selectedApplicantValue = ref(null);
 const applicantFilteredValue = ref([]);
 
 const manager = ref([]);
-const selectedMangerValue = ref(null);
+const selectedManagerValue = ref(null);
 const managerFilteredValue = ref([]);
 
 onMounted(async () => {
   applicant.value = await aStore.fetchApplicant();
   manager.value = await uStore.fetchStaff();
+  // console.log('fetchStaff result:', res);
 });
 
 // 날짜 포맷
@@ -35,31 +38,31 @@ const formatDate = (v) => {
   return `${y}.${m}.${day}`;
 };
 
-const appNo = Number(route.params.application_no);
+const applicationNo = Number(route.params.application_no);
 const applicantInfo = computed(() => {
   if (!aStore.appList.length) return null;
-  return aStore.appList.find((a) => a.application_no === appNo) ?? null;
+  return aStore.appList.find((a) => a.application_no === applicationNo) ?? null;
 });
 
-// 조회
+// 지원자(조회)
 watch(
   applicantInfo,
   (val) => {
     if (!val) return;
-    console.log(val);
+    // console.log(val);
     selectedApplicant.value = { name: val.ap_name, disability: val.disability, gender: val.gender, birth: val.birth };
   },
   { immediate: true }
 );
 
-// 작성
+// 지원자(작성)
 watch(selectedApplicantValue, (val) => {
   if (!val) return;
-
   selectedApplicant.value = { ...val };
 });
 
-// 지원자
+// 이벤트 함수
+// 지원자 선택
 const searchApplicant = (event) => {
   if (!event.query.trim().length) {
     applicantFilteredValue.value = [...applicant.value];
@@ -71,14 +74,53 @@ const searchApplicant = (event) => {
   }
 };
 
-// 담당자
+// 담당자 선택
 const searchManager = (event) => {
   if (!event.query.trim().length) {
     managerFilteredValue.value = [...manager.value];
-    console.log(manager.value);
+    // console.log(manager.value);
   } else {
     managerFilteredValue.value = manager.value.filter((a) => {
       return a.name.toLowerCase().startsWith(event.query.toLowerCase());
+    });
+  }
+};
+
+// 담당자 지정
+const assignManager = async () => {
+  console.log(selectedManagerValue.value);
+
+  if (!selectedManagerValue.value) {
+    toast.add({
+      severity: 'warn',
+      summary: '담당자 선택',
+      detail: '담당자를 선택해주세요.',
+      closable: false,
+      life: 2000
+    });
+    return;
+  }
+
+  const m_user_no = selectedManagerValue.value.user_no;
+  const result = await aStore.insertManager(applicationNo, m_user_no);
+
+  if (result.status === 'success') {
+    toast.add({
+      severity: 'success',
+      summary: '지정 완료',
+      detail: '담당자가 지정되었습니다.',
+      closable: false,
+      life: 2000
+    });
+    await aStore.fetchApplication();
+    selectedManagerValue.value = null;
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: '지정 실패',
+      detail: result.message || '담당자 지정 실패',
+      closable: false,
+      life: 2500
     });
   }
 };
@@ -129,10 +171,11 @@ const searchManager = (event) => {
     </div>
 
     <!-- 담당자 지정 -> 권한에 따라 그냥 담당자만 뜨거나, 담당자 지정 버튼이 뜨게 -->
-    <div v-if="user.type === 2" class="card m-4 rounded-lg p-4 flex gap-4">
+    <Toast />
+    <div v-if="user.type === 2 && $route.name === 'view'" class="card m-4 rounded-lg p-4 flex gap-4">
       <label for="name" class="block text-surface-900 dark:text-surface-0 text-xl font-medium ml-2">담당자</label>
-      <AutoComplete id="name" class="" v-model="selectedMangerValue" :suggestions="managerFilteredValue" optionLabel="name" placeholder="담당자명" dropdown multiple display="chip" @complete="searchManager($event)" />
-      <Button label="담당자 지정" />
+      <AutoComplete id="name" class="" v-model="selectedManagerValue" :suggestions="managerFilteredValue" optionLabel="name" placeholder="담당자명" dropdown display="chip" completeOnFocus @complete="searchManager($event)" />
+      <Button label="담당자 지정" @click="assignManager" />
     </div>
 
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4 m-4">

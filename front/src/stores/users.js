@@ -139,7 +139,8 @@ export const useUsersStore = defineStore('users', {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post(`/api/usersStaff`, { user });
         this.staff = response.data;
-        console.log(response.data);
+        // console.log(this.staff);
+        return response.data;
       } catch (err) {
         console.log(err);
       }

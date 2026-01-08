@@ -65,18 +65,34 @@ const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, 
                                        order by u.created_date desc`;
 
 // 기관 관리자
-const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.created_date,
-                                           u.status, count(m.application_no) as applicant_count
+const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
+                                           u.created_date, u.status,
+                                           count(distinct ap.a_no) as applicant_count
                                     from users u
                                     left join manager m on u.user_no = m.user_no
                                                            and m.unassign is null
+                                    left join application app on m.application_no = app.application_no
+                                    left join applicant ap on app.a_no = ap.a_no
                                     where u.type = 1 and u.status != 2 and u.c_no = ?
                                     group by u.user_no, u.id, u.name, u.phone, u.email,
                                              u.created_date, u.status
                                     order by u.created_date desc`;
 
-// 회원상태(사용승인 및 비활성화)
-const updateStatusUsers = `update users set status = ? where user_no in (?)`;
+// 회원상태(사용승인)
+const updateStatusApprove = `update users set status = 1 where user_no in (?)`;
+
+// 회원상태(비활성화)
+const updateStatusDeactivate = `update users u
+                                set u.status = 2
+                                where u.user_no in (?) 
+                                      and not exists (select 1
+                                                      from manager m
+                                                      join application app
+                                                        on m.application_no = app.application_no
+                                                      join applicant ap
+                                                        on app.a_no = ap.a_no
+                                                      where m.user_no = u.user_no
+                                                        and m.unassign is null)`;
 
 // 비밀번호 포함 수정
 const updateUserWithPw = `
@@ -175,7 +191,8 @@ module.exports = {
   updateStatusByUsernoUsers,
   selectByIdUsers,
   selectByEmailUsers,
-  updateStatusUsers,
+  updateStatusApprove,
+  updateStatusDeactivate,
   selectTypeByuserNoUsers,
   selectByUserNoUsers,
   selectByCNoApplicant,
