@@ -8,6 +8,7 @@ const findAllSurvey = async (applicationNo = null) => {
   } else {
     list = await mysql.query("selectSurveyByAppNo", [applicationNo], "survey");
   }
+  const version_id = list[0].version_id;
   const data = {};
   for (let i = 0; i < list.length; i++) {
     const sec_no = list[i].sec_no;
@@ -26,7 +27,7 @@ const findAllSurvey = async (applicationNo = null) => {
       type: list[i].type,
     };
   }
-  return data;
+  return { version_id, data };
 };
 
 // 조사지 버전 추가

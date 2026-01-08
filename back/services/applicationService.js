@@ -88,13 +88,13 @@ const checkPermission = async (applicationNo, user) => {
 };
 
 // 지원 신청서
-const addApplication = async (appInfo) => {
-  const { aNo, versionId, answers } = appInfo;
+const addApplication = async (data) => {
+  const { user_no, type, a_no, version_id, answer } = data;
 
   // 지원 신청서 생성
   const appResult = await mysql.query(
     "insertApplication",
-    [aNo],
+    [a_no, version_id],
     "application"
   );
 
@@ -103,15 +103,30 @@ const addApplication = async (appInfo) => {
   if (appResult.insertId > 0) {
     const applicationNo = appResult.insertId;
 
-    // 지원 신청서 답변 작성
-    for (let answer of answers) {
-      await mysql.query(
-        "insertApplicationAnswer",
-        [applicationNo, answer.qNo, answer.answer],
+    // 담당자가 작성했을 경우 담당자 자동 배정
+    if (user_type == 1) {
+      const mngResult = await mysql.query(
+        "insertManager",
+        [applicationNo, user_no],
         "application"
       );
     }
 
+    // 지원 신청서 답변 작성
+    Object.entries(answer).forEach(async ([key, value]) => {
+      await mysql.query(
+        "insertApplicationAnswer",
+        [
+          applicationNo,
+          key,
+          value.reason,
+          value.ox,
+          new Date(value.start),
+          new Date(value.end),
+        ],
+        "application"
+      );
+    });
     resObj = {
       status: "success",
       applicationNo,

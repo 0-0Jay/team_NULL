@@ -54,6 +54,13 @@ watch(
   { immediate: true }
 );
 
+// 지원자 선택
+watch(selectedApplicantValue, (val) => {
+  if (!val) return;
+  selectedApplicant.value = { ...val };
+  aStore.setSelectedApplicant(val);
+});
+
 // 지원자(작성)
 watch(selectedApplicantValue, (val) => {
   if (!val) return;
@@ -183,8 +190,8 @@ const assignManager = async () => {
         <router-view class="flex-1" />
       </div>
     </div>
-    <div v-else class="h-full overflow-hidden">
-      <router-view class="flex-1 overflow-auto" />
+    <div v-else class="h-full">
+      <router-view class="flex-1" />
     </div>
   </div>
 </template>
