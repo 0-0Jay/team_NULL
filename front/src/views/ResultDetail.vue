@@ -21,13 +21,13 @@ const rowNumber = (index) => index + 1;
 // });
 
 onBeforeMount(() => {
-  const plan_no = Number(route.params.plan_no);
+  const application_no = Number(route.params.application_no);
 
-  if (!plan_no) {
-    console.error('plan_no 없음:', route.params.plan_no);
+  if (!application_no) {
+    console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchResultList(Number(route.params.plan_no), 1); //승인된 결과서만 화면에 출력
+  store.fetchResultList(Number(route.params.application_no), 1); //승인된 결과서만 화면에 출력
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -45,7 +45,7 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
-      <div v-for="(result, index) in filterresult" :key="result.plan_no" class="card flex flex-col w-full p-6 shadow-md">
+      <div v-for="(result, index) in filterresult" :key="result.result_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center mb-6">승인된 지원결과서 {{ index + 1 }}</div>
 
@@ -59,7 +59,7 @@ const formatDate = (v) => {
         <div class="flex flex-wrap gap-6 mb-4 font-semibold">
           <div class="flex flex-col gap-2 flex-1">
             <label>목표</label>
-            <div class="p-2 border rounded bg-gray-50">{{ result.title ?? '-' }}</div>
+            <div class="p-2 border rounded bg-gray-50">{{ result.result_title ?? '-' }}</div>
           </div>
 
           <div class="flex flex-col gap-2">

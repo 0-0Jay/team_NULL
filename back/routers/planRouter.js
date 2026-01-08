@@ -59,4 +59,15 @@ router.get("/plan/pending/:application_no", async (req, res) => {
   res.send(planPendingList);
 });
 
+// 지원계획서 승인 / 반려 (status 변경)
+router.patch("/plan/status", async (req, res) => {
+  try {
+    const { application_no, status } = req.body;
+    await planService.updatePlanStatus(application_no, status);
+    res.send({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("status값 변경 실패");
+  }
+});
 module.exports = router;

@@ -5,6 +5,8 @@ import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 
+const application_no = Number(route.params.application_no);
+
 const store = usePlanStore(); //pinia작업 위함
 const router = useRouter();
 const route = useRoute();
@@ -13,7 +15,7 @@ const filterplan = computed(() => store.planList); // 화면에 보여질 테이
 const rowNumber = (index) => index + 1;
 
 onBeforeMount(() => {
-  store.fetchAdminPendingPlanDetail(11, 0); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
+  store.fetchAdminPlanDetail(application_no); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
 });
 
 //승인대기중인 계획서만 화면에 송출
@@ -26,6 +28,26 @@ onBeforeMount(() => {
 //   }
 //   store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
 // });
+
+//승인 기능
+const submitPlan = async () => {
+  try {
+    await store.updatePlanStatus(application_no, 1); //승인하고 status값을 1로 변경하기
+    router.push(`/application/planDetail/${application_no}`);
+  } catch (e) {
+    console.error('승인처리 실패', err);
+  }
+};
+
+//반려 기능
+const rejectPlan = async () => {
+  try {
+    await store.updatePlanStatus(application_no, 2); //반려하고 값 2로 변경
+    router.push(`/application/planDetail/${application_no}`);
+  } catch (e) {
+    console.err('반려처리 실패', err);
+  }
+};
 
 //날짜 포멧
 const formatDate = (v) => {
@@ -90,11 +112,10 @@ const formatDate = (v) => {
           </div>
         </div>
 
-        <!-- 등록, 목록 버튼 -->
+        <!-- 승인, 반려 버튼 -->
         <div class="flex flex-wrap gap-2 justify-center mt-5">
           <Button label="승인" style="width: auto" severity="info" @click="submitPlan" />
-
-          <Button label="반려" severity="danger" @click="goToPendingPlanDetail" />
+          <Button label="반려" style="width: auto" severity="danger" @click="rejectPlan" />
         </div>
       </div>
     </div>
