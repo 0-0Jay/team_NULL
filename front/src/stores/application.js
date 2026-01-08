@@ -9,7 +9,8 @@ export const useApplicationStore = defineStore('application', {
     planStat: [],
     resultStat: [],
     counselStat: [],
-    application: []
+    application: [],
+    applicant: null
   }),
   // getters
   // actions
@@ -30,11 +31,12 @@ export const useApplicationStore = defineStore('application', {
       }
     },
 
-    // 지원신청서 작성 // 미완
+    // 지원신청서 작성
     async submitApplication(data) {
       try {
         const response = await axios.post('/api/applications', data);
-        this.application = data.answers;
+        this.application = data.answer;
+        return response.data;
       } catch (err) {
         console.log(err);
       }
@@ -89,6 +91,11 @@ export const useApplicationStore = defineStore('application', {
       }
     },
 
+    // 지원자 선택
+    setSelectedApplicant(applicant) {
+      this.applicant = applicant;
+    },
+    
     // 대기단계 요청(담당자)
     async requestApplicationStatus(applicationNo, status, user) {
       try {

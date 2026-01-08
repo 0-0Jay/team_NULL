@@ -1,6 +1,6 @@
 // 최신버전 조사지 조회
 const selectAllSurvey = `
-SELECT s.sec_no, s.section, d.d_no, d.detail, d.info, q.q_no, q.question, q.type
+SELECT v.version_id, s.sec_no, s.section, d.d_no, d.detail, d.info, q.q_no, q.question, q.type
 FROM survey_version v
 JOIN survey_section s ON s.version_id = v.version_id
 JOIN survey_detail d ON d.sec_no = s.sec_no

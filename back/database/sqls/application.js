@@ -4,8 +4,8 @@
 const insertApplication = `insert into application(a_no, version_id, status) values(?,?,0)`;
 
 // 지원신청서 답변 작성
-const insertApplicationAnswer = `insert into application_answer(application_no, q_no, answer)
-                                        values(?,?,?)`;
+const insertApplicationAnswer = `insert into application_answer(application_no, q_no, reason, OX, start, end)
+                                        values(?,?,?,?,?,?)`;
 
 // 지원신청서 답변 수정
 const updateByAnsNoApplicationAnswer = `

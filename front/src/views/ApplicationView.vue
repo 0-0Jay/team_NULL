@@ -15,7 +15,8 @@ const tmp = ref({});
 const applicationNo = route.params.application_no;
 
 onMounted(async () => {
-  data.value = await sStore.fetchSurvey(applicationNo);
+  const result = await sStore.fetchSurvey(applicationNo);
+  data.value = result.data;
   Object.values(data.value).forEach((section) => {
     Object.values(section.details).forEach((detail) => {
       Object.entries(detail.questions).forEach(([key, value]) => {

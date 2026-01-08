@@ -2,26 +2,43 @@
 import EditApplicationModal from '@/components/EditApplicationModal.vue';
 import { useApplicationStore } from '@/stores/application';
 import { useSurveyStore } from '@/stores/survey';
-import { onMounted, ref, watch, reactive, toRaw } from 'vue';
-import { useRoute } from 'vue-router';
+import { onMounted, ref, watch, reactive, toRaw, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const sStore = useSurveyStore();
 const aStore = useApplicationStore();
 const route = useRoute();
+const router = useRouter();
 const data = ref({});
 const activeTab = ref('');
 const answers = ref({});
 const answersOrigin = ref({});
 const display = ref(false);
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+const applicant = computed(() => aStore.applicant);
+
 const editData = reactive({
-  whoEdit: JSON.parse(localStorage.getItem('users'))?.user[0].u_name,
+  whoEdit: user.u_name,
   originAnswer: null,
   answer: null
 });
 
+const addData = reactive({
+  user_type: user.type,
+  user_no: user.user_no,
+  version_id: null,
+  a_no: '',
+  answer: null
+});
+
 onMounted(async () => {
-  data.value = await sStore.fetchSurvey(route.params.application_no);
+  if (!route.params.application_no) {
+    aStore.applicant = { a_no: '' };
+  }
+  const result = await sStore.fetchSurvey(route.params.application_no);
+  data.value = result.data;
   // 답변 저장소 초기화
+  addData.version_id = result.version_id;
   Object.values(data.value).forEach((section) => {
     Object.values(section.details).forEach((detail) => {
       Object.entries(detail.questions).forEach(([key, value]) => {
@@ -64,7 +81,6 @@ watch(
 // 조사지 문항 로드
 const makeTableRows = (secValue) => {
   const rows = [];
-
   Object.values(secValue.details).forEach((detailValue) => {
     const { d_no, detail, info, questions } = detailValue;
     Object.entries(questions).forEach(([key, value], idx) => {
@@ -90,14 +106,20 @@ const submit = async () => {
     editData.answer = answers.value;
     display.value = true;
   } else {
-    await aStore.submitApplication(answers.value);
+    if (!applicant.value.a_no) {
+      alert('지원자를 선택해주세요!');
+      return;
+    }
+    addData.a_no = applicant.value.a_no;
+    addData.answer = answers.value;
+    const result = await aStore.submitApplication(addData);
+    router.push({ path: `/application/view/${result.applicationNo}` });
   }
-  console.log(answers.value);
 };
 </script>
 
 <template>
-  <div class="card">
+  <div class="card h-175">
     <div class="flex justify-between">
       <div class="font-semibold text-xl mb-4">지원신청서 작성</div>
       <Button label="작성 완료" @click="submit" />
@@ -108,7 +130,7 @@ const submit = async () => {
       </TabList>
       <TabPanels>
         <TabPanel v-for="(sec_value, key) in data" :value="key">
-          <DataTable :value="makeTableRows(sec_value)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="800px" tableStyle="min-width: 50rem">
+          <DataTable :value="makeTableRows(sec_value)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="445px" tableStyle="min-width: 50rem">
             <template #groupheader="slotProps">
               <div class="flex items-center gap-2">
                 <span class="font-bold text-md text-xl">{{ slotProps.data.detail }}</span>

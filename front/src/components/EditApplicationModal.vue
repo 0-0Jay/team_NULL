@@ -1,10 +1,11 @@
 <script setup>
 import { watch } from 'vue';
 import { useApplicationStore } from '@/stores/application';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const store = useApplicationStore();
 const router = useRouter();
+const route = useRoute();
 
 const props = defineProps({
   modelValue: Boolean,
@@ -31,7 +32,7 @@ const close = () => {
 const save = async () => {
   await store.updateApplication(data);
   close();
-  router.push({ path: '/application/view/13' });
+  router.push({ path: `/application/view/${route.params.application_no}` });
 };
 </script>
 
