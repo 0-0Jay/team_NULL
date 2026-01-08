@@ -2,44 +2,17 @@ const express = require("express");
 const router = express.Router();
 const applicationService = require("../services/applicationService");
 
-// 지원 신청서 생성 + 답변 작성
-// router.post("/applications", async (req, res) => {
-//   let appInfo = req.body;
-//   let result = await applicationService.addApplication(appInfo);
-//   res.send(result);
-// });
-
+// 지원신청서 작성
 router.post("/applications", async (req, res) => {
-  const { user, ...appInfo } = req.body;
-
-  if (!user) {
-    return res.send({
-      status: "fail",
-      message: "사용자 정보 없음",
-    });
-  }
-
-  const result = await applicationService.addApplication(appInfo, user);
+  const data = req.body;
+  const result = await applicationService.addApplication(data);
   res.send(result);
 });
 
-// 지원 신청서 답변 수정
-router.put("/applications/:applicationNo/answers", async (req, res) => {
-  const applicationNo = req.params.applicationNo;
-  const { answers, user } = req.body;
-
-  if (!user) {
-    return res.send({
-      status: "fail",
-      message: "사용자 정보 없음",
-    });
-  }
-
-  const result = await applicationService.modifyByQnoApplicationAnswer(
-    applicationNo,
-    answers,
-    user
-  );
+// 지원신청서 수정
+router.put("/applications", async (req, res) => {
+  const data = req.body;
+  const result = await applicationService.modifyApplicationAnswer(data);
   res.send(result);
 });
 

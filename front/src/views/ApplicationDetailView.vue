@@ -49,7 +49,6 @@ watch(
   applicantInfo,
   (val) => {
     if (!val) return;
-    // console.log(val);
     selectedApplicant.value = { name: val.ap_name, disability: val.disability, gender: val.gender, birth: val.birth };
   },
   { immediate: true }
@@ -126,8 +125,8 @@ const assignManager = async () => {
 };
 </script>
 <template>
-  <div class="pt-20 h-screen">
-    <div class="card m-4 rounded-lg p-4">
+  <div class="grid pt-20 h-screen m-4 gap-4">
+    <div class="card rounded-lg p-4">
       <div class="font-semibold text-xl">지원자 정보</div>
       <hr />
       <table class="text-center w-full table-fixed -ml-4">
@@ -178,8 +177,8 @@ const assignManager = async () => {
       <Button label="담당자 지정" @click="assignManager" />
     </div>
 
-    <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4 m-4">
-      <ApplicationTabs class="md:w-1/5 flex h-full" />
+    <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4">
+      <ApplicationTabs class="md:w-1/5 flex h-175" />
       <div class="md:w-4/5 flex h-full overflow-auto">
         <router-view class="flex-1" />
       </div>
