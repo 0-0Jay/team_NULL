@@ -27,7 +27,7 @@ const selectAllApplication = `select distinct a1.application_no,
                               left join manager m on a1.application_no = m.application_no and m.unassign is null
                               left join users u2 on m.user_no = u2.user_no
                               left join center c on u2.c_no = c.c_no
-                              order by a1.application_no desc`;
+                              order by a1.application_no`;
 
 // 기관 관리자용 조회
 const selectByCenterApplication = `select a1.application_no, a1.a_no, a1.created_date, a1.status,
@@ -55,7 +55,7 @@ const selectByManagerApplication = `select distinct a1.application_no,
                                     join users u2 on m.user_no = u2.user_no
                                     left join center c on u2.c_no = c.c_no
                                     where m.user_no = ?
-                                    order by a1.application_no desc`;
+                                    order by a1.application_no`;
 
 // 일반 회원용 조회
 const selectByUserApplication = ` select a1.application_no, a1.a_no,
@@ -67,15 +67,30 @@ const selectByUserApplication = ` select a1.application_no, a1.a_no,
                                   join applicant a2 on a1.a_no = a2.a_no
                                   join users u1 on a2.user_no = u1.user_no
                                   where a2.user_no = ?
-                                  order by a1.application_no desc`;
+                                  order by a1.application_no`;
 
 // 보호자의 지원자 여부 확인
 const selectByUserNoApplicant = `select 1
                                  from applicant
                                  where a_no = ? and user_no = ? `;
 
-// 담당자 자동 배정(담당자가 직접 신청하는 경우)
+// 현재 담당자 수 조회
+const selectCurrentManager = `select count(*) as cnt
+                              from manager
+                              where application_no = ? and unassign is null`;
+
+// 동일 담당자 중복 체크
+const selectDuplicateManager = `select 1
+                                from manager
+                                where application_no = ? and user_no = ? and unassign is null`;
+
+// 담당자 지정(담당자가 직접 신청하는 경우 + 기관관리자가 지정하는 경우)
 const insertManager = `insert into manager(application_no, user_no) values (?,?)`;
+
+// 담당자 해제(일단 넣어둠)
+const updateUnassignManager = `update manager
+                               set unassign = now()
+                               where application_no = ? and user_no = ? and unassign is null`;
 
 // 권한 체크
 // 보호자
@@ -117,6 +132,8 @@ module.exports = {
   updateByQnoApplicationAnswer,
   selectByAppNoApplication,
   selectByUserNoApplicant,
+  selectCurrentManager,
+  selectDuplicateManager,
   insertManager,
   selectByAppNoAndUserNoApplication,
   selectByAppNoAndUserNoManager,
@@ -128,4 +145,5 @@ module.exports = {
   selectByUserApplication,
   selectInfoByUserNoApplicant,
   selectInfoByCnoApplicantUsers,
+  updateUnassignManager,
 };

@@ -109,8 +109,23 @@ const changeStatus = async (status) => {
     const result = await store.modifyStatus(userNos, status);
 
     if (result.status === 'success') {
-      await store.fetchStaff(); // 화면 자동 갱신
+      toast.add({
+        severity: 'success',
+        summary: '처리 완료',
+        detail: status === 1 ? '승인되었습니다.' : '비활성화되었습니다.',
+        closable: false,
+        life: 2000
+      });
+      await store.fetchStaff();
       selectedRows.value = [];
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: '처리 실패',
+        detail: result.message || '요청을 처리할 수 없습니다.',
+        closable: false,
+        life: 2500
+      });
     }
   } catch (err) {
     console.error(err);
@@ -137,8 +152,23 @@ const openConfirm = (status) => {
     }
   }
 
+  if (status === 2) {
+    const hasApplicant = selectedRows.value.some((row) => row.applicant_count > 0);
+
+    if (hasApplicant) {
+      toast.add({
+        severity: 'error',
+        summary: '비활성화 불가',
+        detail: '지원자가 있는 담당자는 비활성화할 수 없습니다.',
+        closable: false,
+        life: 2000
+      });
+      return;
+    }
+  }
+
   pendingStatus.value = status;
-  ConfirmMsg.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : '선택한 회원을 비활성화하시겠습니까?';
+  ConfirmMsg.value = status === 1 ? '선택한 회원을 사용 승인하시겠습니까?' : `선택한 담당자를 비활성화하시겠습니까?`;
 
   visible.value = true;
 };
@@ -223,6 +253,7 @@ const submitEdit = async () => {
         severity: 'success',
         summary: '수정 완료',
         detail: '정보가 수정되었습니다.',
+        closable: false,
         life: 2000
       });
 
@@ -305,6 +336,10 @@ const submitEdit = async () => {
 
           <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 260px">
             <template #body="{ data }">{{ data.email ?? '-' }}</template>
+          </Column>
+
+          <Column v-if="user.type === 2" header="지원자수" headerClass="table-header" bodyClass="table-body" style="width: 100px">
+            <template #body="{ data }">{{ data.applicant_count ?? 0 }}명</template>
           </Column>
 
           <Column header="가입일" headerClass="table-header" bodyClass="table-body" style="width: 120px">
