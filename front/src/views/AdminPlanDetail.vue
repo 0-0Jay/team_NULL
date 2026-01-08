@@ -5,36 +5,41 @@ import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
 
+const router = useRouter();
+const route = useRoute();
+
 const application_no = Number(route.params.application_no);
 
 const store = usePlanStore(); //pinia작업 위함
-const router = useRouter();
-const route = useRoute();
 
 const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
 const rowNumber = (index) => index + 1;
 
-onBeforeMount(() => {
-  store.fetchAdminPlanDetail(application_no); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
-});
-
-//승인대기중인 계획서만 화면에 송출
 // onBeforeMount(() => {
-//   const application_no = Number(route.params.application_no);
-
-//   if (!application_no) {
-//     console.error('application_no 없음:', route.params.application_no);
-//     return;
-//   }
-//   store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
+//   store.fetchAdminPlanDetail(application_no); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
 // });
+
+console.log('현재 경로:', route.path);
+console.log('현재 라우트 이름:', route.name);
+console.log('URL 파라미터 application_no:', route.params.application_no);
+
+// //승인대기중인 계획서만 화면에 송출
+onBeforeMount(() => {
+  const application_no = Number(route.params.application_no);
+
+  if (!application_no) {
+    console.error('application_no 없음:', route.params.application_no);
+    return;
+  }
+  store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
+});
 
 //승인 기능
 const submitPlan = async () => {
   try {
     await store.updatePlanStatus(application_no, 1); //승인하고 status값을 1로 변경하기
-    router.push(`/application/planDetail/${application_no}`);
-  } catch (e) {
+    await store.fetchPendingPlanDetail(application_no); // 화면 갱신
+  } catch (err) {
     console.error('승인처리 실패', err);
   }
 };
@@ -43,8 +48,8 @@ const submitPlan = async () => {
 const rejectPlan = async () => {
   try {
     await store.updatePlanStatus(application_no, 2); //반려하고 값 2로 변경
-    router.push(`/application/planDetail/${application_no}`);
-  } catch (e) {
+    await store.fetchPendingPlanDetail(application_no); // 화면 갱신
+  } catch (err) {
     console.err('반려처리 실패', err);
   }
 };

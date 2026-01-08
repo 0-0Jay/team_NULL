@@ -152,12 +152,12 @@ const router = createRouter({
           //지원계획서 조회 - 관리자, 일반사용자 화면을 분리 함
           path: 'planDetail/:application_no',
           name: 'planDetail',
-          component: () => import('@/views/PlanDetailContainer.vue')
+          component: () => import('@/views/PlanDetail.vue')
         },
         {
           path: 'pendingPlanDetail/:application_no',
           name: 'pendingPlanDetail',
-          component: () => import('@/views/PendingPlanDetail.vue')
+          component: () => import('@/views/PlanDetailContainer.vue')
         },
         {
           path: 'rejectPlanDetail/:application_no',

@@ -4,11 +4,16 @@
 import { useUsersStore } from '@/stores/users';
 import PlanDetail from './PlanDetail.vue';
 import AdminPlanDetail from './AdminPlanDetail.vue';
+import { useRoute } from 'vue-router';
 
 const usersStore = useUsersStore();
+const route = useRoute();
+const application_no = Number(route.params.application_no);
+console.log('로그인 유저 정보:', usersStore.user);
+console.log('isAdmin:', usersStore.isAdmin);
 </script>
 
 <template>
-  <AdminPlanDetail v-if="usersStore.isAdmin" />
-  <PlanDetail v-else />
+  <AdminPlanDetail v-if="usersStore.isAdmin" :application_no="application_no" />
+  <PlanDetail v-else :application_no="application_no" />
 </template>
