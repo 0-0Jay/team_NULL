@@ -72,6 +72,21 @@ export const useApplicationStore = defineStore('application', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 담당자 지정
+    async insertManager(applicationNo, mUserNo) {
+      try {
+        const user = JSON.parse(localStorage.getItem('users'))?.user[0];
+        const response = await axios.post(`/api/applications/${applicationNo}/manager`, {
+          mUserNo,
+          user
+        });
+
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   persist: true

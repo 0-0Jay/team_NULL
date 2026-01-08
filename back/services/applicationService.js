@@ -219,13 +219,13 @@ const modifyApplicationStatus = async (applicationNo, status, user) => {
 };
 
 // 담당자 지정
-const addManager = async (applicationNo, managerUserNo, user) => {
-  // 기관관리자만 가능
+const addManager = async (applicationNo, mUserNo, user) => {
+  // 기관 관리자만 가능
   if (user.type !== 2) {
     throw new Error("담당자 지정 권한 없음");
   }
 
-  // 같은 기관인지 확인
+  // 같은 기관 신청서인지 확인
   const res = await mysql.query(
     "selectByAppNoAndCnoApplication",
     [applicationNo, user.c_no],
@@ -235,21 +235,44 @@ const addManager = async (applicationNo, managerUserNo, user) => {
     throw new Error("다른 기관 신청서");
   }
 
+  // 현재 담당자 수 확인 (최대 2명)
+  const cntRes = await mysql.query(
+    "selectCurrentManager",
+    [applicationNo],
+    "application"
+  );
+  if (cntRes[0].cnt >= 2) {
+    return {
+      status: "fail",
+      message: "담당자는 최대 2명까지 지정할 수 있습니다.",
+    };
+  }
+
+  // 동일 담당자 중복 확인
+  const dupRes = await mysql.query(
+    "selectDuplicateManager",
+    [applicationNo, mUserNo],
+    "application"
+  );
+  if (dupRes.length > 0) {
+    return {
+      status: "fail",
+      message: "이미 지정된 담당자입니다.",
+    };
+  }
+
+  // 담당자 지정
   const result = await mysql.query(
     "insertManager",
-    [applicationNo, managerUserNo],
+    [applicationNo, mUserNo],
     "application"
   );
 
-  let resObj;
-
   if (result.affectedRows > 0) {
-    resObj = { status: "success", applicationNo };
-  } else {
-    resObj = { status: "fail" };
+    return { status: "success", applicationNo };
   }
 
-  return resObj;
+  return { status: "fail", message: "담당자 지정 실패" };
 };
 
 // 지원자 정보 불러오기

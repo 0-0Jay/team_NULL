@@ -9,7 +9,9 @@ export const useUsersStore = defineStore('users', {
     myInfo: null,
     staff: [],
     applicant: [],
-    applicantDetail: null
+    applicantDetail: null,
+    centerInfo: null,
+    staffList: []
   }),
   // getters
   // actions
@@ -139,6 +141,8 @@ export const useUsersStore = defineStore('users', {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post(`/api/usersStaff`, { user });
         this.staff = response.data;
+        // console.log(this.staff);
+        return response.data;
       } catch (err) {
         console.log(err);
       }
@@ -231,7 +235,6 @@ export const useUsersStore = defineStore('users', {
         return res.data;
       } catch (e) {
         return { status: 'error' };
-        throw e;
       }
     },
     // 마이페이지 - 지원자 등록
@@ -251,6 +254,36 @@ export const useUsersStore = defineStore('users', {
         console.error(err);
         throw err;
       }
+    },
+
+    // 기관관리자 마이페이지 - 기관 정보 + 담당자수
+    async fetchCenterInfo(user_no) {
+      try {
+        const res = await axios.get(`/api/users/${user_no}/center`);
+        this.centerInfo = res.data;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
+    },
+
+    // 기관관리자 마이페이지 - 소속 담당자 목록
+    async fetchStaffList(user_no) {
+      try {
+        const res = await axios.get(`/api/users/${user_no}/center/staff`);
+        this.staffList = res.data;
+      } catch (err) {
+        console.error('fetchStaffList 실패', err);
+        this.staffList = [];
+        throw err;
+      }
+    },
+
+    // 기관관리자 마이페이지 - 기관정보 수정
+    async modifyCenterInfo(payload) {
+      const { user_no, ...body } = payload;
+      const { data } = await axios.put(`/api/users/${user_no}/center`, body);
+      return data;
     },
 
     // 기관소속 모든 지원자 불러오기

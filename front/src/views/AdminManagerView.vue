@@ -76,8 +76,23 @@ const changeStatus = async (status) => {
   try {
     const result = await store.modifyStatus(userNos, status);
     if (result.status === 'success') {
+      toast.add({
+        severity: 'success',
+        summary: '처리 완료',
+        detail: status === 1 ? '승인되었습니다.' : '비활성화되었습니다.',
+        closable: false,
+        life: 2000
+      });
       await store.fetchManager();
       selectedRows.value = [];
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: '처리 실패',
+        detail: result.message || '요청을 처리할 수 없습니다.',
+        closable: false,
+        life: 2500
+      });
     }
   } catch (err) {
     console.error(err);
@@ -95,6 +110,7 @@ const openConfirm = (status) => {
         severity: 'error',
         summary: '승인 실패',
         detail: '이미 승인된 회원이 포함되어 있습니다.',
+        closable: false,
         life: 2000
       });
       selectedRows.value = [];

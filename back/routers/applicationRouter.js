@@ -61,7 +61,7 @@ router.patch("/applications/:applicationNo/status", async (req, res) => {
 // 담당자 지정
 router.post("/applications/:applicationNo/manager", async (req, res) => {
   const applicationNo = req.params.applicationNo;
-  const { managerUserNo, user } = req.body;
+  const { mUserNo, user } = req.body;
 
   if (!user) {
     return res.send({
@@ -72,7 +72,7 @@ router.post("/applications/:applicationNo/manager", async (req, res) => {
 
   const result = await applicationService.addManager(
     applicationNo,
-    managerUserNo,
+    mUserNo,
     user
   );
   res.send(result);
