@@ -51,7 +51,7 @@ const submitResult = async () => {
     result_author: resultAuthor.value,
     status: 0, //대기중 으로 값을 넘김
     plan_no: 10, //지원계획서 10번으로 테스트 중임
-    //plan_no: Number(plan_no),
+    // plan_no: Number(plan_no),
     start: startDate.value,
     end: endDate.value
   };
@@ -69,7 +69,7 @@ const submitResult = async () => {
 
 <template>
   <div class="flex">
-    <div class="card flex flex-col w-full">
+    <div class="card flex flex-col w-full h-175">
       <!----------------------------------------------->
       <div class="text-2xl font-bold text-center">지원결과서 작성</div>
 

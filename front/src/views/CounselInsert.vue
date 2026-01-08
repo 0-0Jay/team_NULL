@@ -49,7 +49,7 @@ const submitCounsel = async () => {
 
 <template>
   <div class="flex">
-    <div class="card flex flex-col w-full">
+    <div class="card flex flex-col w-full h-175">
       <!----------------------------------------------->
       <div class="text-2xl font-bold text-center">상담내역 작성</div>
 

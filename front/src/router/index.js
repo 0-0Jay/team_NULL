@@ -181,7 +181,7 @@ const router = createRouter({
           component: () => import('@/views/PendingResultDetail.vue')
         },
         {
-          path: 'resultInsert',
+          path: 'resultInsert/',
           name: 'resultInsert',
           component: () => import('@/views/ResultInsert.vue')
         },

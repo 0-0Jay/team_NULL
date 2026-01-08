@@ -27,7 +27,7 @@ export const usePlanStore = defineStore('plan', {
     // 지원계획서 입력
     async createPlan(data) {
       try {
-        const res = await axios.post(`/api/plan`, data);
+        const res = await axios.post(`/api/plan/`, data);
         this.planList.push(res.data); //목록에 추가
         return res.data;
       } catch (err) {
