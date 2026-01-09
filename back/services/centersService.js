@@ -61,10 +61,51 @@ const addCenter = async (data) => {
   return resObj;
 };
 
+// 시스템 관리자 - 기관 정보 수정
+const modifyByCNoCenter = async (data) => {
+  const {
+    centerName,
+    postcode,
+    fullAddress,
+    addressDetail,
+    email,
+    phone,
+    operation,
+    c_no,
+  } = data;
+  const [sido, sigungu, ...rest] = fullAddress.split(" ");
+  const address = rest.join(" ");
+
+  let result = await mysql.query(
+    "updateByCNoCenter",
+    [
+      centerName,
+      sido,
+      sigungu,
+      address,
+      addressDetail,
+      postcode,
+      phone,
+      email,
+      operation,
+      c_no,
+    ],
+    "center"
+  );
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    resObj = { status: "success", c_no: c_no };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
 module.exports = {
   findAllCenter,
   findByUsernoCenter,
   findAllAddressCenter,
   findByNameCenter,
   addCenter,
+  modifyByCNoCenter,
 };

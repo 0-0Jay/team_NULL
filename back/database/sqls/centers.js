@@ -26,7 +26,7 @@ const selectByUsernoCenter = ` select c.name, c.phone
 const selectAllAddressCenter = `
 SELECT sido, sigungu, name, c_no
 FROM center
-WHERE closed_date IS NULL;
+WHERE closed_date IS NULL
 `;
 
 // 기관 등록
@@ -34,10 +34,17 @@ const insertCenters = `
 INSERT INTO center(name, sido, sigungu, address, address_detail, zipcode, phone, email, manage)
 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
+// 시스템 관리자 - 기관 정보 수정
+const updateByCNoCenter = `UPDATE center
+                           SET name = ?, sido = ?, sigungu = ?, address = ?, address_detail = ?, 
+                               zipcode = ?, phone = ?, email = ?, manage = ?
+                           WHERE c_no = ?`;
+
 module.exports = {
   selectAllCenter,
   selectByUsernoCenter,
   selectAllAddressCenter,
   selectByNameCenter,
   insertCenters,
+  updateByCNoCenter,
 };
