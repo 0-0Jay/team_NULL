@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useApplicationStore } from '@/stores/application';
 
+const route = useRoute();
 const props = defineProps({
   applicationNo: Number,
   applicantInfo: Object,
+  assignedManager: Object,
   user: Object
 });
 
@@ -24,7 +27,8 @@ const statusOptions = [
 
 // 요청 조건
 const canRequest = computed(() => {
-  return props.user.type === 1 && !props.applicantInfo?.approve_date && !props.applicantInfo?.request_date;
+  console.log(props.assignedManager);
+  return props.user.type === 1 && props.assignedManager && props.assignedManager.user_no === props.user.user_no && !props.applicantInfo?.approve_date && !props.applicantInfo?.request_date && route.name === 'view';
 });
 
 // 요청 버튼 클릭
@@ -38,6 +42,7 @@ const requestStage = async () => {
       severity: 'success',
       summary: '요청 완료',
       detail: '대기단계 승인 요청이 완료되었습니다.',
+      closable: false,
       life: 2000
     });
 
@@ -47,6 +52,7 @@ const requestStage = async () => {
       severity: 'error',
       summary: '요청 실패',
       detail: result.message || '대기단계 요청 실패',
+      closable: false,
       life: 2500
     });
   }
@@ -59,4 +65,6 @@ const requestStage = async () => {
     <SelectButton v-model="selectedStatus" :options="statusOptions" optionLabel="label" optionValue="value" size="large" />
     <Button label="승인요청" :disabled="!selectedStatus" @click="requestStage" />
   </div>
+
+  <p v-else-if="user.type === 1 && applicantInfo?.request_date" style="margin: 0; font-weight: bold" class="text-gray-500">승인 요청 중인 신청서입니다.</p>
 </template>

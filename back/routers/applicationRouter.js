@@ -93,4 +93,31 @@ router.post("/findApplicant", async (req, res) => {
   res.send(result);
 });
 
+// 대기단계 승인 및 반려(관리자)
+router.patch("/applications/:applicationNo/approve", async (req, res) => {
+  const applicationNo = Number(req.params.applicationNo);
+  const { action, reason, user } = req.body;
+  console.log("approve API", {
+    applicationNo,
+    action,
+    reason,
+    user,
+  });
+
+  if (!user) {
+    return res.send({
+      status: "fail",
+      message: "사용자 정보 없음",
+    });
+  }
+
+  const result = await applicationService.approveApplicationStatus(
+    applicationNo,
+    action,
+    reason,
+    user
+  );
+  res.send(result);
+});
+
 module.exports = router;

@@ -40,7 +40,8 @@ const selectAllApplication = `select distinct a1.application_no,
 
 // 기관 관리자용 조회
 const selectByCenterApplication = `select distinct a1.application_no, a1.a_no, a1.created_date, a1.status,
-                                          a1.approve_date, a2.name as ap_name, u1.name as g_name,
+                                          a1.approve_date, a1.request_date,
+                                          a2.name as ap_name, u1.name as g_name,
                                           c.name as c_name, a2.gender, a2.birth, a2.disability
                                    from application a1
                                    join applicant a2 on a1.a_no = a2.a_no
@@ -85,22 +86,22 @@ const selectByUserNoApplicant = `select 1
                                  where a_no = ? and user_no = ? `;
 
 // 현재 담당자 수 조회
-const selectCurrentManager = `select count(*) as cnt
-                              from manager
-                              where application_no = ? and unassign is null`;
+// const selectCurrentManager = `select count(*) as cnt
+//                               from manager
+//                               where application_no = ? and unassign is null`;
 
-// 동일 담당자 중복 체크
-const selectDuplicateManager = `select 1
+// 담당자 중복 체크
+const selectExistManagerByApplication = `select 1
                                 from manager
-                                where application_no = ? and user_no = ? and unassign is null`;
+                                where application_no = ? and unassign is null`;
 
 // 담당자 지정(담당자가 직접 신청하는 경우 + 기관관리자가 지정하는 경우)
 const insertManager = `insert into manager(application_no, user_no) values (?,?)`;
 
 // 담당자 해제(일단 넣어둠)
-const updateUnassignManager = `update manager
-                               set unassign = now()
-                               where application_no = ? and user_no = ? and unassign is null`;
+// const updateUnassignManager = `update manager
+//                                set unassign = now()
+//                                where application_no = ? and user_no = ? and unassign is null`;
 
 // 권한 체크
 // 보호자
@@ -123,11 +124,27 @@ const selectByAppNoAndCnoApplication = `select 1
                                         join users u on a2.user_no = u.user_no
                                         where a1.application_no = ?
                                               and u.c_no = ?`;
-// 대기단계 설정
+// 대기단계 지정 및 요청(담당자)
 const updateByAppNoApplication = `update application
                                   set status = ?, request_date = now()
                                   where application_no = ? and approve_date is null
                                         and request_date is null`;
+
+// 대기단계 승인 및 반려(관리자)
+const updateStatusApprove = `update application
+                             set approve_date = now()
+                             where application_no = ?
+                                   and request_date is not null
+                                   and approve_date is null`;
+
+// reject = null
+const updateStatusReject = `update application
+                            set status = 0, reject = ?,
+                                request_date = null,
+                                approve_date = null
+                            where application_no = ?
+                              and request_date is not null
+                              and approve_date is null`;
 
 // 지원자 정보 불러오기
 // 일반회원
@@ -146,8 +163,7 @@ module.exports = {
   insertHistory,
   selectByAppNoApplication,
   selectByUserNoApplicant,
-  selectCurrentManager,
-  selectDuplicateManager,
+  selectExistManagerByApplication,
   insertManager,
   selectByAppNoAndUserNoApplication,
   selectByAppNoAndUserNoManager,
@@ -159,5 +175,6 @@ module.exports = {
   selectByUserApplication,
   selectInfoByUserNoApplicant,
   selectInfoByCnoApplicantUsers,
-  updateUnassignManager,
+  updateStatusApprove,
+  updateStatusReject,
 };
