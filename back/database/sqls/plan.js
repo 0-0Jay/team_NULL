@@ -30,7 +30,7 @@ AND   status = 0`;
 const updatePlanStatus = `
 UPDATE plan
 SET status = ?,
-    appove_date = IF(? = 1, NOW(), approve_date),
+    approve_date = IF(? = 1, NOW(), approve_date),
     reject_date = IF(? = 2, NOW(), reject_date)
 WHERE plan_no = ?`;
 
@@ -50,5 +50,5 @@ module.exports = {
   rejectPlan,
   selectPendingPlan,
   updatePlanStatus,
-  selectCountPlan
+  selectCountPlan,
 };

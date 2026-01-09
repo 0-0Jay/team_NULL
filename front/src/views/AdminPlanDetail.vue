@@ -1,19 +1,17 @@
 <!-- (작업 덜끝남)기관관리자가 조회하는 지원계획서 승인대기 화면-->
 
 <script setup>
+import axios from 'axios';
 import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import Button from 'primevue/button';
 
-const router = useRouter();
 const route = useRoute();
-
 const application_no = Number(route.params.application_no);
 
 const store = usePlanStore(); //pinia작업 위함
-
 const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
-const rowNumber = (index) => index + 1;
 
 // onBeforeMount(() => {
 //   store.fetchAdminPlanDetail(application_no); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
@@ -24,33 +22,45 @@ console.log('현재 라우트 이름:', route.name);
 console.log('URL 파라미터 application_no:', route.params.application_no);
 
 // //승인대기중인 계획서만 화면에 송출
-onBeforeMount(() => {
-  const application_no = Number(route.params.application_no);
+// onBeforeMount(() => {
+//   const application_no = Number(route.params.application_no);
 
-  if (!application_no) {
-    console.error('application_no 없음:', route.params.application_no);
-    return;
+//   if (!application_no) {
+//     console.error('application_no 없음:', route.params.application_no);
+//     return;
+//   }
+//   store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
+// });
+
+// pending plan 목록 가져오기
+const fetchPendingPlans = async () => {
+  try {
+    await store.fetchPendingPlanDetail(application_no, 0); // 0 = 대기
+  } catch (err) {
+    console.error('승인대기 계획서 조회 실패', err);
   }
-  store.fetchPendingPlanDetail(Number(route.params.application_no), 0); // 0 대기/ 1승인 /2반려
-});
+};
 
 //승인 기능
-const submitPlan = async () => {
+const approvePlan = async (plan_no) => {
   try {
-    await store.updatePlanStatus(application_no, 1); //승인하고 status값을 1로 변경하기
-    await store.fetchPendingPlanDetail(application_no); // 화면 갱신
+    await axios.patch(`/api/plan/${plan_no}/status`, { status: 1 }); // 1 = 승인
+    alert('승인 완료!');
+    // 필요한 경우 상태 갱신
   } catch (err) {
-    console.error('승인처리 실패', err);
+    console.error(err);
+    alert('승인 실패');
   }
 };
 
 //반려 기능
-const rejectPlan = async () => {
+const rejectPlan = async (plan_no) => {
   try {
-    await store.updatePlanStatus(application_no, 2); //반려하고 값 2로 변경
-    await store.fetchPendingPlanDetail(application_no); // 화면 갱신
+    await axios.patch(`/api/plan/${plan_no}/status`, { status: 2 }); // 2 = 반려
+    alert('반려 완료!');
   } catch (err) {
-    console.err('반려처리 실패', err);
+    console.error(err);
+    alert('반려 실패');
   }
 };
 
@@ -64,6 +74,11 @@ const formatDate = (v) => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}.${m}.${day}`;
 };
+
+// 초기 로드
+onBeforeMount(() => {
+  fetchPendingPlans();
+});
 </script>
 
 <template>
@@ -119,8 +134,8 @@ const formatDate = (v) => {
 
         <!-- 승인, 반려 버튼 -->
         <div class="flex flex-wrap gap-2 justify-center mt-5">
-          <Button label="승인" style="width: auto" severity="info" @click="submitPlan" />
-          <Button label="반려" style="width: auto" severity="danger" @click="rejectPlan" />
+          <Button label="승인" style="width: auto" severity="info" @click="approvePlan(plan.plan_no)" />
+          <Button label="반려" style="width: auto" severity="danger" @click="rejectPlan(plan.plan_no)" />
         </div>
       </div>
     </div>

@@ -12,7 +12,9 @@ const store = usePlanStore(); //pinia작업 위함
 const router = useRouter(); // 페이지 이동용
 const route = useRoute(); // 현재 경로 확인용
 const displayConfirmation = ref(false);
-const application_no = Number(route.params.application_no || 0);
+
+const application_no = route.params.application_no ? Number(route.params.application_no) : 15; // 몇번 신청서를 기준으로 계획서를 입력하는지
+// const application_no = Number(route.params.application_no);
 
 const planAuthor = ref('');
 const title = ref('');
@@ -30,10 +32,11 @@ const goToPendingPlanDetail = () => {
   });
 };
 
-const Upload = (event) => {
-  // event.files 에서 선택된 파일 확인 가능
-  console.log('파일 업로드 이벤트 발생', event);
-};
+
+// const Upload = (event) => {
+//   // event.files 에서 선택된 파일 확인 가능
+//   console.log('파일 업로드 이벤트 발생', event);
+// };
 
 const submitPlan = async () => {
   //axios 작업하기
@@ -47,11 +50,18 @@ const submitPlan = async () => {
     content: content.value,
     plan_author: planAuthor.value,
     status: 0, // 승인대기로 먼저 가야함 /0대기/1승인/2반려
-    // application_no: 14, //지원신청서 14번으로 테스트 중
+    // application_no: 15, //지원신청서 15번으로 테스트 중 (넘기는 번호)
     application_no: Number(application_no),
     start: startDate.value,
     end: endDate.value
   };
+
+  if (!application_no) {
+  alert("올바른 신청서 번호가 없습니다.");
+  return;
+}
+console.log("application_no:", application_no);
+console.log("전송할 데이터:", data);
 
   try {
     //axios try catch로 감싸야 오류를 확인할 수 있음
@@ -67,7 +77,7 @@ const submitPlan = async () => {
 <!--------------------------------------------------------------------------->
 <template>
   <div class="flex">
-    <div class="card flex flex-col w-full">
+    <div class="card flex flex-col w-full h-175">
       <!----------------------------------------------->
       <div class="text-2xl font-bold text-center">지원계획서 작성</div>
 
@@ -103,11 +113,11 @@ const submitPlan = async () => {
         <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="9" cols="30" />
       </div>
 
-      <!-- 첨부파일 -->
+      <!-- 첨부파일
       <div class="col-span-full lg:col-span-6 mb-2.5">
         <div class="font-semibold text-xl mt-3">첨부파일</div>
         <Toast />
-        <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" />
+        <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" /> -->
 
         <!-- 등록, 목록 버튼 -->
         <div class="flex flex-wrap gap-2 justify-center mt-5">
@@ -126,5 +136,5 @@ const submitPlan = async () => {
         </div>
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </template>

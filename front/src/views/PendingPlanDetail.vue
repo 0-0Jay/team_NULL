@@ -1,6 +1,7 @@
 <!--승인 대기중인 지원계획서 조회란-->
 
 <script setup>
+import axios from 'axios';
 import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
 import { onBeforeMount, computed, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
