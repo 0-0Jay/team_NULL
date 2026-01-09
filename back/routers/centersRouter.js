@@ -38,4 +38,11 @@ router.get(`/address`, async (req, res) => {
   res.send(list);
 });
 
+// 시스템관리자 - 기관 정보 수정
+router.put("/centers/:c_no", async (req, res) => {
+  const centerInfo = req.body;
+  centerInfo.c_no = req.params.c_no;
+  let result = await centersService.modifyByCNoCenter(centerInfo);
+  res.send(result);
+});
 module.exports = router;
