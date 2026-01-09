@@ -89,7 +89,7 @@ const checkPermission = async (applicationNo, user) => {
 
 // 지원 신청서
 const addApplication = async (data) => {
-  const { user_no, type, a_no, version_id, answer } = data;
+  const { user_no, user_type, a_no, version_id, answer } = data;
 
   // 지원 신청서 생성
   const appResult = await mysql.query(
