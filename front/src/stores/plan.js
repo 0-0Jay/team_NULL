@@ -13,12 +13,11 @@ export const usePlanStore = defineStore('plan', {
 
   actions: {
     // 지원계획서 목록 조회
-    async fetchPlanList(application_no, status) {
+    async fetchPlanList(application_no) {
       try {
-        const res = await axios.get(`/api/plan/${application_no}`, {
-          params: { status }
-        });
+        const res = await axios.get(`/api/plan/${application_no}`);
         this.planList = res.data;
+        return this.planList;
       } catch (err) {
         console.error('승인된 지원계획서 조회 실패', err);
       }

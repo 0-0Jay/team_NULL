@@ -24,7 +24,7 @@ const model = ref([
       { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/planDetail/${applicationNo}` },
       { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/application/pendingPlanDetail/${applicationNo}` },
       { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/application/rejectPlanDetail/${applicationNo}` },
-      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/application/planInsert' }
+      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/planInsert/${applicationNo}` }
     ]
   },
   {
@@ -33,7 +33,7 @@ const model = ref([
       { label: '지원결과서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/resultDetail/${applicationNo}` },
       { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/application/pendingResultDetail/${applicationNo}` },
       { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/application/rejectResultDetail/${applicationNo}` },
-      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/application/resultInsert' }
+      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/resultInsert/${applicationNo}` }
     ]
   }
 ]);

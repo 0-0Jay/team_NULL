@@ -135,6 +135,7 @@ const assignedManager = computed(() => {
     <ApplicationStageRequest :applicationNo="applicationNo" :applicantInfo="applicantInfo" :assignedManager="assignedManager" :user="user" @requested="aStore.fetchApplication()" />
     <!-- 대기단계 승인/반려 -> 자식 컴포넌트 만듦 -->
     <ApplicationStatusApprove :applicationNo="applicationNo" :applicantInfo="applicantInfo" :assignedManager="assignedManager" :user="user" @processed="aStore.fetchApplication()" />
+
     <div v-if="$route.path !== '/application/write'" class="md:flex-row flex gap-4">
       <ApplicationTabs class="md:w-1/5 flex h-175" />
       <div class="md:w-4/5 flex h-full overflow-auto">
