@@ -1,24 +1,13 @@
 <!-- 지원결과서 조회창 -->
-
 <script setup>
-import { useResultStore } from '@/stores/result'; // pinia작업을 위함
-import { onBeforeMount, computed, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import { useResultStore } from '@/stores/result';
+import { onBeforeMount, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-const store = useResultStore(); //pinia작업 위함
-const router = useRouter();
+const store = useResultStore();
 const route = useRoute();
 
-const filterresult = computed(() => store.resultList); // 화면에 보여질 테이터
-const rowNumber = (index) => index + 1;
-
-// onBeforeMount(() => {
-//   store.fetchResultList(plan_no, 1); //승인된 결과서
-// });
-
-// onBeforeMount(() => {
-//   store.fetchResultList(11, 0); //승인된 계획서 - 일단은 하드코딩으로 테스트 함
-// });
+const filterresult = computed(() => store.resultList);
 
 onBeforeMount(() => {
   const application_no = Number(route.params.application_no);
@@ -27,10 +16,9 @@ onBeforeMount(() => {
     console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchResultList(Number(route.params.application_no), 1); //승인된 결과서만 화면에 출력
+  store.fetchResultList(Number(route.params.application_no), 1);
 });
 
-//날짜 포멧 - 유민님 파일에서 따옴
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -87,13 +75,13 @@ const formatDate = (v) => {
           <div class="p-2 border rounded bg-gray-50">{{ result.content ?? '-' }}</div>
         </div>
 
-        <!-- 첨부파일 -->
+        <!-- 첨부파일
         <div class="flex flex-col gap-2 font-semibold">
           <label>첨부파일</label>
           <div class="p-2 border rounded bg-gray-50">
             {{ result.fileName ?? '첨부파일 없음' }}
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

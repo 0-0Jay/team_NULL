@@ -42,8 +42,8 @@ const addPlan = async (
 };
 
 //승인된 지원계획서 조회 - 데이터 테스트 완료
-const findPlan = async (application_no, status) => {
-  let list = await mysql.query("selectPlan", [application_no, status], "plan");
+const findPlan = async (application_no) => {
+  let list = await mysql.query("selectPlan", [application_no], "plan");
   return list;
 };
 
