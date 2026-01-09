@@ -154,7 +154,6 @@ const findByAppNoApplication = async (applicationNo) => {
 const modifyApplicationAnswer = async (data) => {
   const { whoEdit, originAnswer, answer } = data;
   let result = 0;
-
   Object.keys(originAnswer).forEach(async (qNo) => {
     const origin = originAnswer[qNo];
     const modify = answer[qNo];

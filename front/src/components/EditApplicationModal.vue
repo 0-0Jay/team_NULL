@@ -13,12 +13,13 @@ const props = defineProps({
 });
 
 const editData = {};
+let data = null;
 
 watch(
   () => props.modelValue,
   (open) => {
     if (open) {
-      const data = props.editData ?? null;
+      data = props.editData ?? null;
       const origin = data.originAnswer;
       const modify = data.answer;
 
