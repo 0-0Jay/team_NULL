@@ -11,7 +11,7 @@ const findAllApplication = async (user) => {
   } else if (user.type === 2) {
     appList = await mysql.query(
       "selectByCenterApplication",
-      [user.c_no],
+      [user.c_no, user.c_no],
       "application"
     );
   } else if (user.type === 1) {

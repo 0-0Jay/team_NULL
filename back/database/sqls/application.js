@@ -39,15 +39,36 @@ const selectAllApplication = `select distinct a1.application_no,
                               order by a1.application_no`;
 
 // 기관 관리자용 조회
-const selectByCenterApplication = `select distinct a1.application_no, a1.a_no, a1.created_date, a1.status,
-                                          a1.approve_date, a1.request_date,
+// const selectByCenterApplication = `select a1.application_no, a1.a_no, a1.created_date, a1.status,
+//                                           a1.approve_date, a1.request_date,
+//                                           a2.name as ap_name, u1.name as g_name,
+//                                           c.name as c_name, a2.gender, a2.birth, a2.disability
+//                                    from application a1
+//                                    join applicant a2 on a1.a_no = a2.a_no
+//                                    join users u1 on a2.user_no = u1.user_no
+//                                    join center c on u1.c_no = c.c_no
+//                                    where u1.c_no = ?
+//                                    order by a1.application_no`;
+
+const selectByCenterApplication = `select a1.application_no, a1.a_no, a1.created_date,
+                                          a1.status, a1.approve_date, a1.request_date,
                                           a2.name as ap_name, u1.name as g_name,
                                           c.name as c_name, a2.gender, a2.birth, a2.disability
                                    from application a1
                                    join applicant a2 on a1.a_no = a2.a_no
                                    join users u1 on a2.user_no = u1.user_no 
                                    join center c on u1.c_no = c.c_no
-                                   where u1.c_no = ?
+                                   where u1.c_no = ? 
+                                   and ( not exists ( select 1
+                                                      from manager m
+                                                      where m.application_no = a1.application_no
+                                                            and m.unassign is null)
+                                          or exists ( select 1
+                                                      from manager m
+                                                      join users u2 on m.user_no = u2.user_no
+                                                      where m.application_no = a1.application_no
+                                                            and m.unassign is null
+                                                            and u2.c_no = ?))
                                    order by a1.application_no`;
 
 // 기관 담당자용 조회

@@ -12,6 +12,8 @@ const props = defineProps({
   user: Object
 });
 
+console.log(props.applicantInfo);
+
 const emit = defineEmits(['requested']);
 
 const store = useApplicationStore();
@@ -66,5 +68,5 @@ const requestStage = async () => {
     <Button label="승인요청" :disabled="!selectedStatus" @click="requestStage" />
   </div>
 
-  <p v-else-if="user.type === 1 && applicantInfo?.request_date" style="margin: 0; font-weight: bold" class="text-gray-500">승인 요청 중인 신청서입니다.</p>
+  <p v-else-if="user.type === 1 && applicantInfo?.request_date && !applicantInfo?.approve_date" style="margin: 0; font-weight: bold" class="text-gray-500">승인 요청 중인 신청서입니다.</p>
 </template>
