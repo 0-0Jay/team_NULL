@@ -144,7 +144,7 @@ const router = createRouter({
         },
         // 지원계획서
         {
-          path: 'planInsert',
+          path: 'planInsert/:application_no',
           name: 'planInsert',
           component: () => import('@/views/PlanInsert.vue')
         },
@@ -157,7 +157,7 @@ const router = createRouter({
         {
           path: 'pendingPlanDetail/:application_no',
           name: 'pendingPlanDetail',
-          component: () => import('@/views/PlanDetailContainer.vue')
+          component: () => import('@/views/PendingPlanDetail.vue')
         },
         {
           path: 'rejectPlanDetail/:application_no',

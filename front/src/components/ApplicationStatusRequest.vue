@@ -12,7 +12,7 @@ const props = defineProps({
   user: Object
 });
 
-console.log(props.applicantInfo);
+// console.log(props.applicantInfo);
 
 const emit = defineEmits(['requested']);
 
@@ -29,7 +29,7 @@ const statusOptions = [
 
 // 요청 조건
 const canRequest = computed(() => {
-  console.log(props.assignedManager);
+  // console.log(props.assignedManager);
   return props.user.type === 1 && props.assignedManager && props.assignedManager.user_no === props.user.user_no && !props.applicantInfo?.approve_date && !props.applicantInfo?.request_date && route.name === 'view';
 });
 

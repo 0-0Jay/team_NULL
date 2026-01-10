@@ -2,8 +2,8 @@
 
 //지원 계획서 작성 - *주의 : 지원'신청서' 번호를 받아와야함 - 데이터 검사 완료
 const insertPlan = `
-INSERT INTO plan(title, content, file, plan_author, status, application_no, start, end)
-VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+INSERT INTO plan(title, content, plan_author, author_no, status, application_no, start, end)
+VALUES(?, ?, ?, ?, 0, ?, ?, ?)`;
 
 //승인된 지원 계획서 조회 - 데이터 검사 완료
 const selectPlan = `
@@ -21,18 +21,20 @@ AND   status = 2`;
 
 //승인대기 지원계획서 조회  데이터 검사완료
 const selectPendingPlan = `
-SELECT application_no, title, content, file, start, end, plan_no, status, plan_author
+SELECT plan_no, title, content, plan_author, author_no, status, application_no, start, end
 FROM plan
 WHERE application_no = ?
-AND   status = 0`;
+AND status = 0`;
 
-// (기관관리자용) 지원신청서 승인, 반려  -작업 덜 끝남  //1승인 2반려
-const updatePlanStatus = `
-UPDATE plan
-SET status = ?,
-    approve_date = IF(? = 1, NOW(), approve_date),
-    reject_date = IF(? = 2, NOW(), reject_date)
-WHERE plan_no = ?`;
+// (기관관리자용) 지원계획서 승인
+const updatePlanStatusApprove = `update plan
+                                 set status = 1, approve_date = now()
+                                 where plan_no = ? and status = 0`;
+
+// (기관관리자용) 지원계획서 반려
+const updatePlanStatusReject = `update plan 
+                                set status = 2, reject_date = now(), reject = ?
+                                where plan_no = ? and status = 0`;
 
 // 지원계획서 승인, 반려, 검토 집계
 const selectCountPlan = `select p.application_no,
@@ -49,6 +51,7 @@ module.exports = {
   selectPlan,
   rejectPlan,
   selectPendingPlan,
-  updatePlanStatus,
+  updatePlanStatusApprove,
+  updatePlanStatusReject,
   selectCountPlan,
 };

@@ -86,18 +86,12 @@ onBeforeMount(() => {
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
       <div v-for="(plan, index) in filterplan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold text-center mb-6">(기관관리자 화면)승인대기중인 지원계획서 {{ index + 1 }}</div>
-
-        <!-- 신청서 번호 -->
-        <div class="flex flex-col gap-2 mb-4 font-semibold">
-          <label>신청서 번호</label>
-          <div class="p-2 border rounded bg-gray-50">{{ plan.application_no ?? '-' }}</div>
-        </div>
+        <div class="text-2xl font-bold text-center mb-6">승인대기중인 지원계획서 {{ index + 1 }}</div>
 
         <!-- 작성자 -->
-        <div class="flex flex-col gap-2 mb-4 font-semibold">
-          <label>작성자</label>
-          <div class="p-2 border rounded bg-gray-50">{{ plan.plan_author ?? '-' }}</div>
+        <div class="flex flex-col gap-1 mb-6">
+          <span class="text-sm text-gray-500">작성자</span>
+          <span class="font-semibold text-lg">{{ plan.plan_author ?? '-' }}</span>
         </div>
 
         <!-- 목표, 시작/종료일 -->

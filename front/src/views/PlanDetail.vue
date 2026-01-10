@@ -1,24 +1,21 @@
 <!-- 지원계획서 조회창-->
 <script setup>
 import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
-import { onBeforeMount, computed, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
+import { onMounted, computed, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const store = usePlanStore(); //pinia작업 위함
 const route = useRoute(); // 현재 경로 확인용
-// const application_no = router.params.application_no; // 신청서 번호를 url에서 가져옴 - 일단은 하드코딩해서 주석처리 해놓음
+const router = useRouter();
 
 const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
-const rowNumber = (index) => index + 1;
 
-onBeforeMount(() => {
+onMounted(() => {
   const application_no = Number(route.params.application_no);
 
-  if (!application_no) {
-    console.error('application_no 없음:', route.params.application_no);
-    return;
-  }
-  store.fetchPlanList(Number(route.params.application_no), 1); //승인된 계획서만 화면에 출력
+  if (!application_no) return;
+
+  store.fetchPlanList(application_no, 1);
 });
 
 //날짜 포멧 - 유민님 파일에서 따옴
@@ -41,16 +38,10 @@ const formatDate = (v) => {
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center">승인된 지원계획서 {{ index + 1 }}</div>
 
-        <!-- 신청서 번호 -->
-        <div class="flex flex-col gap-2 mb-4 font-semibold">
-          <label>신청서 번호</label>
-          <div class="p-2 border rounded bg-gray-50">{{ plan.application_no ?? '-' }}</div>
-        </div>
-
         <!-- 작성자 -->
-        <div class="flex flex-col gap-2 mb-4 font-semibold">
-          <label>작성자</label>
-          <div class="p-2 border rounded bg-gray-50">{{ plan.plan_author ?? '-' }}</div>
+        <div class="flex flex-col gap-1 mb-6">
+          <span class="text-sm text-gray-500">작성자</span>
+          <span class="font-semibold text-lg">{{ plan.plan_author ?? '-' }}</span>
         </div>
 
         <!-- 목표, 시작/종료일 -->
@@ -85,12 +76,12 @@ const formatDate = (v) => {
         </div>
 
         <!-- 첨부파일 -->
-        <div class="flex flex-col gap-2 font-semibold">
+        <!-- <div class="flex flex-col gap-2 font-semibold">
           <label>첨부파일</label>
           <div class="p-2 border rounded bg-gray-50">
             {{ plan.fileName ?? '첨부파일 없음' }}
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
