@@ -1,9 +1,9 @@
 // Table : result
 
-//지원결과서 작성 - *주의 : 지원'계획서'번호를 받아와야함
+//지원결과서 작성
 const insertResult = `
-INSERT INTO result(title, content, file, result_author, status, plan_no, start, end )
-VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+INSERT INTO result(plan_no, title, content, start, end, status, result_author, author_no)
+VALUES(?, ?, ?, ?, ?, 0, ?, ?)`;
 
 //승인된 지원 결과서 조회
 // const selectResult = `
@@ -13,28 +13,9 @@ VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
 // AND   status = 1`;
 
 const selectResult = `
-SELECT
-    a.application_no,
-
-    p.plan_no,
-    p.title AS plan_title,
-
-    r.result_no,
-    r.title AS result_title,
-    r.content,
-    r.file,
-    r.start,
-    r.end,
-    r.status,
-    r.approve_date,
-    r.result_author
-FROM application a
-JOIN plan p
-    ON a.application_no = p.application_no
-JOIN result r
-    ON p.plan_no = r.plan_no
-WHERE a.application_no = ?
-AND r.status = 1`;
+SELECT p.application_no, r.*
+FROM plan p JOIN result r ON p.plan_no = r.plan_no
+WHERE p.application_no = ?`
 
 //반려된 지원계획서 조회
 // const rejectResult = `

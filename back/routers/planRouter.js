@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router();
 const planService = require("../services/planService.js");
 
-const multer = require("multer");
+// const multer = require("multer");
 
 // 지원계획서 작성  - 데이터 검사 완료
 router.post("/plan", async (req, res) => {
