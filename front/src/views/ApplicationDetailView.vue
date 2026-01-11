@@ -85,7 +85,7 @@ const assignedManager = computed(() => {
     <div class="card rounded-lg p-3">
       <div class="font-semibold text-xl">지원자 정보</div>
       <!-- 담당자 표시 -->
-      <span v-if="assignedManager" class="text-sm text-gray-500">
+      <span v-if="assignedManager && user.type != 1" class="text-sm text-gray-500">
         (담당자:
         <span class="text-green-600 font-medium"> {{ assignedManager.m_name }} </span>)
       </span>

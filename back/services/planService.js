@@ -3,9 +3,7 @@ const mysql = require("../database/mappers.js");
 //####### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
 const toDateString = (value) => {
   if (!value) return null;
-
   const date = new Date(value);
-
   return date.toISOString().slice(0, 10);
 };
 
@@ -13,9 +11,8 @@ const toDateString = (value) => {
 const addPlan = async (
   title,
   content,
-  file,
   plan_author,
-  status,
+  author_no,
   application_no,
   start,
   end
@@ -29,9 +26,8 @@ const addPlan = async (
     [
       title,
       content,
-      file,
       plan_author,
-      status,
+      author_no,
       application_no,
       startDate,
       endDate,
@@ -59,14 +55,30 @@ const findPendingPlan = async (application_no) => {
   return list;
 };
 
-// (기관관리자용) 단일 plan_no 승인/반려 처리
-const changePlanStatus = async (plan_no, status) => {
-  // status: 1 = 승인, 2 = 반려
-  return await mysql.query(
-    "updatePlanStatus", // status변경 쿼리
-    [status, status, status, plan_no],
-    "plan"
-  );
+// (기관관리자용) 지원 계획서 승인/반려 처리
+const changePlanStatus = async (plan_no, status, reject = null) => {
+  let result;
+
+  // 승인
+  if (status === 1) {
+    result = await mysql.query("updatePlanStatusApprove", [plan_no], "plan");
+  }
+
+  // 반려
+  if (status === 2) {
+    if (!reject || !reject.trim()) {
+      throw new Error("반려 사유는 필수입니다.");
+    }
+    result = await mysql.query(
+      "updatePlanStatusReject",
+      [reject, plan_no],
+      "plan"
+    );
+  }
+  if (result.affectedRows === 0) {
+    return { status: "fail", message: "승인/반려 처리 실패" };
+  }
+  return { status: "success" };
 };
 
 module.exports = {
