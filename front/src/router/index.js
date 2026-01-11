@@ -187,7 +187,7 @@ const router = createRouter({
         },
         // 상담내역
         {
-          path: 'counselInsert',
+          path: 'counselInsert/:application_no',
           name: 'counselInsert',
           component: () => import('@/views/CounselInsert.vue')
         },

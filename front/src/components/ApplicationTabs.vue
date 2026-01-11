@@ -15,7 +15,7 @@ const model = ref([
     label: '상담내역', // 연결완료
     items: [
       { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/application/counselDetail/${applicationNo}` },
-      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: '/application/counselinsert' }
+      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/counselInsert/${applicationNo}` }
     ]
   },
   {
