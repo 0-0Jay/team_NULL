@@ -12,8 +12,8 @@ const page = ref(1);
 const rows = ref(13);
 
 // 페이지 이동 함수
-const goPage = (name, params = {}) => {
-  router.push({ name, params });
+const goPage = (name, params) => {
+  router.push({ path: `application/${name}/${params.application_no}` });
 };
 
 onBeforeMount(() => {
@@ -346,7 +346,7 @@ const columnData = computed(() => {
           </Column>
 
           <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('resultDetail', { application_no: data.application_no })" /></template>
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('result', { application_no: data.application_no })" /></template>
             <!-- data.counsel_count === 0 || data.plan_count === 0 ||  -->
           </Column>
         </DataTable>

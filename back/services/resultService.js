@@ -11,31 +11,27 @@ const toDateString = (value) => {
   return date.toISOString().slice(0, 10);
 };
 
-const addResult = async (
-  title,
-  content,
-  file,
-  result_author,
-  status,
-  plan_no,
-  start,
-  end
-) => {
-  //###### db에 날짜를 YYYY-MM-DD의 형식으로 넣기 위함
-  const startDate = toDateString(start);
-  const endDate = toDateString(end);
+const addResult = async (data) => {
+  const {plan_no, author_no, author, title, content, startDate, endDate} = data;
 
-  let list = await mysql.query(
+  let result = await mysql.query(
     "insertResult",
-    [title, content, file, result_author, status, plan_no, startDate, endDate],
+    [plan_no, title, content, new Date(startDate), new Date(endDate), author, author_no],
     "result"
   );
-  return list;
+
+  let resObj = {};
+  if (result.insertId > 0) {
+    resObj = { status: "success", user_no: result.insertId };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
 };
 
-//승인된 지원결과서 조회 - 테이터 검사 완료
-const findResult = async (plan_no, status) => {
-  let list = await mysql.query("selectResult", [plan_no, status], "result");
+//지원결과서 전체 조회
+const findResult = async (applicationNo) => {
+  let list = await mysql.query("selectResult", [applicationNo], "result");
   return list;
 };
 

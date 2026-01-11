@@ -16,16 +16,20 @@ const user = JSON.parse(localStorage.getItem('users')).user[0];
 // 지원신청서 번호 가져오기
 const applicationNo = route.params.application_no;
 
-const resultAuthor = ref('');
+const resultAuthor = ref(user.u_name);
 const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
-const planNo = ref(null);
+
+
+const plan = ref([]);
+const selectedPlanValue = ref(null);
+const planFilteredValue = ref([]);
 
 const submitResult = async () => {
   const data = {
-    plan_no: planNo.value,
+    plan_no: selectedPlanValue.value.plan_no,
     author_no: user.user_no,
     author: user.u_name,
     title: title.value,
@@ -34,15 +38,13 @@ const submitResult = async () => {
     endDate: endDate.value
   };
   const result = await rStore.createResult(data);
+  if (result.status == 'success') {
+    router.push({ path: `/application/pendingResult/${applicationNo}` })
+  }
 };
-
-const plan = ref([]);
-const selectedPlanValue = ref(null);
-const planFilteredValue = ref([]);
 
 onMounted(async () => {
   plan.value = await pStore.fetchPlanList(applicationNo);
-  console.log(plan);
 });
 
 const searchPlan = (event) => {
@@ -54,7 +56,6 @@ const searchPlan = (event) => {
 };
 
 watch(selectedPlanValue, (val) => {
-  console.log(val);
   startDate.value = new Date(val.start);
   endDate.value = new Date(val.end);
 });
@@ -108,6 +109,6 @@ watch(selectedPlanValue, (val) => {
         </div>
       </div>
     </div>
+    <Toast />
   </div>
-  <Toast />
 </template>
