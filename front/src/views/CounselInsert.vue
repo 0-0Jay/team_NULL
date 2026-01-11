@@ -3,44 +3,40 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 import { useCounselStore } from '@/stores/counsel';
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
+
 
 const route = useRoute();
 const router = useRouter();
-
-
-//회원정보 받아오기 위함
-const user = JSON.parse(localStorage.getItem('users')).user[0];
-//지원신청서 받아오기 위함
-const applicationNo = route.params.application_no;
 const store = useCounselStore();
 
+const user = JSON.parse(localStorage.getItem('users')).user[0];
+const applicationNo = route.params.application_no;
 
 const title = ref('');
 const content = ref('');
 const counselDate = ref(null);
 const counselAuthor = ref('');
 
-  //넘길 값들
-  const submitCounsel = async () => {
-    const data = {
-      application_no: applicationNo,
-      title: title.value,
-      content: content.value,
-      save: 1,
-      counsel_date: counselDate.value,
-      counsel_author: user.u_name
-    };
-    const counsel = await store.createCounsel(data);
-    if (counsel.status == 'success') {
-      router.push({ path: `/application/counselDetail/${applicationNo}`})
-    }
-  }; 
+const submitCounsel = async () => {
+  const data = {
+    application_no: applicationNo,
+    title: title.value,
+    content: content.value,
+    save: 1,
+    counsel_date: counselDate.value,
+    counsel_author: user.u_name
+  };
 
-onMounted(async () => {
-  await store.fetchCounselList(applicationNo);
-  counsel.value = store.counselList;
-});
+  const res = await store.createCounsel(data);
+
+  if (res.status === 'success') {
+    router.push({
+      name: 'counselDetail',
+      params: { application_no: applicationNo }
+    });
+  }
+};
 
 
 </script>
