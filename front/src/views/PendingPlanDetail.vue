@@ -13,16 +13,12 @@ const route = useRoute();
 const toast = useToast();
 
 const application_no = Number(route.params.application_no);
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
+const filterPlan = computed(() => store.planList); // 화면에 보여질 테이터
 
 const reject = ref('');
 const showReject = ref(false);
 const selectedPlanNo = ref(null); // plan_no 저장용
 const errorMessage = ref('');
-
-// console.log('현재 경로:', route.path);
-// console.log('현재 라우트 이름:', route.name);
-// console.log('URL 파라미터 application_no:', route.params.application_no);
 
 //승인대기중인 계획서만 화면에 보임
 onBeforeMount(() => {
@@ -115,9 +111,9 @@ const formatDate = (v) => {
   <div class="flex flex-col w-full h-175 gap-6">
     <Toast />
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
-      <div v-if="filterplan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
+      <div v-if="filterPlan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
 
-      <div v-for="(plan, index) in filterplan" :key="plan.plan_no" class="card flex flex-col w-full p-6 shadow-md">
+      <div v-for="(plan, index) in filterPlan" :key="plan.plan_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center mb-6">승인대기중인 지원계획서 {{ index + 1 }}</div>
 

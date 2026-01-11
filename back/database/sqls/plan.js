@@ -14,7 +14,7 @@ AND   status = 1`;
 
 //반려된 지원 계획서 조회
 const rejectPlan = `
-SELECT application_no, title, content, file, start, end, plan_no, status, reject_date, plan_author
+SELECT title, content, file, start, end, plan_no, status, reject_date, plan_author
 FROM plan
 WHERE application_no = ?
 AND   status = 2`;

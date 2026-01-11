@@ -37,9 +37,8 @@ const canRequest = computed(() => {
 const requestStage = async () => {
   if (!selectedStatus.value) return;
 
-  const result = await store.requestApplicationStatus(props.applicationNo, selectedStatus.value, props.user);
-
-  if (result.status === 'success') {
+  try {
+    await store.requestApplicationStatus(props.applicationNo, selectedStatus.value, props.user);
     toast.add({
       severity: 'success',
       summary: '요청 완료',
@@ -49,11 +48,12 @@ const requestStage = async () => {
     });
 
     emit('requested'); // 갱신 요청
-  } else {
+  } catch (err) {
+    console.error(err);
     toast.add({
       severity: 'error',
       summary: '요청 실패',
-      detail: result.message || '대기단계 요청 실패',
+      detail: '대기단계 요청을 실패하였습니다.',
       closable: false,
       life: 2500
     });
@@ -62,6 +62,7 @@ const requestStage = async () => {
 </script>
 
 <template>
+  <Toast />
   <div v-if="canRequest" class="card p-4 flex items-center gap-3">
     <span class="font-medium">대기단계</span>
     <SelectButton v-model="selectedStatus" :options="statusOptions" optionLabel="label" optionValue="value" size="large" />

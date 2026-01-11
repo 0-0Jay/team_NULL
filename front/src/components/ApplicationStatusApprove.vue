@@ -29,9 +29,8 @@ const canApprove = computed(() => {
 
 // 승인
 const approveStatus = async () => {
-  const result = await store.approveApplicationStatus(props.applicationNo, 'approve', null);
-
-  if (result.status === 'success') {
+  try {
+    await store.approveApplicationStatus(props.applicationNo, 'approve', null);
     toast.add({
       severity: 'success',
       summary: '승인 완료',
@@ -40,11 +39,12 @@ const approveStatus = async () => {
       life: 2000
     });
     emit('processed');
-  } else {
+  } catch (err) {
+    console.error(err);
     toast.add({
       severity: 'error',
       summary: '승인 실패',
-      detail: result.message || '승인 실패',
+      detail: '대기단계 승인을 실패하였습니다.',
       closable: false,
       life: 2500
     });
@@ -60,24 +60,25 @@ const rejectStatus = async () => {
     return;
   }
 
-  const result = await store.approveApplicationStatus(props.applicationNo, 'reject', reject.value);
+  await store.approveApplicationStatus(props.applicationNo, 'reject', reject.value);
 
-  if (result.status === 'success') {
+  try {
     toast.add({
       severity: 'success',
       summary: '반려 처리',
-      detail: '신청이 반려되었습니다.',
+      detail: '대기단계 신청이 반려되었습니다.',
       closable: false,
       life: 2000
     });
     reject.value = '';
     showReject.value = false;
     emit('processed');
-  } else {
+  } catch (err) {
+    console.log(err);
     toast.add({
       severity: 'error',
       summary: '반려 실패',
-      detail: result.message || '반려 실패',
+      detail: '대기단계 신청 반려를 실패하였습니다.',
       closable: false,
       life: 2500
     });
@@ -86,6 +87,7 @@ const rejectStatus = async () => {
 </script>
 
 <template>
+  <Toast />
   <div v-if="canApprove" class="card p-4 flex flex-col gap-4">
     <div class="font-semibold text-gray-700">대기단계 승인 요청</div>
 
