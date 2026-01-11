@@ -88,6 +88,7 @@ const modifyByCNoCenter = async (data) => {
       phone,
       email,
       operation,
+      operation,
       c_no,
     ],
     "center"

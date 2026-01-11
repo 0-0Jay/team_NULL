@@ -300,7 +300,19 @@ export const useUsersStore = defineStore('users', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 시스템 관리자 페이지 - 기관 담당자 등록
+    async addStaffByAdmin(userInfo) {
+      try {
+        const { data } = await axios.post('/api/users/staff/new', userInfo);
+        return data;
+      } catch (err) {
+        console.error(err);
+        return { status: 'error', message: err.message };
+      }
     }
+
   },
   persist: true
 });

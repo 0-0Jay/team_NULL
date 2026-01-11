@@ -219,4 +219,11 @@ router.put("/users/:user_no/center", async (req, res) => {
   res.send(result);
 });
 
+// 시스템 관리자 페이지 - 기관 담당자 등록
+router.post("/users/staff/new", async (req, res) => {
+  const staffInfo = req.body;
+  const result = await usersService.addStaffByAdmin(staffInfo);
+  res.send(result);
+});
+
 module.exports = router;

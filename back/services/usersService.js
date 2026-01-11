@@ -452,6 +452,49 @@ const modifyCenterByManager = async ({
   return resObj;
 };
 
+// 시스템관리자 - 기관 담당자 등록
+const addStaffByAdmin = async ({
+  id,
+  password,
+  name,
+  email,
+  phone,
+  c_no
+} = {}) => {
+  // 1. 유효성 검사
+  if (
+    !id?.trim() ||
+    !password?.trim() ||
+    !name?.trim() ||
+    !email?.trim() ||
+    !phone?.trim() ||
+    !c_no
+  ) {
+    return { status: "error", message: "invalid input" };
+  }
+
+  // 2. INSERT (센터 주소 자동 포함)
+  const result = await mysql.query(
+    "insertStaffByAdmin",
+    [
+      id,
+      password,
+      name,
+      email,
+      phone,
+      c_no // WHERE c.c_no = ?
+    ],
+    "users"
+  );
+
+  // 3. 결과 처리
+  if (result && result.affectedRows > 0) {
+    return { status: "success", user_no: result.insertId };
+  } else {
+    return { status: "fail" };
+  }
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -480,4 +523,5 @@ module.exports = {
   findStaffByManager,
   modifyCenterByManager,
   findApplicantByStaff,
+  addStaffByAdmin
 };

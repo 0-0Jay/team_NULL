@@ -52,6 +52,17 @@ export const useCentersStore = defineStore('centers', {
       } catch (err) {
         console.log(err);
       }
+    },
+
+    // 기관 정보 수정
+    async modifyByCNoCenter(data) {
+      try{
+        const { c_no } = data;
+        const response = await axios.put(`/api/centers/${c_no}`, data);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 });

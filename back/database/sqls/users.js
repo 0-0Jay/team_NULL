@@ -50,7 +50,6 @@ const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.
                                  join center c on u.c_no = c.c_no
                                  where u.status != 2 and u.type = 2`;
 
-// 기관 관리자 페이지 - 기관 담당자 불러오기
 // 시스템 관리자
 const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
                                               c.name as center_name, u.created_date,
@@ -231,6 +230,12 @@ const selectByUserNoManagerUsers = `select m.application_no,
                                     where m.unassign is null
                                     group by m.application_no`;
 
+// 시스템관리자 - 기관 담당자 등록
+const insertStaffByAdmin = `INSERT INTO users (id, password, name, email, phone, type, c_no, zipcode, address, address_detail, status)
+                            SELECT ?, ?, ?, ?, ?, 1, c.c_no, c.zipcode, c.address, c.address_detail, 1
+                            FROM center c
+                            WHERE c.c_no = ?`;
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
@@ -262,4 +267,5 @@ module.exports = {
   updateCenterByManager,
   selectByUserNoManagerUsers,
   selectApplicantByStaff,
+  insertStaffByAdmin
 };

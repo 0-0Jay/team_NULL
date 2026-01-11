@@ -3,6 +3,7 @@
 // 기관 목록 불러오기
 const selectAllCenter = `select c_no, name, 
                          concat(sido, ' ', sigungu, ' ', address) as address, 
+                         address_detail, zipcode,
                          phone, email, manage,
                          created_date, closed_date
                          from center `;
@@ -37,7 +38,11 @@ VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 // 시스템 관리자 - 기관 정보 수정
 const updateByCNoCenter = `UPDATE center
                            SET name = ?, sido = ?, sigungu = ?, address = ?, address_detail = ?, 
-                               zipcode = ?, phone = ?, email = ?, manage = ?
+                               zipcode = ?, phone = ?, email = ?, manage = ?, 
+                               closed_date = CASE
+                                  WHEN ? = 0 THEN NOW()
+                                  ELSE NULL
+                               END
                            WHERE c_no = ?`;
 
 module.exports = {
