@@ -10,8 +10,6 @@ const props = defineProps({
   user: Object
 });
 
-console.log(props.applicantInfo);
-
 const emit = defineEmits(['processed']);
 
 const store = useApplicationStore();

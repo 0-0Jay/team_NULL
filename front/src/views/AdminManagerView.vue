@@ -1,13 +1,16 @@
 <script setup>
 import { useUsersStore } from '@/stores/users';
+import { useCentersStore } from '@/stores/centers';
 import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import SearchTable from '@/components/SearchTable.vue';
+import ManagerModal from '@/components/ManagerModal.vue';
 
 const store = useUsersStore();
+const centerStore = useCentersStore();
+const user = JSON.parse(localStorage.getItem('users'))?.user[0];
 const toast = useToast();
 
 // 페이지네이션
@@ -29,6 +32,10 @@ const dropdownValues = [
 ];
 const radioValue = ref(-1);
 const globalFilterFields = ref([]);
+
+// 검색 + 자동완성(담당자 수정할 때 기관명 검색)
+const selectedAutoValue = ref(null);
+const autoFilteredValue = ref([]);
 
 // Confirm
 const visible = ref(false);
@@ -68,13 +75,14 @@ const filterManager = computed(() => {
   return store.manager.filter((row) => row.status === radioValue.value);
 });
 
-// 상태 변경
+// 회원 상태 변경(사용승인, 비활성화)
 const changeStatus = async (status) => {
   const userNos = selectedRows.value.map((row) => row.user_no);
   if (userNos.length === 0) return;
 
   try {
     const result = await store.modifyStatus(userNos, status);
+
     if (result.status === 'success') {
       toast.add({
         severity: 'success',
@@ -130,11 +138,39 @@ const handleConfirm = async () => {
   await changeStatus(pendingStatus.value);
   pendingStatus.value = null;
 };
+
+// 기관 검색(자동완성)
+const searchCenter = async (e) => {
+  const name = e.query;
+
+  // 전체 목록
+  if (!name) {
+    autoFilteredValue.value = await centerStore.searchCenter('');
+    return;
+  }
+  autoFilteredValue.value = await centerStore.searchCenter(name);
+};
+
+// 등록 모달 열기
+const display = ref(false);
+const modalMode = ref('add'); // 'add' | 'edit'
+const openAddModal = () => {
+  modalMode.value = 'add';
+  selectedUser.value = null;
+  display.value = true;
+};
+
+// 수정 모달 열기
+const selectedUser = ref(null); // 수정용 데이터
+const openEditModal = (data) => {
+  modalMode.value = 'edit';
+  selectedUser.value = data;
+  display.value = true;
+};
 </script>
 
 <template>
   <Toast />
-
   <div class="flex gap-6 p-6 pt-25 h-screen overflow-hidden">
     <!-- 검색 -->
     <SearchTable
@@ -153,7 +189,7 @@ const handleConfirm = async () => {
         <h2 class="text-xl font-bold text-gray-800">기관 관리자 정보</h2>
 
         <div class="flex gap-2">
-          <Button label="기관 관리자 등록" icon="pi pi-user" />
+          <Button label="기관 관리자 등록" icon="pi pi-user" @click="openAddModal" />
           <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
           <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
@@ -204,7 +240,7 @@ const handleConfirm = async () => {
 
           <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 120px">
             <template #body="{ data }">
-              {{ data.phone ?? '-' }}
+              {{ data.phone || '-' }}
             </template>
           </Column>
 
@@ -228,12 +264,13 @@ const handleConfirm = async () => {
 
           <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
+              <i class="pi pi-pen-to-square edit-icon" @click="openEditModal(data)" />
             </template>
           </Column>
         </DataTable>
       </div>
     </section>
+    <ManagerModal v-model="display" :mode="modalMode" :userData="selectedUser" />
   </div>
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">

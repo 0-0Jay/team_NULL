@@ -6,8 +6,7 @@ import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
-import ManagerStaffModal from '@/components/ManagerStaffModal.vue';
-
+import StaffModal from '@/components/StaffModal.vue';
 
 const store = useUsersStore();
 const centerStore = useCentersStore();
@@ -69,13 +68,10 @@ const onPageChange = (e) => {
   selectedRows.value = [];
 };
 
-// 라디오
+// 라디오 필터
 const filterStaff = computed(() => {
   // 전체
-  if (radioValue.value === -1) {
-    return store.staff;
-  }
-
+  if (radioValue.value === -1) return store.staff;
   // 승인 / 대기
   return store.staff.filter((row) => row.status === radioValue.value);
 });
@@ -83,7 +79,6 @@ const filterStaff = computed(() => {
 // 회원 상태 변경(사용승인, 비활성화)
 const changeStatus = async (status) => {
   const userNos = selectedRows.value.map((row) => row.user_no);
-
   if (userNos.length === 0) return;
 
   try {
@@ -258,7 +253,7 @@ const openEditModal = (data) => {
           </Column>
 
           <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 130px">
-            <template #body="{ data }">{{ data.phone ?? '-' }}</template>
+            <template #body="{ data }">{{ data.phone || '-' }}</template>
           </Column>
 
           <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 260px">
@@ -286,10 +281,9 @@ const openEditModal = (data) => {
           </Column>
         </DataTable>
       </div>
-    </section>    
-    <ManagerStaffModal v-model="display" :mode="modalMode" :userData="selectedUser" />
+    </section>
+    <StaffModal v-model="display" :mode="modalMode" :userData="selectedUser" />
   </div>
-
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">
     {{ ConfirmMsg }}

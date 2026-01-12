@@ -76,28 +76,41 @@ const modifyByCNoCenter = async (data) => {
   const [sido, sigungu, ...rest] = fullAddress.split(" ");
   const address = rest.join(" ");
 
-  let result = await mysql.query(
-    "updateByCNoCenter",
-    [
-      centerName,
-      sido,
-      sigungu,
-      address,
-      addressDetail,
-      postcode,
-      phone,
-      email,
-      operation,
-      operation,
-      c_no,
-    ],
-    "center"
-  );
   let resObj = {};
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", c_no: c_no };
-  } else {
-    resObj = { status: "fail" };
+
+  try {
+    // 1. center 테이블 업데이트
+    const result1 = await mysql.query(
+      "updateByCNoCenter",
+      [
+        centerName,
+        sido,
+        sigungu,
+        address,
+        addressDetail,
+        postcode,
+        phone,
+        email,
+        operation,
+        operation,
+        c_no,
+      ],
+      "center"
+    );
+    // 2. 소속 사용자 주소 업데이트
+    const result2 = await mysql.query(
+      "updateUserCenterByAdmin",
+      [c_no],
+      "center"
+    );
+    if (result1.affectedRows > 0 || result2.affectedRows > 0) {
+      resObj = { status: "success", c_no };
+    } else {
+      resObj = { status: "fail" };
+    }
+  } catch (err) {
+    console.error(err);
+    resObj = { status: "error", message: err.message };
   }
   return resObj;
 };

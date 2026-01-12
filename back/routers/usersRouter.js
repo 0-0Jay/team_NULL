@@ -67,7 +67,7 @@ router.post("/usersStaff", async (req, res) => {
   res.send(list);
 });
 
-// 기관 관리자 페이지 - 기관 담당자 정보 수정
+// 시스템 및 기관 관리자 페이지 - 기관 담당자 정보 수정
 router.put("/usersStaff/:userNo", async (req, res) => {
   console.log("params.userNo:", req.params.userNo);
   console.log("body:", req.body);
@@ -223,6 +223,13 @@ router.put("/users/:user_no/center", async (req, res) => {
 router.post("/users/staff/new", async (req, res) => {
   const staffInfo = req.body;
   const result = await usersService.addStaffByAdmin(staffInfo);
+  res.send(result);
+});
+
+// 시스템 관리자 페이지 - 기관 관리자 등록
+router.post("/users/manager/new", async (req, res) => {
+  const managerInfo = req.body;
+  const result = await usersService.addManagerByAdmin(managerInfo);
   res.send(result);
 });
 

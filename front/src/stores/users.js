@@ -142,26 +142,30 @@ export const useUsersStore = defineStore('users', {
       }
     },
 
-    // 시스템 및 기관 관리자 페이지 - 기관 담당자 불러오기
+    // 시스템 관리자 페이지 - 기관 담당자 목록 불러오기
     async fetchStaff() {
       try {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post(`/api/usersStaff`, { user });
-        this.staff = response.data;
+
+        // 서버에서 받아온 배열 정렬 (최신 등록자 위)
+        this.staff = response.data.sort((a, b) => b.user_no - a.user_no);
+
+        return this.staff;
         // console.log(this.staff);
-        return response.data;
       } catch (err) {
         console.log(err);
       }
     },
 
-    // 기관 관리자 페이지 - 기관 담당자 정보 수정
+    // 시스템 관리자 페이지 - 기관 담당자 정보 수정
     async modifyStaff(userNo, info) {
       try {
         const response = await axios.put(`/api/usersStaff/${userNo}`, info);
         return response.data;
       } catch (err) {
         console.log(err);
+        return { status: 'error', message: err?.response?.data?.message || err.message || 'Unknown error' };
       }
     },
 
@@ -211,7 +215,6 @@ export const useUsersStore = defineStore('users', {
       if (!userNo) return;
       try {
         const { data } = await axios.get(`/api/users/${userNo}/applicant`);
-        console.log('지원자 목록: ', data);
 
         // 최신 지원자가 위로 오도록 정렬
         this.applicant = data.sort((a, b) => b.a_no - a.a_no);
@@ -303,16 +306,26 @@ export const useUsersStore = defineStore('users', {
     },
 
     // 시스템 관리자 페이지 - 기관 담당자 등록
-    async addStaffByAdmin(userInfo) {
+    async addStaffByAdmin(info) {
       try {
-        const { data } = await axios.post('/api/users/staff/new', userInfo);
+        const { data } = await axios.post('/api/users/staff/new', info);
+        return data;
+      } catch (err) {
+        console.error(err);
+        return { status: 'error', message: err.message };
+      }
+    },
+
+    // 시스템 관리자 페이지 - 기관 관리자 등록
+    async addManagerByAdmin(info) {
+      try {
+        const { data } = await axios.post('/api/users/manager/new', info);
         return data;
       } catch (err) {
         console.error(err);
         return { status: 'error', message: err.message };
       }
     }
-
   },
   persist: true
 });

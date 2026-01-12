@@ -120,12 +120,9 @@ const findByCnoUsersCenters = async () => {
   return list;
 };
 
-// 시스템 및 기관 관리자 페이지 - 기관 담당자 불러오기
+// 시스템 관리자 페이지 - 기관 담당자 불러오기
 const findByUserNoUsersManager = async (user) => {
   let list = [];
-
-  console.log("user 타입 : ", user.type);
-  console.log("user 기관번호 : ", user.c_no);
 
   if (user.type === 3) {
     list = await mysql.query("selectByUserNoAllUsersManager", [], "users");
@@ -138,35 +135,6 @@ const findByUserNoUsersManager = async (user) => {
     );
   }
   return list;
-};
-
-// 기관 관리자 페이지 - 기관 담당자 정보 수정
-const modifyByUserNoUsers = async (userInfo, userNo) => {
-  const { name, phone, email, c_no, password } = userInfo;
-  let result;
-
-  // 비밀번호는 있을 때만
-  if (password) {
-    result = await mysql.query(
-      "updateUserWithPw",
-      [name, phone, email, c_no, password, userNo],
-      "users"
-    );
-  } else {
-    result = await mysql.query(
-      "updateUserWithoutPw",
-      [name, phone, email, c_no, userNo],
-      "users"
-    );
-  }
-
-  let resObj = {};
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", userNo: userNo };
-  } else {
-    resObj = { status: "fail" };
-  }
-  return resObj;
 };
 
 // 회원상태(사용승인 및 비활성화)
@@ -200,7 +168,6 @@ const modifyStatusUsers = async (userNos, status) => {
 
 // 비밀번호 재설정
 const modifyPwByUsernoUsers = async (user_no, pw) => {
-  console.log(user_no, pw);
   let result = await mysql.query(
     "updatePwByUsernoUsers",
     [pw, user_no],
@@ -438,16 +405,42 @@ const modifyCenterByManager = async ({
   ) {
     return { status: "error", message: "invalid input" };
   }
-  let result = await mysql.query(
-    "updateCenterByManager",
-    [name, phone, zipcode, address, address_detail, user_no],
-    "users"
-  );
   let resObj = {};
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", user_no: user_no };
-  } else {
-    resObj = { status: "fail" };
+  try {
+    // address 분리
+    const [sido, sigungu, ...rest] = address.split(" ");
+    const fullAddress = rest.join(" ");
+    // 1. 센터 정보 업데이트
+    const result1 = await mysql.query(
+      "updateCenterByManager", // center 테이블 업데이트 쿼리
+      [
+        name,
+        phone,
+        zipcode,
+        sido,
+        sigungu,
+        fullAddress,
+        address_detail,
+        user_no,
+      ],
+      "users"
+    );
+
+    // 2. 센터 소속 사용자 주소 업데이트
+    const result2 = await mysql.query(
+      "updateUserCenterByManager", // users 테이블 주소 업데이트 쿼리
+      [user_no],
+      "users"
+    );
+
+    if (result1.affectedRows > 0 || result2.affectedRows > 0) {
+      resObj = { status: "success", user_no: user_no };
+    } else {
+      resObj = { status: "fail" };
+    }
+  } catch (err) {
+    console.error(err);
+    resObj = { status: "error", message: err.message };
   }
   return resObj;
 };
@@ -459,7 +452,7 @@ const addStaffByAdmin = async ({
   name,
   email,
   phone,
-  c_no
+  c_no,
 } = {}) => {
   // 1. 유효성 검사
   if (
@@ -467,13 +460,18 @@ const addStaffByAdmin = async ({
     !password?.trim() ||
     !name?.trim() ||
     !email?.trim() ||
-    !phone?.trim() ||
     !c_no
   ) {
-    return { status: "error", message: "invalid input" };
+    return { status: "error", message: "필수 항목을 모두 입력해주세요." };
   }
 
-  // 2. INSERT (센터 주소 자동 포함)
+  // 2. 중복 ID 체크
+  const existing = await mysql.query("selectByIdUsers", [id], "users");
+  if (existing.length > 0) {
+    return { status: "fail", message: "이미 사용 중인 ID입니다." };
+  }
+
+  // 3. INSERT (센터 주소 자동 포함)
   const result = await mysql.query(
     "insertStaffByAdmin",
     [
@@ -482,12 +480,91 @@ const addStaffByAdmin = async ({
       name,
       email,
       phone,
-      c_no // WHERE c.c_no = ?
+      c_no, // WHERE c.c_no = ?
     ],
     "users"
   );
 
-  // 3. 결과 처리
+  // 4. 결과 처리
+  if (result && result.affectedRows > 0) {
+    return { status: "success", user_no: result.insertId };
+  } else {
+    return { status: "fail" };
+  }
+};
+
+// 시스템 및 기관 관리자 페이지 - 기관 담당자 정보 수정
+const modifyByUserNoUsers = async (userInfo, userNo) => {
+  const { name, phone, email, c_no, password } = userInfo;
+  let result;
+
+  // 비밀번호는 있을 때만
+  if (password) {
+    result = await mysql.query(
+      "updateUserWithPw",
+      [name, phone, email, c_no, password, userNo],
+      "users"
+    );
+  } else {
+    result = await mysql.query(
+      "updateUserWithoutPw",
+      [name, phone, email, c_no, userNo],
+      "users"
+    );
+  }
+
+  let resObj = {};
+  if (result.affectedRows > 0) {
+    // 소속 기관 변경 시 주소 업데이트
+    await mysql.query("updateStaffCenterByAdmin", [userNo], "users");
+    resObj = { status: "success", userNo: userNo };
+  } else {
+    resObj = { status: "fail" };
+  }
+  return resObj;
+};
+
+// 시스템관리자 - 기관 관리자 등록
+const addManagerByAdmin = async ({
+  id,
+  password,
+  name,
+  email,
+  phone,
+  c_no,
+} = {}) => {
+  // 1. 유효성 검사
+  if (
+    !id?.trim() ||
+    !password?.trim() ||
+    !name?.trim() ||
+    !email?.trim() ||
+    !c_no
+  ) {
+    return { status: "error", message: "필수 항목을 모두 입력해주세요." };
+  }
+
+  // 2. 중복 ID 체크
+  const existing = await mysql.query("selectByIdUsers", [id], "users");
+  if (existing.length > 0) {
+    return { status: "fail", message: "이미 사용 중인 ID입니다." };
+  }
+
+  // 3. INSERT (센터 주소 자동 포함)
+  const result = await mysql.query(
+    "insertManagerByAdmin",
+    [
+      id,
+      password,
+      name,
+      email,
+      phone,
+      c_no, // WHERE c.c_no = ?
+    ],
+    "users"
+  );
+
+  // 4. 결과 처리
   if (result && result.affectedRows > 0) {
     return { status: "success", user_no: result.insertId };
   } else {
@@ -523,5 +600,6 @@ module.exports = {
   findStaffByManager,
   modifyCenterByManager,
   findApplicantByStaff,
-  addStaffByAdmin
+  addStaffByAdmin,
+  addManagerByAdmin,
 };
