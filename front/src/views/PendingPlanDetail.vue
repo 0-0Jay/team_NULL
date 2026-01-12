@@ -177,7 +177,7 @@ const formatDate = (v) => {
         <div v-if="usersStore.isAdmin" class="flex justify-center gap-3 mt-6">
           <Button label="승인" style="width: auto" severity="info" @click="approvePlan(plan.plan_no)" />
           <Button label="반려" severity="danger" @click="openReject(plan.plan_no)" />
-          <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" />
+          <!-- <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" /> -->
         </div>
         <div v-if="showReject && selectedPlanNo === plan.plan_no" class="card p-4 mt-4 flex flex-col gap-2">
           <Textarea v-model="reject" rows="3" autoResize placeholder="반려 사유를 입력해주세요." />
