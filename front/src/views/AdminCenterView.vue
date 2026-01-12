@@ -84,7 +84,7 @@ const openEditCenter = (center) => {
 
         <div class="flex gap-2">
           <Button label="기관 등록" icon="pi pi-building" @click="openAddCenter" />
-          <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" />
+          <!-- <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" /> -->
         </div>
       </div>
 

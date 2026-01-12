@@ -13,6 +13,7 @@ const activeTab = ref('');
 const answers = ref({});
 const tmp = ref({});
 const applicationNo = route.params.application_no;
+const user = JSON.parse(localStorage.getItem('users')).user[0];
 
 onMounted(async () => {
   const result = await sStore.fetchSurvey(applicationNo);
@@ -82,7 +83,7 @@ const edit = () => {
   <div class="card h-175">
     <div class="flex justify-between">
       <div class="font-semibold text-xl mb-4">지원신청서 조회</div>
-      <Button label="수정" @click="edit" />
+      <Button v-if="user.type != 3" label="수정" @click="edit" />
     </div>
     <Tabs :value="activeTab">
       <TabList>

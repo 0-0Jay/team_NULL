@@ -52,6 +52,12 @@ const router = createRouter({
       meta: { showHeader: true }
     },
     {
+      path: '/generalUser',
+      name: 'generalUser',
+      component: () => import('@/views/ManageGeneralUser.vue'),
+      meta: { showHeader: true }
+    },
+    {
       path: '/loginNA',
       name: 'LoginNA',
       component: () => import('@/views/LoginNotApprovedView.vue'),
