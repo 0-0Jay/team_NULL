@@ -37,14 +37,12 @@ const formatDate = (v) => {
       <div v-if="filterPlan.length === 0" class="text-center card">반려된 지원계획서가 없습니다.</div>
       <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
-          <Button label="반려" severity="danger" class="status" />
-          <span>지원계획서</span>
-        </div>
+        <div class="text-2xl font-bold text-center">반려된 지원계획서 {{ index + 1 }}</div>
+
         <!-- 작성자 -->
-        <div class="flex flex-col gap-1 mb-6">
-          <span class="text-sm text-gray-500">작성자</span>
-          <span class="font-semibold text-lg">{{ plan.plan_author ?? '-' }}</span>
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>작성자</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.plan_author ?? '-' }}</div>
         </div>
 
         <!-- 목표, 시작/종료일 -->
@@ -65,7 +63,7 @@ const formatDate = (v) => {
           </div>
 
           <div class="flex flex-col gap-2">
-            <label>반려날짜</label>
+            <label>반려된 날짜</label>
             <div class="p-2 border rounded bg-gray-50 text-red-500 font-bold">
               {{ formatDate(plan.reject_date) ?? '-' }}
             </div>
@@ -81,15 +79,3 @@ const formatDate = (v) => {
     </div>
   </div>
 </template>
-
-<style>
-.status {
-  cursor: default !important;
-  pointer-events: none;
-}
-.status:hover {
-  background-color: inherit !important;
-  color: inherit !important;
-  border-color: inherit !important;
-}
-</style>

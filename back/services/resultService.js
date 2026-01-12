@@ -12,20 +12,11 @@ const toDateString = (value) => {
 };
 
 const addResult = async (data) => {
-  const { plan_no, author_no, author, title, content, startDate, endDate } =
-    data;
+  const {plan_no, author_no, author, title, content, startDate, endDate} = data;
 
   let result = await mysql.query(
     "insertResult",
-    [
-      plan_no,
-      title,
-      content,
-      new Date(startDate),
-      new Date(endDate),
-      author,
-      author_no,
-    ],
+    [plan_no, title, content, new Date(startDate), new Date(endDate), author, author_no],
     "result"
   );
 
@@ -44,27 +35,21 @@ const findResult = async (applicationNo) => {
   return list;
 };
 
-// 지원결과서 승인/반려
-const modifyResult = async (data) => {
-  const { result_no, status, reason } = data;
-  console.log(result_no, status, reason);
-  let result = await mysql.query(
-    "updateResult",
-    [status, reason, result_no],
-    "result"
-  );
+// 반려된 지원결과서 조회
+const findRejectResult = async (plan_no) => {
+  let list = await mysql.query("rejectResult", [plan_no], "result");
+  return list;
+};
 
-  let resObj = {};
-  if (result.affectedRows > 0) {
-    resObj = { status: "success", userNo: userNo };
-  } else {
-    resObj = { status: "fail" };
-  }
-  return resObj;
+//승인대기 중인 지원결과서 조회 - 테이터 검사 완료
+const findPendingResult = async (plan_no) => {
+  let list = await mysql.query("selectPendingResult", [plan_no], "result");
+  return list;
 };
 
 module.exports = {
   addResult,
   findResult,
-  modifyResult,
+  findRejectResult,
+  findPendingResult,
 };

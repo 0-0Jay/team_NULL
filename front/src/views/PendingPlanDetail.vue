@@ -65,20 +65,6 @@ const approvePlan = async (plan_no) => {
   }
 };
 
-// 반려
-const rejectingMap = ref({});
-const rejectReasonMap = ref({});
-
-const startReject = (resultNo) => {
-  rejectingMap.value[resultNo] = true;
-  rejectReasonMap.value[resultNo] = '';
-};
-
-const openApprove = (planNo) => {
-  pendingPlanNo.value = planNo;
-  showApproveConfirm.value = true;
-};
-
 // 반려 입력창 열기
 const openReject = (planNo) => {
   rejectOpenMap.value[planNo] = true;
