@@ -7,7 +7,8 @@ const data = ref({});
 const activeTab = ref('');
 
 onMounted(async () => {
-  data.value = await store.fetchSurvey();
+  const result = await store.fetchSurvey();
+  data.value = result.data;
 });
 
 // 조사지 로드 => 첫 번 째 탭으로 이동
@@ -22,7 +23,7 @@ watch(
 
 const makeTableRows = (secValue) => {
   const rows = [];
-
+  console.log(secValue);
   Object.values(secValue.details).forEach((detailValue) => {
     const { d_no, detail, info, questions } = detailValue;
 

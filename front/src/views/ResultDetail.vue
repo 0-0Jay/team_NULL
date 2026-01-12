@@ -88,6 +88,12 @@ const approve = async (resultNo) => {
           <span>지원결과서</span>
         </div>
 
+        <!-- 작성자 -->
+        <div class="flex flex-col gap-1 mb-6">
+          <span class="text-sm text-gray-500">작성자</span>
+          <span class="font-semibold text-lg">{{ data.result_author ?? '-' }}</span>
+        </div>
+
         <!-- 목표, 시작/종료일 -->
         <div class="flex flex-wrap gap-6 mb-4 font-semibold">
           <div class="flex flex-col gap-2 flex-1">
