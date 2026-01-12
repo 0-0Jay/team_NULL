@@ -73,7 +73,7 @@ const openAddCenter = () => {
 
         <div class="flex gap-2">
           <Button label="기관 등록" icon="pi pi-building" @click="openAddCenter" />
-          <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" />
+          <!-- <Button label="선택 삭제" icon="pi pi-trash" severity="danger" :disabled="selectedRows.length === 0" /> -->
         </div>
       </div>
 
@@ -98,7 +98,7 @@ const openAddCenter = () => {
             <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
-          <Column selectionMode="multiple" headerStyle="width:48px" />
+          <!-- <Column selectionMode="multiple" headerStyle="width:48px" /> -->
 
           <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ index }">
