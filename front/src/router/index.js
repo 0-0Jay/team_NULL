@@ -21,17 +21,37 @@ const router = createRouter({
       component: () => import('@/views/MainView.vue'),
       meta: { showHeader: true }
     },
-
-    { path: '/faq', name: 'faq', component: () => import('@/views/faq/FaqList.vue') },
     {
-      path: '/faq/create',
-      name: 'faq-create',
-      component: () => import('@/views/faq/FaqCreate.vue')
-    },
-    {
-      path: '/faq/update/:faq_no',
-      name: 'faq-update',
-      component: () => import('@/views/faq/FaqUpdate.vue')
+      path: '/questions',
+      component: () => import('@/views/QnaLayout.vue'),
+      meta: { showHeader: true },
+      children: [
+        {
+          path: '',
+          name: 'faq',
+          component: () => import('@/components/questions/FaqList.vue'),
+        },
+        {
+          path: 'faq/create',
+          name: 'faq-create',
+          component: () => import('@/components/questions/FaqCreate.vue')
+        },
+        {
+          path: 'faq/update/:faq_no',
+          name: 'faq-update',
+          component: () => import('@/components/questions/FaqUpdate.vue')
+        },
+        {
+          path: 'inquiry',
+          name: 'inquiry',
+          component: () => import('@/components/questions/InquiryList.vue')
+        },
+        {
+          path: 'inquiry/create',
+          name: 'inquiry-create',
+          component: () => import('@/components/questions/InquiryCreate.vue')
+        },
+      ],
     },
     {
       path: '/center',
