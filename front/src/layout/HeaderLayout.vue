@@ -70,7 +70,7 @@ const logout = () => {
       <div class="layout-topbar-menu hidden lg:block content-center">
         <div class="layout-topbar-menu-content">
           <router-link to="/mypage"
-            ><Button type="button" class="min-w-[100px] h-11">
+            ><Button v-if="user.type != 3" type="button" class="min-w-[100px] h-11">
               <i class="pi pi-user"> 내 정보 </i>
             </Button>
           </router-link>
