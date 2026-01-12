@@ -40,7 +40,7 @@ const formatDate = (v) => {
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
 
-      <!-- ✅ 상담내역이 있을 때 -->
+      <!--  상담내역이 있을 때 -->
       <template v-if="filtercounsel.length > 0">
         <div
           v-for="(counsel, index) in filtercounsel"
@@ -86,7 +86,7 @@ const formatDate = (v) => {
         </div>
       </template>
 
-      <!-- ❌ 상담내역이 없을 때 -->
+      <!-- 상담내역이 없을 때 -->
       <div
       <div v-else class="card text-center">        작성된 상담내역이 없습니다.
       </div>
