@@ -331,13 +331,13 @@ const columnData = computed(() => {
             <template #body="{ data }"><Button size="small" label="보기" :disabled="user.type === 0 || data.counsel_count === 0" @click="goPage('counselDetail', { application_no: data.application_no })" /></template>
           </Column>
           <Column header="지원계획" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.plan_count === 0" @click="goPage('planDetail', { application_no: data.application_no })" /></template>
-            <!-- data.counsel_count === 0 || -->
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.counsel_count === 0 || data.plan_count === 0" @click="goPage('planDetail', { application_no: data.application_no })" /></template>
+            <!--  -->
           </Column>
 
           <Column header="지원결과" headerClass="table-header" bodyClass="table-body" style="width: 80px; min-width: 80px; max-width: 80px">
-            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.result_count === 0" @click="goPage('result', { application_no: data.application_no })" /></template>
-            <!-- data.counsel_count === 0 || data.plan_count === 0 ||  -->
+            <template #body="{ data }"><Button size="small" label="보기" :disabled="data.counsel_count === 0 || data.plan_count === 0 || data.result_count === 0" @click="goPage('result', { application_no: data.application_no })" /></template>
+            <!--  -->
           </Column>
         </DataTable>
       </div>

@@ -40,6 +40,9 @@ router.get(`/address`, async (req, res) => {
 
 // 시스템관리자 - 기관 정보 수정
 router.put("/centers/:c_no", async (req, res) => {
+  console.log('① req.body:', req.body);
+  console.log('② req.params:', req.params);
+  
   const centerInfo = req.body;
   centerInfo.c_no = req.params.c_no;
   let result = await centersService.modifyByCNoCenter(centerInfo);

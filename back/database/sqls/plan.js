@@ -21,7 +21,7 @@ AND   status = 2`;
 
 //승인대기 지원계획서 조회  데이터 검사완료
 const selectPendingPlan = `
-SELECT plan_no, title, content, plan_author, author_no, status, application_no, start, end
+SELECT plan_no, title, content, plan_author, author_no, status, application_no, start, end, plan_date
 FROM plan
 WHERE application_no = ?
 AND status = 0`;

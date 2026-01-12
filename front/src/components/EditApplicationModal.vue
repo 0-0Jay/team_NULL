@@ -6,6 +6,12 @@ import { useRoute, useRouter } from 'vue-router';
 const store = useApplicationStore();
 const router = useRouter();
 const route = useRoute();
+const typeLabel = {
+  ox: 'O / X',
+  reason: '구체적 사유',
+  start: '시작일',
+  end: '종료일'
+};
 
 const props = defineProps({
   modelValue: Boolean,
@@ -14,6 +20,16 @@ const props = defineProps({
 
 const editData = {};
 let data = null;
+
+const formatDate = (v) => {
+  if (!v) return '-';
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return v;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
+};
 
 watch(
   () => props.modelValue,
@@ -27,6 +43,8 @@ watch(
         const before = origin[oKey];
         const after = modify[oKey];
         const question = before.question;
+        console.log(before);
+        console.log(after);
         Object.keys(before).forEach((key) => {
           if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
             if (!editData[question]) {
@@ -80,9 +98,9 @@ const save = async () => {
                   </thead>
                   <tbody>
                     <tr v-for="(ans, type) of data" :key="type">
-                      <td class="text-xl border-collapse border border-gray-400">{{ type }}</td>
-                      <td class="border-collapse border border-gray-400">{{ ans.before }}</td>
-                      <td class="border-collapse border border-gray-400">{{ ans.after }}</td>
+                      <td class="text-base border-collapse border border-gray-400 w-15">{{ typeLabel[type] }}</td>
+                      <td class="border-collapse border border-gray-400 w-40">{{ formatDate(ans.before) }}</td>
+                      <td class="border-collapse border border-gray-400 w-40">{{ formatDate(ans.after) }}</td>
                     </tr>
                   </tbody>
                 </table>

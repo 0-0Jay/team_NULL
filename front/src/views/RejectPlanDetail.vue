@@ -34,7 +34,7 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
-      <div v-if="filterPlan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
+      <div v-if="filterPlan.length === 0" class="text-center card">반려된 지원계획서가 없습니다.</div>
       <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center">반려된 지원계획서 {{ index + 1 }}</div>

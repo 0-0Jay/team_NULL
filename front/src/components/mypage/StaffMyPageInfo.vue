@@ -133,9 +133,6 @@ const formatDate = (v) => {
   </div>
 </template>
 <style scoped>
-.card {
-  margin-top: 38px;
-}
 :deep(.info-row) {
   display: flex;
   flex-direction: column;
