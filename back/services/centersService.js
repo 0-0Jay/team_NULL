@@ -73,8 +73,18 @@ const modifyByCNoCenter = async (data) => {
     operation,
     c_no,
   } = data;
-  const [sido, sigungu, ...rest] = fullAddress.split(" ");
-  const address = rest.join(" ");
+
+  // 시도/시군구만 분리
+  let sido = "",
+    sigungu = "";
+  if (fullAddress?.trim()) {
+    const parts = fullAddress.split(" ");
+    sido = parts[0] || "";
+    sigungu = parts[1] || "";
+  }
+
+  // DB에 넣을 주소는 분리 전 전체 문자열 그대로
+  const address = fullAddress;
 
   let resObj = {};
 

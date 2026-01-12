@@ -150,7 +150,7 @@ function openStaffDialog() {
     </div>
     <div v-else>Loading...</div>
     <!-- 담당자 목록 Dialog -->
-    <Dialog header="담당자" class="text-center" v-model:visible="staffdisplay" :style="{ width: '20vw' }" :modal="true">
+    <Dialog header="기관 담당자" class="text-center" v-model:visible="staffdisplay" :style="{ width: '20vw' }" :modal="true">
       <DataTable :value="staffList" tableStyle="min-width: 15rem">
         <Column field="name" header="담당자명"></Column>
         <Column field="phone" header="연락처"></Column>

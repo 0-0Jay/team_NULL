@@ -407,9 +407,17 @@ const modifyCenterByManager = async ({
   }
   let resObj = {};
   try {
-    // address 분리
-    const [sido, sigungu, ...rest] = address.split(" ");
-    const fullAddress = rest.join(" ");
+    // 기존 주소
+    const originalAddress = address; // DB에 넣을 원본 주소
+
+    // 시도, 시군구만 추출
+    let sido = "",
+      sigungu = "";
+    if (address?.trim()) {
+      const parts = address.split(" ");
+      sido = parts[0] || "";
+      sigungu = parts[1] || "";
+    }
     // 1. 센터 정보 업데이트
     const result1 = await mysql.query(
       "updateCenterByManager", // center 테이블 업데이트 쿼리
@@ -419,7 +427,7 @@ const modifyCenterByManager = async ({
         zipcode,
         sido,
         sigungu,
-        fullAddress,
+        originalAddress,
         address_detail,
         user_no,
       ],
