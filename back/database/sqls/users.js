@@ -9,8 +9,8 @@ WHERE u.id = ? AND u.password = ? AND status != 2`;
 
 // 회원가입
 const insertUsers = `
-INSERT INTO users(id, password, name, email, phone, address, address_detail, zipcode, type, c_no)
-VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?)`;
+INSERT INTO users(id, password, name, email, phone, address, address_detail, zipcode, type, c_no, status)
+VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?, 1)`;
 
 // 아이디 중복 확인
 const selectByIdUsers = `

@@ -25,7 +25,10 @@ const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
   if (Number.isNaN(d.getTime())) return v;
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
 };
 
 watch(
@@ -40,6 +43,8 @@ watch(
         const before = origin[oKey];
         const after = modify[oKey];
         const question = before.question;
+        console.log(before);
+        console.log(after);
         Object.keys(before).forEach((key) => {
           if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
             if (!editData[question]) {

@@ -65,6 +65,20 @@ const approvePlan = async (plan_no) => {
   }
 };
 
+// 반려
+const rejectingMap = ref({});
+const rejectReasonMap = ref({});
+
+const startReject = (resultNo) => {
+  rejectingMap.value[resultNo] = true;
+  rejectReasonMap.value[resultNo] = '';
+};
+
+const openApprove = (planNo) => {
+  pendingPlanNo.value = planNo;
+  showApproveConfirm.value = true;
+};
+
 // 반려 입력창 열기
 const openReject = (planNo) => {
   rejectOpenMap.value[planNo] = true;
@@ -136,7 +150,7 @@ const formatDate = (v) => {
     <Toast />
 
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
-      <div v-if="filterPlan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
+      <div v-if="filterPlan.length === 0" class="text-center card">승인 대기 중인 지원계획서가 없습니다.</div>
 
       <div v-for="(plan, index) in filterPlan" :key="plan.plan_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
