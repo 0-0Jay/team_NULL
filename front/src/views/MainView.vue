@@ -142,22 +142,12 @@ const columnData = computed(() => {
     const counselCount = counsels.get(row.application_no) || 0;
     const manager = managers.get(row.application_no) || '';
 
-    // application 승인
-    // let appReview = 0;
-    // let appApprove = 0;
-
-    // if (row.approve_date) {
-    //   appApprove = 1;
-    // } else {
-    //   appReview = 1;
-    // }
-
     return {
       ...row,
       status: getStatus(row),
       manager_name: manager || '미지정',
-      review_count: toNumber(plan.review_count) + toNumber(result.review_count), // toNumber(appReview)
-      approve_count: toNumber(plan.approve_count) + toNumber(result.approve_count), // toNumber(appApprove)
+      review_count: toNumber(plan.review_count) + toNumber(result.review_count),
+      approve_count: toNumber(plan.approve_count) + toNumber(result.approve_count),
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
       result_count: toNumber(result.approve_count),
       plan_count: toNumber(plan.plan_count),

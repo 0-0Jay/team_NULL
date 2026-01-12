@@ -34,6 +34,7 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
+      <div v-if="filterPlan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
       <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold text-center">반려된 지원계획서 {{ index + 1 }}</div>
@@ -74,14 +75,6 @@ const formatDate = (v) => {
           <label>지원내용</label>
           <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
         </div>
-
-        <!-- 첨부파일 -->
-        <!-- <div class="flex flex-col gap-2 font-semibold">
-          <label>첨부파일</label>
-          <div class="p-2 border rounded bg-gray-50">
-            {{ plan.fileName ?? '첨부파일 없음' }}
-          </div>
-        </div> -->
       </div>
     </div>
   </div>
