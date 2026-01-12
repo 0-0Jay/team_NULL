@@ -125,7 +125,7 @@ const signup = async () => {
     type: type.value
   };
   await store.signUp(formData);
-  router.push({ name: 'LoginNA' });
+  router.push({ name: 'Login' });
 };
 
 const addressSearched = (data) => {

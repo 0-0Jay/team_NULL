@@ -152,7 +152,7 @@ const approve = async (resultNo) => {
     <div v-else class="card text-center">
       <div v-if="route.name == 'result'">승인된 지원결과서가 없습니다.</div>
       <div v-else-if="route.name == 'pendingResult'">승인 대기 중인 지원결과서가 없습니다.</div>
-      <div v-else-if="route.name == 'rejectResult'">반련된 지원결과서가 없습니다.</div>
+      <div v-else-if="route.name == 'rejectResult'">반려된 지원결과서가 없습니다.</div>
     </div>
   </div>
 </template>

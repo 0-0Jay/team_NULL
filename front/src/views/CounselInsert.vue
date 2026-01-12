@@ -79,22 +79,25 @@ const createCounsel = async () => {
       <div class="text-2xl font-bold text-center">상담내역 작성</div>
       <div class="flex flex-wrap gap-6 font-semibold">
         <!-- 작성자 -->
-        <div class="flex flex-col gap-2 flex-1 pt-2">
-          <label for="name">작성자</label>
-          <InputText v-model="counselAuthor" id="name" type="text" placeholder="작성하시는 분의 성함을 입력하세요." />
-        </div>
-
-        <!-- 상담일 -->
-        <div class="flex flex-col gap-2 mb-4 font-semibold">
-          <div class="font-semibold text-xl">상담일</div>
-          <DatePicker :showIcon="true" :showButtonBar="true" v-model="counselDate" />
+        <div class="flex flex-col gap-1 mb-6">
+          <span class="text-sm text-gray-500">작성자</span>
+          <span class="font-semibold text-lg">{{ user.u_name }}</span>
         </div>
       </div>
 
-      <!-- 상담 제목 -->
-      <div class="flex flex-col gap-2 mb-6 font-semibold">
-        <label for="title">제목</label>
-        <InputText v-model="title" placeholder="상담 제목을 입력하세요." id="title" type="text" />
+      <!-- 제목 + 상담일 -->
+      <div class="flex gap-6 mb-6 font-semibold items-end">
+        <!-- 제목 -->
+        <div class="flex flex-col gap-2 flex-1">
+          <label for="title">제목</label>
+          <InputText v-model="title" placeholder="상담 제목을 입력하세요." id="title" type="text" />
+        </div>
+
+        <!-- 상담일 -->
+        <div class="flex flex-col gap-2">
+          <label>상담일</label>
+          <DatePicker :showIcon="true" :showButtonBar="true" v-model="counselDate" />
+        </div>
       </div>
 
       <!-- 상담내용 -->
