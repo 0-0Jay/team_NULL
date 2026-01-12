@@ -4,14 +4,16 @@ import { useResultStore } from '@/stores/result';
 import { onBeforeMount, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-const user = JSON.parse(localStorage.getItem("users")).user[0];
+const user = JSON.parse(localStorage.getItem('users')).user[0];
 const store = useResultStore();
 const route = useRoute();
+const isApprovedRoute = computed(() => route.name === 'result');
 const isPendingRoute = computed(() => route.name === 'pendingResult');
+const isRejectRoute = computed(() => route.name === 'rejectResult');
 const resultList = ref([]);
-const pendingResult = computed(() => resultList.value.filter(v => v.status === 0));
-const approvedResult = computed(() => resultList.value.filter(v => v.status === 1));
-const rejectedResult = computed(() => resultList.value.filter(v => v.status === 2));
+const pendingResult = computed(() => resultList.value.filter((v) => v.status === 0));
+const approvedResult = computed(() => resultList.value.filter((v) => v.status === 1));
+const rejectedResult = computed(() => resultList.value.filter((v) => v.status === 2));
 const visibleResultList = computed(() => {
   if (route.path.includes('/pendingResult')) {
     return pendingResult.value;
@@ -21,11 +23,10 @@ const visibleResultList = computed(() => {
   }
   return approvedResult.value;
 });
+const application_no = route.params.application_no;
 
-onBeforeMount(async() => {
-  const application_no = route.params.application_no;
+onBeforeMount(async () => {
   resultList.value = await store.fetchResultList(application_no);
-  console.log(user);
 });
 
 const formatDate = (v) => {
@@ -52,18 +53,27 @@ const cancelReject = (resultNo) => {
   rejectReasonMap.value[resultNo] = '';
 };
 
-const confirmReject = (resultNo) => {
-  const reason = rejectReasonMap.value[resultNo];
-  console.log('반려 확정', resultNo, reason);
-  // TODO: 반려 API
+const confirmReject = async (resultNo) => {
+  const data = {
+    result_no: resultNo,
+    reason: rejectReasonMap.value[resultNo],
+    status: 2
+  };
+  await store.updateResultStatus(data);
+  resultList.value = await store.fetchResultList(application_no);
   cancelReject(resultNo);
 };
 
 // 승인
-const approve = (resultNo) => {
-  //TODO : 승인요청 API
-}
-
+const approve = async (resultNo) => {
+  const data = {
+    result_no: resultNo,
+    reason: null,
+    status: 1
+  };
+  await store.updateResultStatus(data);
+  resultList.value = await store.fetchResultList(application_no);
+};
 </script>
 
 <template>
@@ -71,7 +81,12 @@ const approve = (resultNo) => {
     <div v-if="visibleResultList.length > 0" class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
       <div v-for="(data, index) in visibleResultList" :key="data.result_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold text-center mb-6">지원결과서 {{ index + 1 }}</div>
+        <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
+          <Button v-if="isApprovedRoute" label="승인" class="status" />
+          <Button v-if="isPendingRoute" label="대기" severity="warn" class="status" />
+          <Button v-if="isRejectRoute" label="반려" severity="danger" class="status" />
+          <span>지원결과서</span>
+        </div>
 
         <!-- 목표, 시작/종료일 -->
         <div class="flex flex-wrap gap-6 mb-4 font-semibold">
@@ -90,9 +105,15 @@ const approve = (resultNo) => {
             <div class="p-2 border rounded bg-gray-50">{{ formatDate(data.end) }}</div>
           </div>
 
-          <div v-if="route.name == 'result'" class="flex flex-col gap-2">
-            <label>승인된 날짜</label>
-            <div class="p-2 border rounded bg-gray-50 text-blue-500 font-bold">
+          <div class="flex flex-col gap-2">
+            <label>{{ isApprovedRoute ? '승인' : isPendingRoute ? '승인요청' : '반려' }}날짜</label>
+            <div v-if="isPendingRoute" class="p-2 border rounded bg-gray-50 font-bold">
+              {{ formatDate(data.result_date) ?? '-' }}
+            </div>
+            <div v-else-if="isRejectRoute" class="p-2 border rounded bg-gray-50 text-red-500 font-bold">
+              {{ formatDate(data.reject_date) ?? '-' }}
+            </div>
+            <div v-else-if="isApprovedRoute" class="p-2 border rounded bg-gray-50 text-blue-500 font-bold">
               {{ formatDate(data.approve_date) ?? '-' }}
             </div>
           </div>
@@ -104,8 +125,13 @@ const approve = (resultNo) => {
           <div class="p-2 border rounded bg-gray-50">{{ data.content ?? '-' }}</div>
         </div>
 
+        <div v-if="isRejectRoute" class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>반려사유</label>
+          <div class="p-2 border rounded bg-gray-50">{{ data.reject ?? '-' }}</div>
+        </div>
+
         <div v-if="isPendingRoute && user.type == 2" class="flex justify-center gap-3 mt-6">
-          <Button @click="approve(data.result_no)" >승인</Button>
+          <Button @click="approve(data.result_no)">승인</Button>
           <Button v-if="!rejectingMap[data.result_no]" severity="danger" @click="startReject(data.result_no)">반려</Button>
           <Button v-else severity="secondary" @click="cancelReject(data.result_no)">취소</Button>
         </div>
@@ -118,15 +144,21 @@ const approve = (resultNo) => {
       </div>
     </div>
     <div v-else class="card text-center">
-      <div v-if="route.name == 'result'" >
-        승인된 지원결과서가 없습니다.
-      </div>
-      <div v-else-if="route.name =='pendingResult'">
-        승인 대기 중인 지원결과서가 없습니다.
-      </div>
-      <div v-else-if="route.name == 'rejectResult'">
-        반련된 지원결과서가 없습니다.
-      </div>
+      <div v-if="route.name == 'result'">승인된 지원결과서가 없습니다.</div>
+      <div v-else-if="route.name == 'pendingResult'">승인 대기 중인 지원결과서가 없습니다.</div>
+      <div v-else-if="route.name == 'rejectResult'">반련된 지원결과서가 없습니다.</div>
     </div>
   </div>
 </template>
+
+<style>
+.status {
+  cursor: default !important;
+  pointer-events: none;
+}
+.status:hover {
+  background-color: inherit !important;
+  color: inherit !important;
+  border-color: inherit !important;
+}
+</style>

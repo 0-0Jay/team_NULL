@@ -12,14 +12,14 @@ export const useResultStore = defineStore('result', {
   //actions
 
   actions: {
-    // 지원'결과'서 목록 조회
+    // 지원결과서 목록 조회
     async fetchResultList(applicationNo) {
       try {
         const result = await axios.get(`/api/result/${applicationNo}`);
         this.resultList = result.data;
         return this.resultList;
       } catch (err) {
-        console.error(err);
+        console.log(err);
       }
     },
 
@@ -29,27 +29,17 @@ export const useResultStore = defineStore('result', {
         const result = await axios.post(`/api/result`, data);
         return result.data;
       } catch (err) {
-        throw err;
+        console.log(err);
       }
     },
 
-    //반려된 지원결과서 조회
-    async fetchRejectResultList(plan_no) {
+    // 지원결과서 승인, 반려
+    async updateResultStatus(data) {
       try {
-        const res = await axios.get(`/api/result/reject/${plan_no}`);
-        this.resultList = res.data;
+        const result = await axios.put('/api/result', data);
+        return result.data;
       } catch (err) {
-        console.error('반려된 지원계획서 조회 실패', err);
-      }
-    },
-
-    //대기중인 지원결과서 조회
-    async fetchPendingResultDetail(plan_no) {
-      try {
-        const res = await axios.get(`/api/result/pending/${plan_no}`);
-        this.resultList = Array.isArray(res.data) ? res.data : [res.data]; //이부분 안넣으면 작동안됨
-      } catch (err) {
-        console.error('지원결과서 조회 실패', err);
+        console.log(err);
       }
     }
   }
