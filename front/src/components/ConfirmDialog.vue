@@ -21,7 +21,7 @@ const props = defineProps({
 const emit = defineEmits(['confirm', 'update:visible']);
 </script>
 <template>
-  <Dialog header="경고" :visible="props.visible" modal :style="{ width: '350px' }" :closable="false" @update:visible="emit('update:visible', $event)">
+  <Dialog header="확인" :visible="props.visible" modal :style="{ width: '350px' }" :closable="false" @update:visible="emit('update:visible', $event)">
     <div class="flex items-center justify-center">
       <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem" />
       <slot />
