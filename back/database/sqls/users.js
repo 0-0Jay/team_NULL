@@ -42,16 +42,29 @@ UPDATE users
 SET password = ? 
 WHERE user_no = ?`;
 
-// 기관 관리자 불러오기
+// =======================================
+// 시스템 관리자용 - 기관 관리자 목록 조회
+// type = 2 (기관 관리자)인 사용자 전체 조회
+// 상태(status != 2)인 활성 사용자만
+// center 테이블 join 해서 소속 센터 이름도 가져옴
+// =======================================
 const selectByCnoUsersCenters = `select u.user_no, u.name as user_name, u.id, c.name as center_name, 
                                         u.phone, u.email, 
-                                        u.created_date, u.status
+                                        u.created_date, u.status,
+                                        u.c_no
                                  from users u
                                  join center c on u.c_no = c.c_no
                                  where u.status != 2 and u.type = 2`;
 
-// 기관 관리자 페이지 - 기관 담당자 불러오기
-// 시스템 관리자
+// =======================================
+// 시스템 관리자용 - 모든 기관 담당자 목록 조회
+// type = 1 (기관 담당자) 전체 조회
+// 상태(status != 2)인 활성 사용자만
+// 소속 센터명(c.name) 가져오기
+// 담당자가 담당한 신청(application)이 몇 건 있는지 count
+// group by: 사용자별 집계
+// order by: 최신 등록(created_date DESC) 순
+// =======================================
 const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email, u.c_no,
                                               c.name as center_name, u.created_date,
                                               u.status, count(m.application_no) as applicant_count
@@ -64,7 +77,15 @@ const selectByUserNoAllUsersManager = `select u.user_no, u.id, u.name, u.phone, 
                                                 c.name, u.created_date, u.status
                                        order by u.created_date desc`;
 
-// 기관 관리자
+// =======================================
+// 시스템 관리자용 - 특정 센터 소속 기관 담당자 목록 조회
+// type = 1 (기관 담당자)만 조회
+// 특정 c_no(센터 번호)에 속한 담당자만 조회
+// 상태(status != 2)인 활성 사용자만
+// 신청 건수(applicant_count) 포함
+// group by: 사용자별 집계
+// order by: 최신 등록(created_date DESC) 순
+// =======================================
 const selectByUserNoUsersManager = `select u.user_no, u.id, u.name, u.phone, u.email,
                                            u.created_date, u.status,
                                            count(distinct ap.a_no) as applicant_count
@@ -94,19 +115,40 @@ const updateStatusDeactivate = `update users u
                                                       where m.user_no = u.user_no
                                                         and m.unassign is null)`;
 
-// 비밀번호 포함 수정
+// 시스템관리자 - 기관 관리자 등록
+const insertManagerByAdmin = `INSERT INTO users (id, password, name, email, phone, type, c_no, zipcode, address, address_detail, status)
+                              SELECT ?, ?, ?, ?, ?, 2, c.c_no, c.zipcode, c.address, c.address_detail, 1
+                              FROM center c
+                              WHERE c.c_no = ?
+                            `;
+
+// 시스템관리자 - 기관 담당자 등록
+const insertStaffByAdmin = `INSERT INTO users (id, password, name, email, phone, type, c_no, zipcode, address, address_detail, status)
+                            SELECT ?, ?, ?, ?, ?, 1, c.c_no, c.zipcode, c.address, c.address_detail, 1
+                            FROM center c
+                            WHERE c.c_no = ?`;
+
+// 시스템 및 기관 관리자 - 기관담당자 정보 수정(비밀번호 포함 수정)
 const updateUserWithPw = `
   update users
   set name = ?, phone = ?, email = ?, c_no = ?, password = ?
   where user_no = ?
 `;
 
-// 비밀번호 제외 수정
+// 시스템 및 기관 관리자 - 기관담당자 정보 수정(비밀번호 제외 수정)
 const updateUserWithoutPw = `
   update users
   set name = ?, phone = ?, email = ?, c_no = ?
   where user_no = ?
 `;
+
+// 시스템 및 기관 관리자 - 기관담당자 센터 변경 시 주소 업데이트
+const updateStaffCenterByAdmin = `UPDATE users u
+                                  JOIN center c ON u.c_no = c.c_no
+                                  SET u.zipcode = c.zipcode,
+                                      u.address = CONCAT(c.sido, ' ', c.sigungu, ' ', c.address),
+                                      u.address_detail = c.address_detail
+                                  WHERE u.user_no = ?`;
 
 // 회원탈퇴
 const updateStatusByUsernoUsers = `
@@ -215,11 +257,22 @@ const selectStaffByManager = `SELECT name, phone
 
 // 기관관리자 마이페이지 - 기관 정보 수정
 const updateCenterByManager = `UPDATE center
-                               SET name = ?, phone = ?, zipcode = ?, address = ?, address_detail = ?
+                               SET name = ?, phone = ?, zipcode = ?, sido = ?, sigungu = ?, address = ?, address_detail = ?
                                WHERE c_no = (
                                  SELECT c_no FROM users
                                  WHERE user_no = ?
                                )`;
+
+// 기관관리자 마이페이지 - 기관 정보 수정시 센터 소속 사용자들의 주소 업데이트
+const updateUserCenterByManager = `UPDATE users u
+                                   JOIN center c ON u.c_no = c.c_no
+                                   SET u.zipcode = c.zipcode,
+                                       u.address = CONCAT(c.sido, ' ', c.sigungu, ' ', c.address),
+                                       u.address_detail = c.address_detail
+                                   WHERE u.c_no = (
+                                     SELECT c_no FROM users
+                                     WHERE user_no = ?
+                                   )`;
 
 // 지원신청내역 담당자 조회
 const selectByUserNoManagerUsers = `select m.application_no,
@@ -252,6 +305,7 @@ module.exports = {
   selectByUserNoStaffUsers,
   updateUserWithPw,
   updateUserWithoutPw,
+  updateStaffCenterByAdmin,
   selectByUserNoApplicant,
   selectByANoApplicant,
   updateByANoApplicant,
@@ -260,6 +314,9 @@ module.exports = {
   selectCenterByManager,
   selectStaffByManager,
   updateCenterByManager,
+  updateUserCenterByManager,
   selectByUserNoManagerUsers,
   selectApplicantByStaff,
+  insertStaffByAdmin,
+  insertManagerByAdmin,
 };

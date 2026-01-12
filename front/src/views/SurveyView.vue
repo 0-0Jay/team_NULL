@@ -46,7 +46,7 @@ const makeTableRows = (secValue) => {
 
 <template>
   <div class="pt-20">
-    <div class="card m-4">
+    <div class="card m-4 h-240">
       <div class="flex justify-between">
         <div class="font-semibold text-xl mb-4">조사지 조회</div>
         <Button label="조사지 수정" as="router-link" to="/editSurvey" />
@@ -57,7 +57,7 @@ const makeTableRows = (secValue) => {
         </TabList>
         <TabPanels>
           <TabPanel v-for="(sec_value, key) in data" :value="key">
-            <DataTable :value="makeTableRows(sec_value)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="800px" tableStyle="min-width: 50rem">
+            <DataTable :value="makeTableRows(sec_value)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="690px" tableStyle="min-width: 50rem">
               <template #groupheader="slotProps">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-md text-xl">{{ slotProps.data.detail }}</span>

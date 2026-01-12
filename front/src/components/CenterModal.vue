@@ -1,14 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useCentersStore } from '@/stores/centers';
-import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['update:modelValue']);
 const props = defineProps({
-  modelValue: Boolean
+  modelValue: Boolean,
+  mode: {
+    type: String,
+    default: 'add' // 'add' | 'edit'
+  },
+  centerData: {
+    type: Object,
+    default: null
+  }
 });
 const store = useCentersStore();
-const router = useRouter();
 
 const centerName = ref('');
 const postcode = ref('');
@@ -17,7 +23,7 @@ const addressDetail = ref('');
 const phone = ref('');
 const email = ref('');
 const operation = ref('1');
-const display = ref(false);
+const addressModalVisible = ref(false);
 
 const formatDate = (v) => {
   if (!v) return '-';
@@ -30,38 +36,72 @@ const formatDate = (v) => {
 };
 const date = formatDate(Date());
 
-const open = () => {
-  display.value = true;
+const openAddressModal = () => {
+  addressModalVisible.value = true;
 };
 
-const close = () => {
-  display.value = false;
+const closeAddressModal = () => {
+  addressModalVisible.value = false;
 };
 
 const addressSearched = (data) => {
   postcode.value = data.zonecode;
   fullAddress.value = data.roadAddress;
-  close();
+  closeAddressModal();
 };
 
-const addCenter = async () => {
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (!isOpen) return;
+
+    if (props.mode === 'edit' && props.centerData) {
+      centerName.value = props.centerData.name;
+      postcode.value = props.centerData.zipcode;
+      fullAddress.value = props.centerData.address;
+      addressDetail.value = props.centerData.address_detail;
+      phone.value = props.centerData.phone;
+      email.value = props.centerData.email;
+      operation.value = String(props.centerData.manage);
+    } else {
+      centerName.value = '';
+      postcode.value = '';
+      fullAddress.value = '';
+      addressDetail.value = '';
+      phone.value = '';
+      email.value = '';
+      operation.value = '1';
+    }
+  }
+);
+
+const saveCenter = async () => {
   const data = {
     centerName: centerName.value,
     postcode: postcode.value,
     fullAddress: fullAddress.value,
     addressDetail: addressDetail.value,
-    email: email.value,
     phone: phone.value,
+    email: email.value,
     operation: operation.value
   };
-  const result = await store.addCenter(data);
-  emit('update:modelValue', false);
-  await store.fetchCenter();
+
+  if(props.mode === 'add'){
+    await store.addCenter(data);
+  } else if(props.mode === 'edit') {
+    data.c_no = props.centerData.c_no; // 수정용 ID
+    await store.modifyByCNoCenter(data);
+  }
+
+  // 공통 처리
+  emit('update:modelValue', false); // 모달 닫기
+  await store.fetchCenter(); // 센터 리스트 갱신
 };
+
 </script>
 
 <template>
-  <Dialog header="기관 등록" :visible="modelValue" @update:visible="emit('update:modelValue', $event)" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+  <Dialog :header="props.mode === 'add' ? '기관 등록' : '기관 정보 수정'" :visible="modelValue" @update:visible="emit('update:modelValue', $event)" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
     <table class="w-full border-collapse">
       <tbody>
         <tr class="border-t border-b">
@@ -74,10 +114,10 @@ const addCenter = async () => {
             <!-- 우편번호 + 버튼 묶음 -->
             <div class="flex gap-2">
               <InputText id="postcode" type="text" placeholder="우편번호" v-model="postcode" disabled />
-              <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+              <Dialog header="주소검색" v-model:visible="addressModalVisible" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                 <VueDaumPostcode @complete="addressSearched" />
               </Dialog>
-              <Button label="우편번호 검색" @click="open"></Button>
+              <Button label="우편번호 검색" @click="openAddressModal"></Button>
             </div>
             <!-- 주소 -->
             <InputText id="address" type="text" placeholder="도로명주소" class="w-full" v-model="fullAddress" disabled />
@@ -112,7 +152,7 @@ const addCenter = async () => {
     </table>
     <template #footer>
       <div class="flex justify-center w-full">
-        <Button label="저장" severity="warn" class="w-30" @click="addCenter" />
+        <Button :label="props.mode === 'add' ? '저장' : '수정'" severity="warn" class="w-30" @click="saveCenter" />
       </div>
     </template>
   </Dialog>

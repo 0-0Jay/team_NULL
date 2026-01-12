@@ -1,40 +1,48 @@
 <!-- 승인 대기중인 지원계획서 조회란 -->
 <script setup>
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
+import { usePlanStore } from '@/stores/plan';
 import { onBeforeMount, computed, ref } from 'vue';
-import { useRoute } from 'vue-router'; //페이지 이동을 위함
+import { useRoute } from 'vue-router';
 import Button from 'primevue/button';
 import { useUsersStore } from '@/stores/users';
 import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
-const store = usePlanStore(); //pinia작업 위함
+const store = usePlanStore();
 const usersStore = useUsersStore();
 const route = useRoute();
 const toast = useToast();
 
 const application_no = Number(route.params.application_no);
-const filterPlan = computed(() => store.planList); // 화면에 보여질 테이터
+const filterPlan = computed(() => store.planList);
 
-const reject = ref('');
-const showReject = ref(false);
-const selectedPlanNo = ref(null); // plan_no 저장용
-const errorMessage = ref('');
-
+// 승인 / 반려 confirm dialog
 const showApproveConfirm = ref(false);
 const showRejectConfirm = ref(false);
 const pendingPlanNo = ref(null);
+const rejectingPlanNo = ref(null);
 
-//승인대기중인 계획서만 화면에 보임
+// 🔽 plan_no별 반려 상태 관리
+const rejectOpenMap = ref({});
+const rejectReasonMap = ref({});
+const errorMessageMap = ref({});
+
+// 승인대기중인 계획서 조회
 onBeforeMount(() => {
   if (!application_no) {
     console.error('application_no 없음:', route.params.application_no);
     return;
   }
-  store.fetchPendingPlanDetail(application_no, 0); // 0 = 대기
+  store.fetchPendingPlanDetail(application_no, 0);
 });
 
-//승인 기능
+// 승인 confirm 열기
+const openApprove = (planNo) => {
+  pendingPlanNo.value = planNo;
+  showApproveConfirm.value = true;
+};
+
+// 승인 처리
 const approvePlan = async (plan_no) => {
   try {
     await store.updatePlanStatus(plan_no, 1);
@@ -42,7 +50,6 @@ const approvePlan = async (plan_no) => {
       severity: 'success',
       summary: '승인 완료',
       detail: '지원계획서가 승인되었습니다.',
-      closable: false,
       life: 2000
     });
     showApproveConfirm.value = false;
@@ -53,7 +60,6 @@ const approvePlan = async (plan_no) => {
       severity: 'error',
       summary: '승인 실패',
       detail: '승인 처리 중 오류가 발생했습니다.',
-      closable: false,
       life: 2500
     });
   }
@@ -73,40 +79,48 @@ const openApprove = (planNo) => {
   showApproveConfirm.value = true;
 };
 
+// 반려 입력창 열기
 const openReject = (planNo) => {
-  showReject.value = true;
-  selectedPlanNo.value = planNo;
+  rejectOpenMap.value[planNo] = true;
+  rejectReasonMap.value[planNo] = '';
+  errorMessageMap.value[planNo] = '';
 };
 
-const cancelReject = (resultNo) => {
-  rejectingMap.value[resultNo] = false;
-  rejectReasonMap.value[resultNo] = '';
+// 반려 입력창 닫기
+const closeReject = (planNo) => {
+  rejectOpenMap.value[planNo] = false;
+  rejectReasonMap.value[planNo] = '';
+  errorMessageMap.value[planNo] = '';
 };
 
-const confirmReject = async (resultNo) => {
-  const data = {
-    result_no: resultNo,
-    reason: rejectReasonMap.value[resultNo],
-    status: 2
-  };
-  await store.updateResultStatus(data);
-  resultList.value = await store.fetchResultList(application_no);
-  cancelReject(resultNo);
+// 반려 confirm 열기
+const openRejectConfirm = (planNo) => {
+  errorMessageMap.value[planNo] = '';
+
+  if (!rejectReasonMap.value[planNo]?.trim()) {
+    errorMessageMap.value[planNo] = '반려 사유를 입력해주세요.';
+    return;
+  }
+
+  rejectingPlanNo.value = planNo;
+  showRejectConfirm.value = true;
 };
 
-//반려 기능
+// 반려 처리
 const rejectPlan = async () => {
   try {
-    await store.updatePlanStatus(selectedPlanNo.value, 2, reject.value);
+    await store.updatePlanStatus(rejectingPlanNo.value, 2, rejectReasonMap.value[rejectingPlanNo.value]);
+
     toast.add({
       severity: 'success',
       summary: '반려 완료',
       detail: '지원계획서가 반려되었습니다.',
-      closable: false,
       life: 2000
     });
+
+    closeReject(rejectingPlanNo.value);
     showRejectConfirm.value = false;
-    closeReject();
+
     await store.fetchPendingPlanDetail(application_no, 0);
   } catch (err) {
     console.error(err);
@@ -114,24 +128,12 @@ const rejectPlan = async () => {
       severity: 'error',
       summary: '반려 실패',
       detail: '반려 처리 중 오류가 발생했습니다.',
-      closable: false,
       life: 2500
     });
   }
 };
 
-const openRejectConfirm = () => {
-  errorMessage.value = '';
-
-  if (!reject.value.trim()) {
-    errorMessage.value = '반려 사유를 입력해주세요.';
-    return;
-  }
-
-  showRejectConfirm.value = true;
-};
-
-//날짜 포멧
+// 날짜 포맷
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -146,6 +148,7 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <Toast />
+
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
       <div v-if="filterPlan.length === 0" class="text-center card">승인 대기 중인 지원계획서가 없습니다.</div>
 
@@ -162,7 +165,7 @@ const formatDate = (v) => {
           <span class="font-semibold text-lg">{{ plan.plan_author ?? '-' }}</span>
         </div>
 
-        <!-- 목표, 시작/종료일 -->
+        <!-- 목표 / 기간 -->
         <div class="flex flex-wrap gap-6 mb-4 font-semibold">
           <div class="flex flex-col gap-2 flex-1">
             <label>목표</label>
@@ -178,6 +181,13 @@ const formatDate = (v) => {
             <label>지원종료일</label>
             <div class="p-2 border rounded bg-gray-50">{{ formatDate(plan.end) }}</div>
           </div>
+
+          <div class="flex flex-col gap-2">
+            <label>승인날짜</label>
+            <div class="p-2 border rounded bg-gray-50 font-bold">
+              {{ formatDate(plan.plan_date) ?? '-' }}
+            </div>
+          </div>
         </div>
 
         <!-- 지원내용 -->
@@ -186,23 +196,23 @@ const formatDate = (v) => {
           <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
         </div>
 
-        <!-- 승인, 반려 버튼 (기관 관리자) -->
+        <!-- 승인 / 반려 -->
         <div v-if="usersStore.isAdmin" class="flex justify-center gap-3 mt-6">
-          <Button label="승인" severity="info" @click="openApprove(plan.plan_no)" />
-          <Button label="반려" severity="danger" @click="openReject(plan.plan_no)" />
-          <!-- <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" /> -->
+          <Button label="승인" @click="openApprove(plan.plan_no)" />
+          <Button v-if="!rejectOpenMap[plan.plan_no]" label="반려" severity="danger" @click="openReject(plan.plan_no)" />
+          <Button v-else label="취소" severity="secondary" @click="closeReject(plan.plan_no)" />
         </div>
-        <div v-if="showReject && selectedPlanNo === plan.plan_no" class="card p-4 mt-4 flex flex-col gap-2">
-          <Textarea v-model="reject" rows="3" autoResize placeholder="반려 사유를 입력해주세요." />
-          <div v-if="errorMessage" class="text-red-500 mt-2">
-            {{ errorMessage }}
+        <div v-if="rejectOpenMap[plan.plan_no]" class="mt-4 p-4 flex flex-col gap-3">
+          <Textarea v-model="rejectReasonMap[plan.plan_no]" rows="4" autoResize placeholder="반려 사유를 입력하세요" />
+          <div v-if="errorMessageMap[plan.plan_no]" class="text-red-500 text-sm">
+            {{ errorMessageMap[plan.plan_no] }}
           </div>
-          <div class="flex gap-2 justify-end">
-            <Button label="반려 확정" severity="danger" size="small" @click="openRejectConfirm" />
-            <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" />
+          <div class="flex justify-center">
+            <Button label="반려 확정" severity="danger" @click="openRejectConfirm(plan.plan_no)" />
           </div>
         </div>
       </div>
+
       <ConfirmDialog v-model:visible="showApproveConfirm" confirmLabel="승인" @confirm="approvePlan(pendingPlanNo)"> 해당 지원계획서를 승인하시겠습니까? </ConfirmDialog>
       <ConfirmDialog v-model:visible="showRejectConfirm" confirmLabel="반려" @confirm="rejectPlan">
         반려 처리 후에는 되돌릴 수 없습니다.<br />

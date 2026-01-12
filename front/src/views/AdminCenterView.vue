@@ -2,7 +2,7 @@
 import { useCentersStore } from '@/stores/centers';
 import { FilterMatchMode } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
-import AddCenterModal from '@/components/AddCenterModal.vue';
+import CenterModal from '@/components/CenterModal.vue';
 import { useRouter } from 'vue-router';
 
 const store = useCentersStore();
@@ -49,7 +49,18 @@ const onPageChange = (e) => {
 
 // 기관 등록 모달 열기
 const display = ref(false);
+const modalMode = ref('add'); // 'add' | 'edit'
 const openAddCenter = () => {
+  modalMode.value = 'add';
+  selectedCenter.value = null;
+  display.value = true;
+};
+
+// 기관 수정 모달 열기
+const selectedCenter = ref(null); // 수정용 데이터
+const openEditCenter = (center) => {
+  modalMode.value = 'edit';
+  selectedCenter.value = center;
   display.value = true;
 };
 </script>
@@ -146,13 +157,13 @@ const openAddCenter = () => {
 
           <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <i class="pi pi-pen-to-square edit-icon" @click="console.log('edit:', data)" />
+              <i class="pi pi-pen-to-square edit-icon" @click="openEditCenter(data)" />
             </template>
           </Column>
         </DataTable>
       </div>
     </section>
-    <AddCenterModal v-model="display" />
+    <CenterModal v-model="display" :mode="modalMode" :centerData="selectedCenter" />
   </div>
 </template>
 

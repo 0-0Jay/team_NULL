@@ -9,7 +9,7 @@ const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 const HEADER_HEIGHT = '3.75rem';
 </script>
 <template>
-  <div class="md:flex-row flex gap-4 pt-12" :style="{ height: `calc(100vh - ${HEADER_HEIGHT})` }">
+  <div class="md:flex-row flex gap-4 pt-24 p-4" :style="{ height: `calc(105vh - ${HEADER_HEIGHT})` }">
     <!-- type에 따라 컴포넌트 선택 -->
     <MyPageInfo v-if="user.type === 0" class="md:w-1/5 h-full flex" />
     <StaffMyPageInfo v-else class="md:w-1/5 h-full flex" />

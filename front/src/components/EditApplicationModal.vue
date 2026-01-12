@@ -6,6 +6,12 @@ import { useRoute, useRouter } from 'vue-router';
 const store = useApplicationStore();
 const router = useRouter();
 const route = useRoute();
+const typeLabel = {
+  ox: 'O / X',
+  reason: '구체적 사유',
+  start: '시작일',
+  end: '종료일'
+};
 
 const props = defineProps({
   modelValue: Boolean,
@@ -92,9 +98,9 @@ const save = async () => {
                   </thead>
                   <tbody>
                     <tr v-for="(ans, type) of data" :key="type">
-                      <td class="text-xl border-collapse border border-gray-400">{{ type }}</td>
-                      <td class="border-collapse border border-gray-400">{{ ans.before }}</td>
-                      <td class="border-collapse border border-gray-400">{{ ans.after }}</td>
+                      <td class="text-base border-collapse border border-gray-400 w-15">{{ typeLabel[type] }}</td>
+                      <td class="border-collapse border border-gray-400 w-40">{{ formatDate(ans.before) }}</td>
+                      <td class="border-collapse border border-gray-400 w-40">{{ formatDate(ans.after) }}</td>
                     </tr>
                   </tbody>
                 </table>
