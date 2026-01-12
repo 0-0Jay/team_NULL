@@ -27,7 +27,7 @@ export const usePlanStore = defineStore('plan', {
     async createPlan(data) {
       try {
         const res = await axios.post(`/api/plan/`, data);
-        this.planList.push(res.data); //목록에 추가
+        console.log(res.data);
         return res.data;
       } catch (err) {
         throw err;
@@ -52,6 +52,7 @@ export const usePlanStore = defineStore('plan', {
           params: { status: 0 } // 0 = 승인대기
         });
         this.planList = Array.isArray(res.data) ? res.data : [res.data];
+        console.log(this.planList);
       } catch (err) {
         console.error('지원계획서 조회 실패', err);
       }
@@ -68,10 +69,13 @@ export const usePlanStore = defineStore('plan', {
     },
 
     //승인, 반려 하면 status값 변경하기 위함
-    async updatePlanStatus(application_no, status) {
+    async updatePlanStatus(plan_no, status, reject = null) {
       try {
-        const res = await axios.patch('/api/plan/status', { application_no, status });
-        return res.data;
+        const response = await axios.patch(
+          `/api/plan/${plan_no}/status`,
+          { status, reject } // reject는 반려일 때만 사용
+        );
+        return response.data;
       } catch (err) {
         console.error('status 값 변경 실패', err);
       }

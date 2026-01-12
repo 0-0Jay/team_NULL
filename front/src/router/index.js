@@ -144,7 +144,7 @@ const router = createRouter({
         },
         // 지원계획서
         {
-          path: 'planInsert',
+          path: 'planInsert/:application_no',
           name: 'planInsert',
           component: () => import('@/views/PlanInsert.vue')
         },
@@ -157,7 +157,7 @@ const router = createRouter({
         {
           path: 'pendingPlanDetail/:application_no',
           name: 'pendingPlanDetail',
-          component: () => import('@/views/PlanDetailContainer.vue')
+          component: () => import('@/views/PendingPlanDetail.vue')
         },
         {
           path: 'rejectPlanDetail/:application_no',
@@ -166,19 +166,19 @@ const router = createRouter({
         },
         // 지원결과서
         {
-          path: 'resultDetail/:application_no',
-          name: 'resultDetail',
+          path: 'result/:application_no',
+          name: 'result',
           component: () => import('@/views/ResultDetail.vue')
         },
         {
-          path: 'rejectResultDetail/:application_no',
-          name: 'rejectResultDetail',
-          component: () => import('@/views/RejectResultDetail.vue')
+          path: 'rejectResult/:application_no',
+          name: 'rejectResult',
+          component: () => import('@/views/ResultDetail.vue')
         },
         {
-          path: 'pendingResultDetail/:application_no',
-          name: 'pendingResultDetail',
-          component: () => import('@/views/PendingResultDetail.vue')
+          path: 'pendingResult/:application_no',
+          name: 'pendingResult',
+          component: () => import('@/views/ResultDetail.vue')
         },
         {
           path: 'resultInsert/:application_no',

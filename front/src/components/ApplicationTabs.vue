@@ -1,12 +1,13 @@
 <script setup>
 import AppMenuItem from '@/layout/AppMenuItem.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const applicationNo = route.params.application_no;
+const user = JSON.parse(localStorage.getItem("users")).user[0]
 
-const model = ref([
+const rawModel = [
   {
     label: '지원신청서',
     items: [{ label: '지원신청서 조회', icon: 'pi pi-fw pi-pen-to-square', to: `/application/view/${applicationNo}` }]
@@ -24,19 +25,34 @@ const model = ref([
       { label: '지원계획서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/planDetail/${applicationNo}` },
       { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/application/pendingPlanDetail/${applicationNo}` },
       { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/application/rejectPlanDetail/${applicationNo}` },
-      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/planInsert/${applicationNo}` }
+      { label: '지원계획서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/planInsert/${applicationNo}`, type: 'write' }
     ]
   },
   {
     label: '지원결과서', // 연결완료
     items: [
-      { label: '지원결과서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/resultDetail/${applicationNo}` },
-      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/application/pendingResultDetail/${applicationNo}` },
-      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/application/rejectResultDetail/${applicationNo}` },
-      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/resultInsert/${applicationNo}` }
+      { label: '지원결과서 조회', icon: 'pi pi-fw pi-fw pi-book', to: `/application/result/${applicationNo}` },
+      { label: '승인대기 조회', icon: 'pi pi-fw pi-spinner-dotted', to: `/application/pendingResult/${applicationNo}` },
+      { label: '반려내역 조회', icon: 'pi pi-fw pi-times-circle', to: `/application/rejectResult/${applicationNo}` },
+      { label: '지원결과서 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/resultInsert/${applicationNo}`, type: 'write' }
     ]
   }
-]);
+];
+
+const model = computed(() => {
+  return rawModel
+    .map(group => {
+      const items = group.items.filter(item => {
+        if (item.type === 'write' && user.type !== 1) {
+          return false;
+        }
+        return true;
+      });
+
+      return { ...group, items };
+    })
+    .filter(group => group.items.length > 0);
+});
 </script>
 
 <template>

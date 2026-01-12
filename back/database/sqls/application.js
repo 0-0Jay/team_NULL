@@ -161,6 +161,7 @@ const updateStatusApprove = `update application
 // reject = null
 const updateStatusReject = `update application
                             set status = 0, reject = ?,
+                                reject_date = now(),
                                 request_date = null,
                                 approve_date = null
                             where application_no = ?

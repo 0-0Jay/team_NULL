@@ -13,23 +13,21 @@ export const useResultStore = defineStore('result', {
 
   actions: {
     // 지원'결과'서 목록 조회
-    async fetchResultList(plan_no, status) {
+    async fetchResultList(applicationNo) {
       try {
-        const res = await axios.get(`/api/result/${plan_no}`, {
-          params: { status }
-        });
-        this.resultList = res.data;
+        const result = await axios.get(`/api/result/${applicationNo}`);
+        this.resultList = result.data;
+        return this.resultList;
       } catch (err) {
-        console.error('승인된 지원계획서 조회 실패', err);
+        console.error(err);
       }
     },
 
     // 지원결과서 입력
     async createResult(data) {
       try {
-        const res = await axios.post(`/api/result`, data);
-        this.resultList.push(res.data); //목록에 추가
-        return res.data;
+        const result = await axios.post(`/api/result`, data);
+        return result.data;
       } catch (err) {
         throw err;
       }

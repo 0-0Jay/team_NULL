@@ -4,28 +4,19 @@ const express = require("express");
 const router = express.Router();
 const planService = require("../services/planService.js");
 
-const multer = require("multer");
+// const multer = require("multer");
 
 // 지원계획서 작성  - 데이터 검사 완료
 router.post("/plan", async (req, res) => {
-  const {
-    title,
-    content,
-    file,
-    plan_author,
-    status,
-    application_no,
-    start,
-    end,
-  } = req.body;
+  const { title, content, plan_author, author_no, application_no, start, end } =
+    req.body;
 
   try {
     const list = await planService.addPlan(
       title,
       content,
-      file,
       plan_author,
-      status,
+      author_no,
       application_no,
       start,
       end
@@ -62,10 +53,9 @@ router.get("/plan/pending/:application_no", async (req, res) => {
 router.patch("/plan/:plan_no/status", async (req, res) => {
   try {
     const { plan_no } = req.params;
-    const { status } = req.body; // 1 = 승인, 2 = 반려
-    console.log("status 변경 요청:", plan_no, status);
+    const { status, reject } = req.body; // reject = 반려 사유
 
-    await planService.changePlanStatus(plan_no, status); // plan_no 단위 처리
+    await planService.changePlanStatus(Number(plan_no), status, reject);
 
     res.json({ success: true });
   } catch (err) {
