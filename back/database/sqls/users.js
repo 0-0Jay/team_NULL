@@ -9,8 +9,8 @@ WHERE u.id = ? AND u.password = ? AND status != 2`;
 
 // 회원가입
 const insertUsers = `
-INSERT INTO users(id, password, name, email, phone, address, address_detail, zipcode, type, c_no, status)
-VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?, 1)`;
+INSERT INTO users(id, password, name, email, phone, address, address_detail, zipcode, type, c_no)
+VALUES(?, ?, ? ,?, ?, ?, ? ,?, ?, ?)`;
 
 // 아이디 중복 확인
 const selectByIdUsers = `
@@ -284,6 +284,12 @@ const selectByUserNoManagerUsers = `select m.application_no,
                                     where m.unassign is null
                                     group by m.application_no`;
 
+// 기관 관리자 - 일반 회원 관리
+const selectByUserNoGeneral = `select u2.*
+                                from users u1
+                                join users u2 on u1.c_no = u2.c_no
+                                where u1.user_no = ? and u1.type = 2 and u2.type = 0 and u2.status != 2`;
+
 module.exports = {
   selectByIdAndPwUsers,
   insertUsers,
@@ -319,4 +325,5 @@ module.exports = {
   selectApplicantByStaff,
   insertStaffByAdmin,
   insertManagerByAdmin,
+  selectByUserNoGeneral,
 };

@@ -572,6 +572,17 @@ const addManagerByAdmin = async ({
   }
 };
 
+// 기관관리자 - 같은 센터 일반회원 목록 조회
+const findGeneralUsersByManager = async (userNo) => {
+  if (!userNo) {
+    return [];
+  }
+
+  const list = await mysql.query("selectByUserNoGeneral", [userNo], "users");
+
+  return list;
+};
+
 module.exports = {
   findByIdAndPwUsers,
   findByNameAndEmailUsers,
@@ -602,4 +613,5 @@ module.exports = {
   findApplicantByStaff,
   addStaffByAdmin,
   addManagerByAdmin,
+  findGeneralUsersByManager,
 };

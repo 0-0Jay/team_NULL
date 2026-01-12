@@ -233,4 +233,19 @@ router.post("/users/manager/new", async (req, res) => {
   res.send(result);
 });
 
+// 기관관리자 - 같은 센터 일반회원 목록 조회
+router.get("/users/:userNo/center/general", async (req, res) => {
+  const userNo = Number(req.params.userNo);
+
+  if (!userNo) {
+    return res.send({
+      status: "fail",
+      message: "user_no 없음",
+    });
+  }
+
+  const list = await usersService.findGeneralUsersByManager(userNo);
+  res.send(list);
+});
+
 module.exports = router;

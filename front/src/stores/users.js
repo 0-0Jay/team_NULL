@@ -11,7 +11,8 @@ export const useUsersStore = defineStore('users', {
     applicant: [],
     applicantDetail: null,
     centerInfo: null,
-    staffList: []
+    staffList: [],
+    generalUsers: []
   }),
   // getters
   //곽현우 작성함 - 관리자 화면 분기용
@@ -324,6 +325,22 @@ export const useUsersStore = defineStore('users', {
       } catch (err) {
         console.error(err);
         return { status: 'error', message: err.message };
+      }
+    },
+    // 기관관리자 - 같은 센터 일반회원 목록 조회
+    async fetchGeneralUsersByManager(userNo) {
+      if (!userNo) {
+        this.generalUsers = [];
+        return [];
+      }
+
+      try {
+        const response = await axios.get(`/api/users/${userNo}/center/general`);
+        this.generalUsers = response.data;
+      } catch (err) {
+        console.log(err);
+        this.generalUsers = [];
+        return [];
       }
     }
   },
