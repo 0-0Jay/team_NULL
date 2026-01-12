@@ -59,6 +59,15 @@ const approvePlan = async (plan_no) => {
   }
 };
 
+// 반려
+const rejectingMap = ref({});
+const rejectReasonMap = ref({});
+
+const startReject = (resultNo) => {
+  rejectingMap.value[resultNo] = true;
+  rejectReasonMap.value[resultNo] = '';
+}
+
 const openApprove = (planNo) => {
   pendingPlanNo.value = planNo;
   showApproveConfirm.value = true;
@@ -69,11 +78,20 @@ const openReject = (planNo) => {
   selectedPlanNo.value = planNo;
 };
 
-const closeReject = () => {
-  showReject.value = false;
-  selectedPlanNo.value = null;
-  reject.value = '';
-  errorMessage.value = '';
+const cancelReject = (resultNo) => {
+  rejectingMap.value[resultNo] = false;
+  rejectReasonMap.value[resultNo] = '';
+};
+
+const confirmReject = async (resultNo) => {
+  const data = {
+    result_no: resultNo,
+    reason: rejectReasonMap.value[resultNo],
+    status: 2
+  };
+  await store.updateResultStatus(data);
+  resultList.value = await store.fetchResultList(application_no);
+  cancelReject(resultNo);
 };
 
 //반려 기능
@@ -133,7 +151,10 @@ const formatDate = (v) => {
 
       <div v-for="(plan, index) in filterPlan" :key="plan.plan_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold text-center mb-6">승인대기중인 지원계획서 {{ index + 1 }}</div>
+        <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
+          <Button label="대기" severity="warn" class="status" />
+          <span>지원계획서</span>
+        </div>
 
         <!-- 작성자 -->
         <div class="flex flex-col gap-1 mb-6">
@@ -166,9 +187,10 @@ const formatDate = (v) => {
         </div>
 
         <!-- 승인, 반려 버튼 (기관 관리자) -->
-        <div v-if="usersStore.isAdmin" class="flex flex-wrap gap-2 justify-center mt-5">
+        <div v-if="usersStore.isAdmin" class="flex justify-center gap-3 mt-6">
           <Button label="승인" severity="info" @click="openApprove(plan.plan_no)" />
           <Button label="반려" severity="danger" @click="openReject(plan.plan_no)" />
+          <!-- <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" /> -->
         </div>
         <div v-if="showReject && selectedPlanNo === plan.plan_no" class="card p-4 mt-4 flex flex-col gap-2">
           <Textarea v-model="reject" rows="3" autoResize placeholder="반려 사유를 입력해주세요." />
@@ -189,3 +211,15 @@ const formatDate = (v) => {
     </div>
   </div>
 </template>
+
+<style>
+.status {
+  cursor: default !important;
+  pointer-events: none;
+}
+.status:hover {
+  background-color: inherit !important;
+  color: inherit !important;
+  border-color: inherit !important;
+}
+</style>

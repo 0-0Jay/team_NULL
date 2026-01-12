@@ -21,13 +21,34 @@ const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
-
-
+const errorMessage = ref('');
 const plan = ref([]);
 const selectedPlanValue = ref(null);
 const planFilteredValue = ref([]);
 
 const submitResult = async () => {
+  errorMessage.value = '';
+  if (!title.value.trim()) {
+    errorMessage.value = '목표를 입력해주세요.';
+    return;
+  }
+  if (!content.value.trim()) {
+    errorMessage.value = '내용을 입력해주세요.';
+    return;
+  }
+  if (!startDate.value) {
+    errorMessage.value = '지원시작일을 선택해주세요.';
+    return;
+  }
+  if (!endDate.value) {
+    errorMessage.value = '지원종료일을 선택해주세요.';
+    return;
+  }
+  if (new Date(startDate.value) > new Date(endDate.value)) {
+    errorMessage.value = '지원종료일은 시작일 이후여야 합니다.';
+    return;
+  }
+
   const data = {
     plan_no: selectedPlanValue.value.plan_no,
     author_no: user.user_no,
@@ -39,7 +60,7 @@ const submitResult = async () => {
   };
   const result = await rStore.createResult(data);
   if (result.status == 'success') {
-    router.push({ path: `/application/pendingResult/${applicationNo}` })
+    router.push({ path: `/application/pendingResult/${applicationNo}` });
   }
 };
 
@@ -65,10 +86,11 @@ watch(selectedPlanValue, (val) => {
   <div class="flex w-full">
     <div class="card flex flex-col w-full h-175">
       <div class="text-2xl font-bold text-center">지원결과서 작성</div>
+
       <!-- 작성자 -->
-      <div class="flex flex-col gap-2 mb-6 font-semibold">
-        <label for="name">작성자</label>
-        <InputText v-model="resultAuthor" id="name" type="text" placeholder="작성자" />
+      <div class="flex flex-col gap-1 mb-6">
+        <span class="text-sm text-gray-500">작성자</span>
+        <span class="font-semibold text-lg">{{ user.u_name }}</span>
       </div>
 
       <div class="flex flex-col gap-2 mb-6 font-semibold">
@@ -100,15 +122,15 @@ watch(selectedPlanValue, (val) => {
         <Textarea v-model="content" placeholder="결과에 맞는 구체적인 지원 내용을 적어주세요." :autoResize="true" rows="9" cols="30" />
       </div>
 
-      <div class="col-span-full lg:col-span-6 mb-2.5">
-        <!-- <div class="font-semibold text-xl mt-3">첨부파일</div> 
+      <!-- <div class="col-span-full lg:col-span-6 mb-2.5"> -->
+      <!-- <div class="font-semibold text-xl mt-3">첨부파일</div> 
         <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" /> -->
-
-        <div class="flex flex-wrap gap-2 justify-center mt-5">
-          <Button label="승인신청" style="width: auto" @click="submitResult" />
-        </div>
+      <div v-if="errorMessage" class="text-red-500 text-center mt-2">
+        {{ errorMessage }}
+      </div>
+      <div class="flex flex-wrap gap-2 justify-center mt-5">
+        <Button label="승인신청" style="width: auto" @click="submitResult" />
       </div>
     </div>
-    <Toast />
   </div>
 </template>
