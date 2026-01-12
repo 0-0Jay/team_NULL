@@ -100,7 +100,7 @@ function openStaffDialog() {
 }
 </script>
 <template>
-  <div class="card flex flex-col gap-4 h-full p-10">
+  <div class="card flex flex-col gap-4 h-full">
     <div v-if="centerInfo">
       <div class="font-semibold text-xl pb-2">기관 정보</div>
       <table class="w-full border-collapse">
