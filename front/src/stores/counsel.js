@@ -12,11 +12,9 @@ export const useCounselStore = defineStore('counsel', {
 
   actions: {
     // 상담내역 목록 조회
-    async fetchCounselList(application_no, save) {
-      //save는 임시저장 여부임
+    async fetchCounselList(application_no) {
       try {
         const res = await axios.get(`/api/counsel/${application_no}`, {
-          params: { save }
         });
         this.counselList = res.data; //목록 조회 - 이게 vue파일에 const filtercounsel = computed(() => store.counselList); 이랑 연결되어야 함
       } catch (err) {

@@ -10,7 +10,7 @@ const selectCounsel = `
 SELECT application_no, title, content, save, counsel_date, save, counsel_author
 FROM counsel
 WHERE application_no = ?
-AND   save = ?`; // 임시저장 여부는 쿼리문이 동일해서 따로 쿼리문 안 만듦
+AND   save = 1`; // 임시저장 여부는 쿼리문이 동일해서 따로 쿼리문 안 만듦
 
 // 상담내역 존재여부
 const selectCountCounsel = `select application_no, count(*) as counsel_count
