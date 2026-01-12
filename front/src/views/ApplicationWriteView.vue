@@ -4,11 +4,14 @@ import { useApplicationStore } from '@/stores/application';
 import { useSurveyStore } from '@/stores/survey';
 import { onMounted, ref, watch, reactive, toRaw, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 const sStore = useSurveyStore();
 const aStore = useApplicationStore();
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
+
 const data = ref({});
 const activeTab = ref('');
 const answers = ref({});
@@ -16,6 +19,8 @@ const answersOrigin = ref({});
 const display = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user[0];
 const applicant = computed(() => aStore.applicant);
+
+const inlineError = ref('');
 
 const editData = reactive({
   whoEdit: user.u_name,
@@ -37,7 +42,7 @@ onMounted(async () => {
   }
   const result = await sStore.fetchSurvey(route.params.application_no);
   data.value = result.data;
-  // 답변 저장소 초기화
+
   addData.version_id = result.version_id;
   Object.values(data.value).forEach((section) => {
     Object.values(section.details).forEach((detail) => {
@@ -55,6 +60,7 @@ onMounted(async () => {
       });
     });
   });
+
   if (route.params.application_no) {
     const tmp = ref(aStore.application);
     Object.values(tmp.value).forEach((answer) => {
@@ -68,7 +74,6 @@ onMounted(async () => {
   }
 });
 
-// 조사지 로드 => 첫 번 째 탭으로 이동
 watch(
   () => data.value,
   (val) => {
@@ -78,7 +83,6 @@ watch(
   { immediate: true }
 );
 
-// 조사지 문항 로드
 const makeTableRows = (secValue) => {
   const rows = [];
   Object.values(secValue.details).forEach((detailValue) => {
@@ -99,31 +103,61 @@ const makeTableRows = (secValue) => {
   return rows;
 };
 
-// 제출
 const submit = async () => {
+  inlineError.value = '';
+
   if (route.params.application_no) {
     editData.originAnswer = answersOrigin.value;
     editData.answer = answers.value;
     display.value = true;
   } else {
     if (!applicant.value.a_no) {
-      alert('지원자를 선택해주세요!');
+      inlineError.value = '지원자를 선택해주세요.';
       return;
     }
+
     addData.a_no = applicant.value.a_no;
     addData.answer = answers.value;
-    const result = await aStore.submitApplication(addData);
-    router.push({ path: `/application/view/${result.applicationNo}` });
+
+    try {
+      const result = await aStore.submitApplication(addData);
+
+      toast.add({
+        severity: 'success',
+        summary: '제출 완료',
+        detail: '지원신청서가 제출되었습니다.',
+        life: 3000,
+        closable: false
+      });
+
+      router.push({ path: `/application/view/${result.applicationNo}` });
+    } catch (err) {
+      console.error(err);
+      toast.add({
+        severity: 'error',
+        summary: '제출 실패',
+        detail: '지원신청서 제출에 실패했습니다.',
+        life: 3000,
+        closable: false
+      });
+    }
   }
 };
 </script>
 
 <template>
   <div class="card h-175">
+    <Toast />
+
     <div class="flex justify-between">
       <div class="font-semibold text-xl mb-4">지원신청서 작성</div>
       <Button label="작성 완료" @click="submit" />
     </div>
+
+    <p v-if="inlineError" class="text-red-500 mb-2">
+      {{ inlineError }}
+    </p>
+
     <Tabs :value="activeTab">
       <TabList>
         <Tab v-for="(value, key) in data" :value="key">{{ value.section }}</Tab>
@@ -137,27 +171,30 @@ const submit = async () => {
                 <span class="ml-8">{{ slotProps.data.info }}</span>
               </div>
             </template>
+
             <Column field="detail"></Column>
             <Column field="no" style="width: 80px" />
+
             <Column field="question">
               <template #body="slotProps">
                 <div class="grid gap-4">
-                  <div>
-                    {{ slotProps.data.question }}
-                  </div>
+                  <div>{{ slotProps.data.question }}</div>
+
                   <div v-if="(slotProps.data.type & 4) != 0" class="flex gap-2 items-start">
                     <div class="font-semibold w-20">구체적 사유</div>
                     <Textarea v-model="answers[slotProps.data.q_no].reason" placeholder="구체적 사유를 입력해주세요." :autoResize="true" rows="2" cols="75" />
                   </div>
+
                   <div v-if="(slotProps.data.type & 2) != 0" class="flex gap-2 items-center">
                     <div class="font-semibold w-20">필요 시기</div>
-                    <DatePicker :showIcon="true" :showButtonBar="true" v-model="answers[slotProps.data.q_no].start"></DatePicker>
+                    <DatePicker :showIcon="true" :showButtonBar="true" v-model="answers[slotProps.data.q_no].start" />
                     <span> ~ </span>
-                    <DatePicker :showIcon="true" :showButtonBar="true" v-model="answers[slotProps.data.q_no].end"></DatePicker>
+                    <DatePicker :showIcon="true" :showButtonBar="true" v-model="answers[slotProps.data.q_no].end" />
                   </div>
                 </div>
               </template>
             </Column>
+
             <Column>
               <template #body="slotProps">
                 <div v-if="(slotProps.data.type & 1) != 0" class="flex items-center gap-4">
@@ -177,6 +214,7 @@ const submit = async () => {
         </TabPanel>
       </TabPanels>
     </Tabs>
+
     <EditApplicationModal v-model="display" :editData="editData" />
   </div>
 </template>

@@ -94,6 +94,12 @@
     display: flex;
     gap: 1rem;
   }
+
+  .topbar-menu {
+    a[aria-current='page'] {
+      border-bottom: 2px solid #444; // 진한 회색
+    }
+  }
 }
 
 @media (max-width: 991px) {

@@ -3,6 +3,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
+import { useToast } from 'primevue/usetoast';
 import RadioButton from 'primevue/radiobutton';
 import DatePicker from 'primevue/datepicker';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
@@ -10,6 +11,8 @@ import router from '@/router';
 
 const route = useRoute();
 const userStore = useUsersStore();
+const toast = useToast();
+
 const applicantDetail = computed(() => userStore.applicantDetail);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 
@@ -31,6 +34,19 @@ const formData = ref({
   nok_phone: '',
   nok_email: ''
 });
+
+const errors = ref({
+  name: '',
+  birth: '',
+  gender: '',
+  zipcode: '',
+  address: '',
+  disability: '',
+  nok_name: '',
+  nok_phone: '',
+  nok_email: ''
+});
+
 const addressSearched = (data) => {
   formData.value.zipcode = data.zonecode;
   formData.value.address = data.roadAddress;
@@ -42,6 +58,55 @@ function openAddress() {
 }
 function closeAddress() {
   display.value = false;
+}
+
+function validateForm() {
+  let isValid = true;
+
+  Object.keys(errors.value).forEach((k) => (errors.value[k] = ''));
+
+  if (!formData.value.name?.trim()) {
+    errors.value.name = '이름을 입력해주세요';
+    isValid = false;
+  }
+  if (!formData.value.birth) {
+    errors.value.birth = '생년월일을 선택해주세요';
+    isValid = false;
+  }
+  if (!formData.value.gender) {
+    errors.value.gender = '성별을 선택해주세요';
+    isValid = false;
+  }
+  if (!formData.value.zipcode) {
+    errors.value.zipcode = '주소를 검색해주세요';
+    isValid = false;
+  }
+  if (!formData.value.address?.trim()) {
+    errors.value.address = '주소를 입력해주세요';
+    isValid = false;
+  }
+  if (!formData.value.disability?.trim()) {
+    errors.value.disability = '장애유형을 입력해주세요';
+    isValid = false;
+  }
+
+  // 2. 담당자일 때만 보호자 필수 검증
+  if (isStaff.value) {
+    if (!formData.value.nok_name?.trim()) {
+      errors.value.nok_name = '보호자 이름을 입력해주세요';
+      isValid = false;
+    }
+    if (!formData.value.nok_phone?.trim()) {
+      errors.value.nok_phone = '보호자 연락처를 입력해주세요';
+      isValid = false;
+    }
+    if (!formData.value.nok_email?.trim()) {
+      errors.value.nok_email = '보호자 이메일을 입력해주세요';
+      isValid = false;
+    }
+  }
+
+  return isValid;
 }
 
 watch(
@@ -72,25 +137,13 @@ watch(applicantDetail, (detail) => {
 
 // 수정 함수
 async function handleUpdate() {
-  // 1. 입력값 유효성 검증
-  if (!formData.value.name?.trim() || !formData.value.birth || formData.value.gender === undefined || formData.value.zipcode == null || !formData.value.address?.trim() || !formData.value.disability?.trim()) {
-    alert('필수 항목을 입력해주세요');
-    return;
-  }
+  if (!validateForm()) return;
 
-  // 2. 담당자일 때만 보호자 필수 검증
-  if (isStaff.value) {
-    if (!formData.value.nok_name?.trim() || !formData.value.nok_phone?.trim() || !formData.value.nok_email?.trim()) {
-      alert('필수 항목을 입력해주세요');
-      return;
-    }
-  }
-
-  // 3. 날짜 포맷
+  // 날짜 포맷
   const d = formData.value.birth;
   const birth = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
 
-  // 4. payload(서버 전송 객체) 생성
+  // payload(서버 전송 객체) 생성
   const payload = {
     a_no: route.params.a_no,
     name: formData.value.name,
@@ -104,14 +157,28 @@ async function handleUpdate() {
     nok_phone: formData.value.nok_phone,
     nok_email: formData.value.nok_email
   };
-  // 5. API 호출
+
   try {
     await userStore.modifyApplicant(payload);
     await userStore.fetchApplicantDetail(route.params.a_no);
-    alert('수정되었습니다.');
+
+    toast.add({
+      severity: 'success',
+      summary: '수정 완료',
+      detail: '수정되었습니다.',
+      life: 3000,
+      closable: false
+    });
   } catch (err) {
     console.error(err);
-    alert('수정 실패');
+
+    toast.add({
+      severity: 'error',
+      summary: '수정 실패',
+      detail: '수정에 실패했습니다.',
+      life: 3000,
+      closable: false
+    });
   }
 }
 
@@ -122,15 +189,29 @@ function openDelConfirm() {
 async function delApplicant() {
   if (!route.params.a_no) return;
   visible.value = false;
-  // API 호출
+
   try {
     await userStore.deleteApplicant(route.params.a_no);
     await userStore.fetchApplicant(user.user_no);
     router.replace({ name: 'myPageApplicantEmpty' });
-    alert('삭제되었습니다.');
+
+    toast.add({
+      severity: 'success',
+      summary: '삭제 완료',
+      detail: '삭제되었습니다.',
+      life: 3000,
+      closable: false
+    });
   } catch (err) {
     console.error(err);
-    alert('삭제 실패');
+
+    toast.add({
+      severity: 'error',
+      summary: '삭제 실패',
+      detail: '삭제에 실패했습니다.',
+      life: 3000,
+      closable: false
+    });
   }
 }
 
@@ -145,8 +226,11 @@ const formatDate = (v) => {
   return `${y}.${m}.${day}`;
 };
 </script>
+
 <template>
   <div class="card flex flex-col gap-4 h-full">
+    <Toast />
+
     <div v-if="applicantDetail">
       <div class="font-semibold text-xl pb-2">{{ applicantDetail.name }} 정보</div>
       <table class="w-full border-collapse">
@@ -155,6 +239,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 w-1/4 border-r">이름</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.name" />
+              <small v-if="errors.name" class="text-red-500">{{ errors.name }}</small>
             </td>
           </tr>
 
@@ -162,6 +247,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">생년월일</th>
             <td class="py-2 px-2">
               <DatePicker v-model="formData.birth" showIcon fluid iconDisplay="input" inputId="icondisplay" />
+              <small v-if="errors.birth" class="text-red-500">{{ errors.birth }}</small>
             </td>
           </tr>
 
@@ -178,6 +264,7 @@ const formatDate = (v) => {
                   <span>여</span>
                 </label>
               </div>
+              <small v-if="errors.gender" class="text-red-500">{{ errors.gender }}</small>
             </td>
           </tr>
 
@@ -191,7 +278,11 @@ const formatDate = (v) => {
                 </Dialog>
                 <Button label="우편번호 검색" @click="openAddress" />
               </div>
+              <small v-if="errors.zipcode" class="text-red-500">{{ errors.zipcode }}</small>
+
               <InputText id="address" type="text" placeholder="도로명주소" class="w-full" v-model="formData.address" disabled />
+              <small v-if="errors.address" class="text-red-500">{{ errors.address }}</small>
+
               <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full" v-model="formData.address_detail" />
             </td>
           </tr>
@@ -200,6 +291,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">장애유형</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.disability" />
+              <small v-if="errors.disability" class="text-red-500">{{ errors.disability }}</small>
             </td>
           </tr>
 
@@ -207,6 +299,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">보호자</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.nok_name" disabled />
+              <small v-if="errors.nok_name" class="text-red-500">{{ errors.nok_name }}</small>
             </td>
           </tr>
 
@@ -214,6 +307,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">보호자 연락처</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.nok_phone" disabled />
+              <small v-if="errors.nok_phone" class="text-red-500">{{ errors.nok_phone }}</small>
             </td>
           </tr>
 
@@ -221,6 +315,7 @@ const formatDate = (v) => {
             <th class="text-left py-2 px-2 border-r">보호자 이메일</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.nok_email" disabled />
+              <small v-if="errors.nok_email" class="text-red-500">{{ errors.nok_email }}</small>
             </td>
           </tr>
 
@@ -236,7 +331,9 @@ const formatDate = (v) => {
         <Button label="삭제" severity="danger" @click="openDelConfirm" />
       </div>
     </div>
+
     <div v-else>Loading...</div>
+
     <ConfirmDialog v-model:visible="visible" @confirm="delApplicant"> 정말로 삭제하시겠습니까? </ConfirmDialog>
   </div>
 </template>

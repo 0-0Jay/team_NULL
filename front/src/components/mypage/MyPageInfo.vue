@@ -2,9 +2,11 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useUsersStore } from '@/stores/users';
+import { useToast } from 'primevue/usetoast';
 import MyInfoEditModal from './EditMyInfoModal.vue';
 
 const userStore = useUsersStore();
+const toast = useToast();
 const myInfo = computed(() => userStore.myInfo);
 const editOpen = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
@@ -22,18 +24,41 @@ function open() {
 const updateMyInfo = async (formData) => {
   // 입력값 유효성 검증
   if (!formData.name?.trim() || !formData.phone || !formData.email?.trim() || formData.zipcode == null || !formData.address?.trim()) {
-    alert('필수 항목을 입력해주세요');
+    toast.add({
+      severity: 'warn',
+      summary: '입력 오류',
+      detail: '필수 항목을 입력해주세요',
+      life: 3000,
+      closable: false
+    });
     return false;
   }
+
   // API 호출
   try {
     await userStore.modifyMyInfo(user.user_no, formData);
     await userStore.fetchMyInfo(user.user_no);
-    alert('수정되었습니다.');
+
+    toast.add({
+      severity: 'success',
+      summary: '수정 완료',
+      detail: '수정되었습니다.',
+      life: 3000,
+      closable: false
+    });
+
     return true;
   } catch (err) {
     console.error(err);
-    alert('수정 실패');
+
+    toast.add({
+      severity: 'error',
+      summary: '수정 실패',
+      detail: '수정에 실패했습니다.',
+      life: 3000,
+      closable: false
+    });
+
     return false;
   }
 };
@@ -57,45 +82,62 @@ const formatDate = (v) => {
   return `${y}.${m}.${day}`;
 };
 </script>
+
 <template>
   <div class="card h-full flex flex-col">
+    <Toast />
+
     <!-- 데이터 있을 때 -->
     <div v-if="myInfo" class="flex flex-col gap-4 flex-1">
       <div class="font-semibold text-xl text-black mb-5">보호자 {{ myInfo.name }}님 반갑습니다.</div>
+
       <table class="w-full border-collapse">
         <tbody>
           <tr>
             <td class="text-left pt-4">아이디</td>
           </tr>
           <tr>
-            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.id }}</td>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">
+              {{ myInfo.id }}
+            </td>
           </tr>
+
           <tr>
             <td class="text-left pt-4">연락처</td>
           </tr>
           <tr>
-            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.phone }}</td>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">
+              {{ myInfo.phone }}
+            </td>
           </tr>
+
           <tr>
             <td class="text-left pt-4">이메일</td>
           </tr>
           <tr>
-            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.email }}</td>
+            <td class="text-left text-lg py-2 font-medium border-b border-gray-300">
+              {{ myInfo.email }}
+            </td>
           </tr>
+
           <tr>
             <td class="text-left pt-4">주소</td>
           </tr>
           <tr>
             <td class="text-left text-lg py-2 font-medium border-b border-gray-300">{{ myInfo.address }} {{ myInfo.address_detail }}</td>
           </tr>
+
           <tr>
             <td class="text-left pt-4">가입일</td>
           </tr>
           <tr>
-            <td class="text-left text-lg py-2 font-medium">{{ formatDate(myInfo.created_date) }}</td>
+            <td class="text-left text-lg py-2 font-medium">
+              {{ formatDate(myInfo.created_date) }}
+            </td>
           </tr>
         </tbody>
       </table>
+
       <div class="flex justify-center w-full mt-auto">
         <Button severity="success" class="mt-8 w-100 h-12" label="나의 정보 수정" @click="open" />
       </div>
@@ -105,9 +147,10 @@ const formatDate = (v) => {
     <div v-else class="text-gray-400">회원 정보를 불러오는 중입니다...</div>
 
     <!-- 수정 모달 -->
-    <MyInfoEditModal :modalValue="editOpen" :myInfo="myInfo" @update:modalValue="editOpen = $event" @save="handleSave"></MyInfoEditModal>
+    <MyInfoEditModal :modalValue="editOpen" :myInfo="myInfo" @update:modalValue="editOpen = $event" @save="handleSave" />
   </div>
 </template>
+
 <style>
 .info-row {
   display: flex;

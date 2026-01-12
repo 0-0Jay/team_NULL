@@ -147,11 +147,11 @@ const handleConfirm = async () => {
     <!-- 메인 -->
     <section class="flex-1 bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
       <div class="flex justify-between items-center mb-5">
-        <h2 class="text-xl font-bold text-gray-800">일반 회원 목록</h2>
+        <h2 class="text-xl font-bold text-gray-800">일반 회원 정보</h2>
 
         <div class="flex gap-2">
-          <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
-          <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
+          <Button label="사용 승인" severity="info" raised :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" raised :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
       </div>
 

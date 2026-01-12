@@ -21,18 +21,56 @@ const router = createRouter({
       component: () => import('@/views/MainView.vue'),
       meta: { showHeader: true }
     },
+    {
+      path: '/questions',
+      component: () => import('@/views/QnaLayout.vue'),
+      meta: { showHeader: true },
+      children: [
+        // FAQ (기본)
+        // {
+        //   path: '',
+        //   name: 'faq',
+        //   component: () => import('@/components/questions/FaqList.vue')
+        // },
+        // {
+        //   path: 'faq/create',
+        //   name: 'faq-create',
+        //   component: () => import('@/components/questions/FaqCreate.vue')
+        // },
+        // {
+        //   path: 'faq/update/:faq_no',
+        //   name: 'faq-update',
+        //   component: () => import('@/components/questions/FaqUpdate.vue')
+        // },
 
-    { path: '/faq', name: 'faq', component: () => import('@/views/faq/FaqList.vue') },
-    {
-      path: '/faq/create',
-      name: 'faq-create',
-      component: () => import('@/views/faq/FaqCreate.vue')
+        // 1:1 문의
+        {
+          path: 'inquiry',
+          name: 'inquiry',
+          component: () => import('@/components/questions/InquiryListView.vue')
+        },
+        {
+          path: 'inquiry/create',
+          name: 'inquiry-create',
+          component: () => import('@/components/questions/InquiryView.vue')
+        },
+
+        // 1:1 문의 상세
+        {
+          path: 'inquiry/:inquiry_no',
+          name: 'inquiry-detail',
+          component: () => import('@/components/questions/InquiryDetailView.vue')
+        }
+
+        // (선택) 수정까지 갈 거면
+        // {
+        //   path: 'inquiry/:inquiry_no/edit',
+        //   name: 'inquiry-edit',
+        //   component: () => import('@/components/questions/InquiryEditView.vue')
+        // }
+      ]
     },
-    {
-      path: '/faq/update/:faq_no',
-      name: 'faq-update',
-      component: () => import('@/views/faq/FaqUpdate.vue')
-    },
+
     {
       path: '/center',
       name: 'center',

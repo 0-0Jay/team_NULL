@@ -3,12 +3,14 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
+import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
 const route = useRoute();
 const userStore = useUsersStore();
+const toast = useToast();
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0];
 
 // 스토어 연결
@@ -23,6 +25,13 @@ const formData = ref({
   address_detail: '',
   phone: '',
   staff_count: ''
+});
+
+const errors = ref({
+  name: '',
+  zipcode: '',
+  address: '',
+  phone: ''
 });
 
 // 데이터 요청
@@ -43,17 +52,34 @@ watch(centerInfo, (info) => {
     phone: info.phone,
     staff_count: info.staff_count
   };
+
+  Object.keys(errors.value).forEach((k) => (errors.value[k] = ''));
 });
 
 // 수정 함수
 async function handleUpdate() {
-  // 1. 입력값 유효성 검증
-  if (!formData.value.name?.trim() || formData.value.zipcode == null || !formData.value.address?.trim() || !formData.value.phone?.trim()) {
-    alert('필수 항목을 입력해주세요');
-    return;
+  Object.keys(errors.value).forEach((k) => (errors.value[k] = ''));
+  let valid = true;
+
+  if (!formData.value.name?.trim()) {
+    errors.value.name = '기관명을 입력해주세요';
+    valid = false;
+  }
+  if (!formData.value.zipcode) {
+    errors.value.zipcode = '주소를 검색해주세요';
+    valid = false;
+  }
+  if (!formData.value.address?.trim()) {
+    errors.value.address = '주소를 입력해주세요';
+    valid = false;
+  }
+  if (!formData.value.phone?.trim()) {
+    errors.value.phone = '전화번호를 입력해주세요';
+    valid = false;
   }
 
-  // 2. payload(서버 전송 객체) 생성
+  if (!valid) return;
+
   const payload = {
     user_no: user.user_no,
     name: formData.value.name,
@@ -62,13 +88,25 @@ async function handleUpdate() {
     address_detail: formData.value.address_detail,
     phone: formData.value.phone
   };
-  // 5. API 호출
+
   try {
     await userStore.modifyCenterInfo(payload);
-    alert('수정되었습니다.');
+    toast.add({
+      severity: 'success',
+      summary: '수정 완료',
+      detail: '수정되었습니다.',
+      life: 3000,
+      closable: false
+    });
   } catch (err) {
     console.error(err);
-    alert('수정 실패');
+    toast.add({
+      severity: 'error',
+      summary: '수정 실패',
+      detail: '수정 실패',
+      life: 3000,
+      closable: false
+    });
   }
 }
 
@@ -99,8 +137,11 @@ function openStaffDialog() {
   openStaff();
 }
 </script>
+
 <template>
   <div class="card flex flex-col gap-4 h-full">
+    <Toast />
+
     <div v-if="centerInfo">
       <div class="font-semibold text-xl pb-2">기관 정보</div>
       <table class="w-full border-collapse">
@@ -109,6 +150,7 @@ function openStaffDialog() {
             <th class="text-left py-2 px-2 w-1/4 border-r">기관명</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.name" />
+              <small v-if="errors.name" class="text-red-500">{{ errors.name }}</small>
             </td>
           </tr>
 
@@ -116,14 +158,18 @@ function openStaffDialog() {
             <th class="text-left py-2 px-2 border-r">주소</th>
             <td class="py-2 px-2 flex flex-col gap-2">
               <div class="flex gap-2">
-                <InputText id="zipcode" type="text" placeholder="우편번호" v-model="formData.zipcode" disabled />
+                <InputText type="text" placeholder="우편번호" v-model="formData.zipcode" disabled />
                 <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                   <VueDaumPostcode @complete="addressSearched" />
                 </Dialog>
                 <Button label="우편번호 검색" @click="openAddress" />
               </div>
-              <InputText id="address" type="text" placeholder="도로명주소" class="w-full" v-model="formData.address" disabled />
-              <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full" v-model="formData.address_detail" />
+              <small v-if="errors.zipcode" class="text-red-500">{{ errors.zipcode }}</small>
+
+              <InputText type="text" placeholder="도로명주소" class="w-full" v-model="formData.address" disabled />
+              <small v-if="errors.address" class="text-red-500">{{ errors.address }}</small>
+
+              <InputText type="text" placeholder="상세주소" class="w-full" v-model="formData.address_detail" />
             </td>
           </tr>
 
@@ -131,6 +177,7 @@ function openStaffDialog() {
             <th class="text-left py-2 px-2 border-r">전화번호</th>
             <td class="py-2 px-2">
               <InputText type="text" class="w-full" v-model="formData.phone" />
+              <small v-if="errors.phone" class="text-red-500">{{ errors.phone }}</small>
             </td>
           </tr>
 
@@ -148,8 +195,9 @@ function openStaffDialog() {
         <Button label="수정" @click="handleUpdate" />
       </div>
     </div>
+
     <div v-else>Loading...</div>
-    <!-- 담당자 목록 Dialog -->
+
     <Dialog header="기관 담당자" class="text-center" v-model:visible="staffdisplay" :style="{ width: '20vw' }" :modal="true">
       <DataTable :value="staffList" tableStyle="min-width: 15rem">
         <Column field="name" header="담당자명"></Column>
