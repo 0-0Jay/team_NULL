@@ -6,6 +6,7 @@ import { onBeforeMount, computed, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import StaffModal from '@/components/StaffModal.vue';
 
 const store = useUsersStore();
 const centerStore = useCentersStore();
@@ -40,17 +41,6 @@ const visible = ref(false);
 const pendingStatus = ref(null); // 1: 승인, 2: 비활성
 const ConfirmMsg = ref('');
 
-// 수정
-const editDialog = ref(false);
-const editUser = ref({});
-const msg = ref({
-  name: false,
-  centerName: false,
-  phone: false,
-  email: false,
-  pwConfirm: false
-});
-
 onBeforeMount(() => {
   store.fetchStaff();
 });
@@ -78,31 +68,17 @@ const onPageChange = (e) => {
   selectedRows.value = [];
 };
 
-// 라디오
+// 라디오 필터
 const filterStaff = computed(() => {
   // 전체
-  if (radioValue.value === -1) {
-    return store.staff;
-  }
-
+  if (radioValue.value === -1) return store.staff;
   // 승인 / 대기
   return store.staff.filter((row) => row.status === radioValue.value);
-});
-
-const nameMsg = computed(() => msg.value.name && editUser.value.name === '');
-// const centerNameMsg = computed(() => user.type === 3 && !editUser.value.c_no);
-const phoneMsg = computed(() => msg.value.phone && editUser.value.phone === '');
-const emailMsg = computed(() => msg.value.email && editUser.value.email === '');
-const pwMismatch = computed(() => {
-  if (!msg.value.pwConfirm) return false;
-  if (!editUser.value.password) return false;
-  return editUser.value.password !== editUser.value.pwConfirm;
 });
 
 // 회원 상태 변경(사용승인, 비활성화)
 const changeStatus = async (status) => {
   const userNos = selectedRows.value.map((row) => row.user_no);
-
   if (userNos.length === 0) return;
 
   try {
@@ -182,30 +158,6 @@ const handleConfirm = async () => {
   pendingStatus.value = null;
 };
 
-// 수정 버튼 클릭
-const openEdit = (data) => {
-  editUser.value = { ...data }; // 기존 값 그대로 복사
-  console.log('수정 창 : ', editUser.value);
-
-  if (data.c_no && data.center_name) {
-    selectedAutoValue.value = {
-      c_no: data.c_no,
-      name: data.center_name
-    };
-  } else {
-    selectedAutoValue.value = null;
-  }
-
-  msg.value = {
-    name: false,
-    centerName: false,
-    phone: false,
-    email: false,
-    pwConfirm: false
-  };
-  editDialog.value = true;
-};
-
 // 기관 검색(자동완성)
 const searchCenter = async (e) => {
   const name = e.query;
@@ -218,51 +170,21 @@ const searchCenter = async (e) => {
   autoFilteredValue.value = await centerStore.searchCenter(name);
 };
 
-const selectCenter = (e) => {
-  selectedAutoValue.value = e.value;
-  editUser.value.c_no = e.value.c_no;
+// 등록 모달 열기
+const display = ref(false);
+const modalMode = ref('add'); // 'add' | 'edit'
+const openAddModal = () => {
+  modalMode.value = 'add';
+  selectedUser.value = null;
+  display.value = true;
 };
 
-const loadAllCenters = async () => {
-  autoFilteredValue.value = await centerStore.searchCenter('');
-};
-
-const submitEdit = async () => {
-  const info = {
-    name: editUser.value.name,
-    phone: editUser.value.phone,
-    email: editUser.value.email
-  };
-
-  // 비밀번호 입력한 경우만
-  if (editUser.value.password) {
-    info.password = editUser.value.password;
-  }
-
-  // 기관 변경한 경우만
-  if (selectedAutoValue.value) {
-    info.c_no = selectedAutoValue.value.c_no;
-  }
-
-  try {
-    const result = await store.modifyStaff(editUser.value.user_no, info);
-    console.log('modifyStaff 결과', result);
-
-    if (result?.status === 'success') {
-      toast.add({
-        severity: 'success',
-        summary: '수정 완료',
-        detail: '정보가 수정되었습니다.',
-        closable: false,
-        life: 2000
-      });
-
-      await store.fetchStaff();
-      editDialog.value = false;
-    }
-  } catch (e) {
-    console.error('수정 중 에러', e);
-  }
+// 수정 모달 열기
+const selectedUser = ref(null); // 수정용 데이터
+const openEditModal = (data) => {
+  modalMode.value = 'edit';
+  selectedUser.value = data;
+  display.value = true;
 };
 </script>
 
@@ -289,7 +211,7 @@ const submitEdit = async () => {
         </h2>
 
         <div class="flex gap-2">
-          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" />
+          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" @click="openAddModal" />
           <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
           <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
@@ -331,7 +253,7 @@ const submitEdit = async () => {
           </Column>
 
           <Column header="연락처" headerClass="table-header" bodyClass="table-body" style="width: 130px">
-            <template #body="{ data }">{{ data.phone ?? '-' }}</template>
+            <template #body="{ data }">{{ data.phone || '-' }}</template>
           </Column>
 
           <Column header="이메일" headerClass="table-header" bodyClass="table-body" style="width: 260px">
@@ -354,75 +276,13 @@ const submitEdit = async () => {
 
           <Column header="수정" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ data }">
-              <i class="pi pi-pen-to-square edit-icon" @click="openEdit(data)" />
+              <i class="pi pi-pen-to-square edit-icon" @click="openEditModal(data)" />
             </template>
           </Column>
         </DataTable>
       </div>
     </section>
-
-    <Dialog v-model:visible="editDialog" :style="{ width: '450px' }" header="담당자 정보 수정" :modal="true">
-      <div class="flex flex-col gap-6">
-        <div>
-          <label class="block font-bold mb-3">아이디</label>
-          <div class="p-2 bg-gray-100 rounded text-gray-600">
-            {{ editUser.id }}
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold mb-3">담당자명</label>
-          <InputText v-model.trim="editUser.name" @input="msg.name = true" :invalid="nameMsg" fluid />
-          <small v-if="nameMsg" class="text-red-500"> 담당자명을 입력해주세요. </small>
-        </div>
-
-        <div v-if="user.type === 3">
-          <label class="block font-bold mb-3">기관명</label>
-          <IconField iconPosition="left">
-            <InputIcon class="pi pi-search" />
-            <AutoComplete
-              v-model="selectedAutoValue"
-              :suggestions="autoFilteredValue"
-              optionLabel="name"
-              placeholder="기관명 검색"
-              complete-on-focus
-              @focus="loadAllCenters"
-              dropdown
-              @complete="searchCenter"
-              @item-select="selectCenter"
-              forceSelection
-              fluid
-            />
-          </IconField>
-        </div>
-
-        <div>
-          <label class="block font-bold mb-3">연락처</label>
-          <InputText v-model.trim="editUser.phone" @input="msg.phone = true" :invalid="phoneMsg" fluid />
-          <small v-if="phoneMsg" class="text-red-500"> 연락처를 입력해주세요. </small>
-        </div>
-
-        <div>
-          <label class="block font-bold mb-3">이메일</label>
-          <InputText v-model.trim="editUser.email" @input="msg.email = true" :invalid="emailMsg" fluid />
-          <small v-if="emailMsg" class="text-red-500"> 이메일을 입력해주세요. </small>
-        </div>
-
-        <div>
-          <label class="block font-bold mb-3">비밀번호 변경</label>
-
-          <InputText v-model="editUser.password" type="password" placeholder="새 비밀번호 입력" fluid class="mb-2" />
-
-          <InputText v-model="editUser.pwConfirm" type="password" placeholder="비밀번호 재확인" @input="msg.pwConfirm = true" fluid />
-          <small v-if="pwMismatch" class="text-red-500"> 비밀번호가 일치하지 않습니다. </small>
-        </div>
-      </div>
-
-      <template #footer>
-        <Button label="취소" icon="pi pi-times" text @click="editDialog = false" />
-        <Button label="수정" icon="pi pi-check" @click="submitEdit" />
-      </template>
-    </Dialog>
+    <StaffModal v-model="display" :mode="modalMode" :userData="selectedUser" />
   </div>
 
   <ConfirmDialog v-model:visible="visible" @confirm="handleConfirm">
