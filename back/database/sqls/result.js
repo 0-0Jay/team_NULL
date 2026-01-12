@@ -5,78 +5,17 @@ const insertResult = `
 INSERT INTO result(plan_no, title, content, start, end, status, result_author, author_no)
 VALUES(?, ?, ?, ?, ?, 0, ?, ?)`;
 
-//승인된 지원 결과서 조회
-// const selectResult = `
-// SELECT plan_no, title, content, file, start, end, result_no, status, approve_date, result_author
-// FROM result
-// WHERE plan_no = ?
-// AND   status = 1`;
-
+// 지원결과서 조회
 const selectResult = `
 SELECT p.application_no, r.*
 FROM plan p JOIN result r ON p.plan_no = r.plan_no
-WHERE p.application_no = ?`
+WHERE p.application_no = ?`;
 
-//반려된 지원계획서 조회
-// const rejectResult = `
-// SELECT plan_no, title, content, file, start, end, result_no, status, reject_date, result_author
-// FROM result
-// WHERE plan_no = ?
-// AND   status = 2`;
-
-const rejectResult = `
-SELECT
-    a.application_no,
-
-    p.plan_no,
-    p.title       AS plan_title,
-
-    r.result_no,
-    r.title       AS result_title,
-    r.content,
-    r.file,
-    r.start,
-    r.end,
-    r.status,
-    r.reject_date,
-    r.result_author
-FROM application a
-JOIN plan p
-    ON a.application_no = p.application_no
-JOIN result r
-    ON p.plan_no = r.plan_no
-WHERE a.application_no = ?
-AND r.status = 2`;
-
-//승인대기 지원결과서 조회
-// const selectPendingResult = `
-// SELECT plan_no, title, content, file, start, end, result_no, status, result_author
-// FROM result
-// WHERE plan_no = ?
-// AND   status = 0`; // 대기중인 것만 불러 올려고 0 삽입  // 지원계획서를 기준으로 결과서를 작성해서 plan_no를 가져옴
-
-const selectPendingResult = `
-SELECT
-    a.application_no,
-
-    p.plan_no,
-    p.title       AS plan_title,
-
-    r.result_no,
-    r.title       AS result_title,
-    r.content,
-    r.file,
-    r.start,
-    r.end,
-    r.status,
-    r.result_author
-FROM application a
-JOIN plan p
-    ON a.application_no = p.application_no
-JOIN result r
-    ON p.plan_no = r.plan_no
-WHERE a.application_no = ?
-AND r.status = 0`;
+// 지원결과서 승인/반려
+const updateResult = `
+UPDATE result
+SET status = ?, reject = ?, reject_date = CURDATE()
+WHERE result_no = ?`;
 
 // 지원결과서 승인, 반려, 검토, 결과 집계
 const selectCountResult = `select p.application_no,
@@ -91,7 +30,6 @@ const selectCountResult = `select p.application_no,
 module.exports = {
   insertResult,
   selectResult,
-  rejectResult,
-  selectPendingResult,
+  updateResult,
   selectCountResult,
 };
