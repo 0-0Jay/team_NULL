@@ -6,6 +6,7 @@ import { useRoute } from 'vue-router'; //페이지 이동을 위함
 import Button from 'primevue/button';
 import { useUsersStore } from '@/stores/users';
 import { useToast } from 'primevue/usetoast';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 const store = usePlanStore(); //pinia작업 위함
 const usersStore = useUsersStore();
@@ -19,6 +20,10 @@ const reject = ref('');
 const showReject = ref(false);
 const selectedPlanNo = ref(null); // plan_no 저장용
 const errorMessage = ref('');
+
+const showApproveConfirm = ref(false);
+const showRejectConfirm = ref(false);
+const pendingPlanNo = ref(null);
 
 //승인대기중인 계획서만 화면에 보임
 onBeforeMount(() => {
@@ -40,6 +45,7 @@ const approvePlan = async (plan_no) => {
       closable: false,
       life: 2000
     });
+    showApproveConfirm.value = false;
     await store.fetchPendingPlanDetail(application_no, 0);
   } catch (err) {
     console.error(err);
@@ -60,6 +66,16 @@ const rejectReasonMap = ref({});
 const startReject = (resultNo) => {
   rejectingMap.value[resultNo] = true;
   rejectReasonMap.value[resultNo] = '';
+}
+
+const openApprove = (planNo) => {
+  pendingPlanNo.value = planNo;
+  showApproveConfirm.value = true;
+};
+
+const openReject = (planNo) => {
+  showReject.value = true;
+  selectedPlanNo.value = planNo;
 };
 
 const cancelReject = (resultNo) => {
@@ -80,11 +96,6 @@ const confirmReject = async (resultNo) => {
 
 //반려 기능
 const rejectPlan = async () => {
-  errorMessage.value = '';
-  if (!reject.value.trim()) {
-    errorMessage.value = '반려 사유를 입력해주세요.';
-    return;
-  }
   try {
     await store.updatePlanStatus(selectedPlanNo.value, 2, reject.value);
     toast.add({
@@ -94,6 +105,7 @@ const rejectPlan = async () => {
       closable: false,
       life: 2000
     });
+    showRejectConfirm.value = false;
     closeReject();
     await store.fetchPendingPlanDetail(application_no, 0);
   } catch (err) {
@@ -106,6 +118,17 @@ const rejectPlan = async () => {
       life: 2500
     });
   }
+};
+
+const openRejectConfirm = () => {
+  errorMessage.value = '';
+
+  if (!reject.value.trim()) {
+    errorMessage.value = '반려 사유를 입력해주세요.';
+    return;
+  }
+
+  showRejectConfirm.value = true;
 };
 
 //날짜 포멧
@@ -163,19 +186,9 @@ const formatDate = (v) => {
           <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
         </div>
 
-        <!-- 첨부파일 -->
-        <!--
-        <div class="flex flex-col gap-2 font-semibold">
-          <label>첨부파일</label>
-          <div class="p-2 border rounded bg-gray-50">
-            {{ plan.fileName ?? '첨부파일 없음' }}
-          </div>
-        </div>
-        -->
-
         <!-- 승인, 반려 버튼 (기관 관리자) -->
         <div v-if="usersStore.isAdmin" class="flex justify-center gap-3 mt-6">
-          <Button label="승인" style="width: auto" severity="info" @click="approvePlan(plan.plan_no)" />
+          <Button label="승인" severity="info" @click="openApprove(plan.plan_no)" />
           <Button label="반려" severity="danger" @click="openReject(plan.plan_no)" />
           <!-- <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" /> -->
         </div>
@@ -185,11 +198,16 @@ const formatDate = (v) => {
             {{ errorMessage }}
           </div>
           <div class="flex gap-2 justify-end">
-            <Button label="반려 확정" severity="danger" size="small" @click="rejectPlan" />
+            <Button label="반려 확정" severity="danger" size="small" @click="openRejectConfirm" />
             <Button label="취소" severity="secondary" size="small" outlined @click="closeReject" />
           </div>
         </div>
       </div>
+      <ConfirmDialog v-model:visible="showApproveConfirm" confirmLabel="승인" @confirm="approvePlan(pendingPlanNo)"> 해당 지원계획서를 승인하시겠습니까? </ConfirmDialog>
+      <ConfirmDialog v-model:visible="showRejectConfirm" confirmLabel="반려" @confirm="rejectPlan">
+        반려 처리 후에는 되돌릴 수 없습니다.<br />
+        정말 반려하시겠습니까?
+      </ConfirmDialog>
     </div>
   </div>
 </template>

@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useApplicationStore } from '@/stores/application';
 import { useUsersStore } from '@/stores/users';
 import { useToast } from 'primevue/usetoast';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 const props = defineProps({
   applicationNo: {
@@ -25,6 +26,8 @@ const manager = ref([]);
 const selectedManagerValue = ref(null);
 const managerFilteredValue = ref([]);
 
+const showAssignConfirm = ref(false);
+
 onMounted(async () => {
   manager.value = await uStore.fetchStaff();
 });
@@ -40,6 +43,34 @@ const searchManager = (event) => {
 
 // 담당자 지정
 const assignManager = async () => {
+  const mUserNo = selectedManagerValue.value.user_no;
+
+  try {
+    await aStore.insertManager(props.applicationNo, mUserNo);
+    toast.add({
+      severity: 'success',
+      summary: '지정 완료',
+      detail: '담당자가 지정되었습니다.',
+      closable: false,
+      life: 2000
+    });
+
+    selectedManagerValue.value = null;
+    showAssignConfirm.value = false;
+    emit('assigned'); // 부모 컴포넌트에게 알림
+  } catch (err) {
+    console.log(err);
+    toast.add({
+      severity: 'error',
+      summary: '지정 실패',
+      detail: result.message || '담당자 지정 실패',
+      closable: false,
+      life: 2500
+    });
+  }
+};
+
+const openAssignConfirm = () => {
   if (!selectedManagerValue.value) {
     toast.add({
       severity: 'warn',
@@ -51,29 +82,7 @@ const assignManager = async () => {
     return;
   }
 
-  const mUserNo = selectedManagerValue.value.user_no;
-  const result = await aStore.insertManager(props.applicationNo, mUserNo);
-
-  if (result.status === 'success') {
-    toast.add({
-      severity: 'success',
-      summary: '지정 완료',
-      detail: '담당자가 지정되었습니다.',
-      closable: false,
-      life: 2000
-    });
-
-    selectedManagerValue.value = null;
-    emit('assigned'); // 부모 컴포넌트에게 알림
-  } else {
-    toast.add({
-      severity: 'error',
-      summary: '지정 실패',
-      detail: result.message || '담당자 지정 실패',
-      closable: false,
-      life: 2500
-    });
-  }
+  showAssignConfirm.value = true;
 };
 </script>
 
@@ -85,6 +94,10 @@ const assignManager = async () => {
 
     <AutoComplete v-model="selectedManagerValue" :suggestions="managerFilteredValue" optionLabel="name" placeholder="담당자명" dropdown completeOnFocus @complete="searchManager" />
 
-    <Button label="담당자 지정" @click="assignManager" />
+    <Button label="담당자 지정" @click="openAssignConfirm" />
+    <ConfirmDialog v-model:visible="showAssignConfirm" confirmLabel="지정" @confirm="assignManager">
+      선택한 담당자를<br />
+      해당 신청 건의 담당자로 지정하시겠습니까?
+    </ConfirmDialog>
   </div>
 </template>

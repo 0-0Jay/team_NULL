@@ -8,7 +8,7 @@ const store = usePlanStore(); //pinia작업 위함
 const route = useRoute(); // 현재 경로 확인용
 const router = useRouter();
 
-const filterplan = computed(() => store.planList); // 화면에 보여질 테이터
+const filterPlan = computed(() => store.planList); // 화면에 보여질 테이터
 
 onMounted(() => {
   const application_no = Number(route.params.application_no);
@@ -34,7 +34,8 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
-      <div v-for="(plan, index) in filterplan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
+      <div v-if="filterPlan.length === 0" class="text-center py-6 text-gray-400 text-xl font-bold">데이터 없음</div>
+      <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
           <Button label="승인" class="status" />
