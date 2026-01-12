@@ -109,9 +109,6 @@ const formatDate = (v) => {
   </div>
 </template>
 <style>
-.card {
-  margin-top: 38px;
-}
 .info-row {
   display: flex;
   flex-direction: column;
