@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const applicationNo = route.params.application_no;
-const user = JSON.parse(localStorage.getItem("users")).user[0]
+const user = JSON.parse(localStorage.getItem('users')).user[0];
 
 const rawModel = [
   {
@@ -15,8 +15,8 @@ const rawModel = [
   {
     label: '상담내역', // 연결완료
     items: [
-      { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/application/counselDetail/${applicationNo}` },
-      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/counselInsert/${applicationNo}` }
+      { label: '상담내역 조회', icon: 'pi pi-fw pi-book', to: `/application/counselDetail/${applicationNo}`, type: 'counsel' },
+      { label: '상담내역 작성', icon: 'pi pi-fw pi-pen-to-square', to: `/application/counselInsert/${applicationNo}`, type: 'write' }
     ]
   },
   {
@@ -41,9 +41,13 @@ const rawModel = [
 
 const model = computed(() => {
   return rawModel
-    .map(group => {
-      const items = group.items.filter(item => {
+    .map((group) => {
+      const items = group.items.filter((item) => {
         if (item.type === 'write' && user.type !== 1) {
+          return false;
+        }
+        // 상담내역 조회: user.type === 0(일반회원) 이면 숨김
+        if (item.type === 'counsel' && user.type === 0) {
           return false;
         }
         return true;
@@ -51,7 +55,7 @@ const model = computed(() => {
 
       return { ...group, items };
     })
-    .filter(group => group.items.length > 0);
+    .filter((group) => group.items.length > 0);
 });
 </script>
 

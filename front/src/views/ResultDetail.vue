@@ -4,14 +4,14 @@ import { useResultStore } from '@/stores/result';
 import { onBeforeMount, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-const user = JSON.parse(localStorage.getItem("users")).user[0];
+const user = JSON.parse(localStorage.getItem('users')).user[0];
 const store = useResultStore();
 const route = useRoute();
 const isPendingRoute = computed(() => route.name === 'pendingResult');
 const resultList = ref([]);
-const pendingResult = computed(() => resultList.value.filter(v => v.status === 0));
-const approvedResult = computed(() => resultList.value.filter(v => v.status === 1));
-const rejectedResult = computed(() => resultList.value.filter(v => v.status === 2));
+const pendingResult = computed(() => resultList.value.filter((v) => v.status === 0));
+const approvedResult = computed(() => resultList.value.filter((v) => v.status === 1));
+const rejectedResult = computed(() => resultList.value.filter((v) => v.status === 2));
 const visibleResultList = computed(() => {
   if (route.path.includes('/pendingResult')) {
     return pendingResult.value;
@@ -22,7 +22,7 @@ const visibleResultList = computed(() => {
   return approvedResult.value;
 });
 
-onBeforeMount(async() => {
+onBeforeMount(async () => {
   const application_no = route.params.application_no;
   resultList.value = await store.fetchResultList(application_no);
   console.log(user);
@@ -62,8 +62,7 @@ const confirmReject = (resultNo) => {
 // 승인
 const approve = (resultNo) => {
   //TODO : 승인요청 API
-}
-
+};
 </script>
 
 <template>
@@ -105,7 +104,7 @@ const approve = (resultNo) => {
         </div>
 
         <div v-if="isPendingRoute && user.type == 2" class="flex justify-center gap-3 mt-6">
-          <Button @click="approve(data.result_no)" >승인</Button>
+          <Button @click="approve(data.result_no)">승인</Button>
           <Button v-if="!rejectingMap[data.result_no]" severity="danger" @click="startReject(data.result_no)">반려</Button>
           <Button v-else severity="secondary" @click="cancelReject(data.result_no)">취소</Button>
         </div>
@@ -118,15 +117,9 @@ const approve = (resultNo) => {
       </div>
     </div>
     <div v-else class="card text-center">
-      <div v-if="route.name == 'result'" >
-        승인된 지원결과서가 없습니다.
-      </div>
-      <div v-else-if="route.name =='pendingResult'">
-        승인 대기 중인 지원결과서가 없습니다.
-      </div>
-      <div v-else-if="route.name == 'rejectResult'">
-        반련된 지원결과서가 없습니다.
-      </div>
+      <div v-if="route.name == 'result'">승인된 지원결과서가 없습니다.</div>
+      <div v-else-if="route.name == 'pendingResult'">승인 대기 중인 지원결과서가 없습니다.</div>
+      <div v-else-if="route.name == 'rejectResult'">반련된 지원결과서가 없습니다.</div>
     </div>
   </div>
 </template>
