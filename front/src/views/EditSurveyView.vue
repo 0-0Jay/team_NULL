@@ -274,7 +274,7 @@ const hasStructuralChange = (survey) => {
         </TabList>
         <TabPanels>
           <TabPanel v-for="(secValue, sec_no) in data" :value="sec_no">
-            <DataTable :value="makeTableRows(secValue, sec_no)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="690px" tableStyle="min-width: 50rem">
+            <DataTable :value="makeTableRows(secValue, sec_no)" rowGroupMode="subheader" groupRowsBy="detail" sortMode="single" sortField="detail" :sortOrder="1" scrollable scrollHeight="680px" tableStyle="min-width: 50rem">
               <template #groupheader="slotProps">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-md text-xl">{{ slotProps.data.detail }}</span>
