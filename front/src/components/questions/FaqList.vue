@@ -13,9 +13,7 @@ onMounted(async () => {
   try {
     const { data } = await axios.get('/api/questions');
     faqs.value = data;
-    if (faqs.value.length) {
-      faqNo.value = faqs.value[0].faq_no;
-    }
+    faqNo.value = null;
   } catch (e) {
     console.error(e);
   }
@@ -33,9 +31,7 @@ async function delFaq() {
   await axios.delete(`/api/questions/${delFaqNo.value}`);
 
   alert('삭제되었습니다.');
-  faqs.value = faqs.value.filter(
-    faq => faq.faq_no !== delFaqNo.value
-  );
+  faqs.value = faqs.value.filter((faq) => faq.faq_no !== delFaqNo.value);
   delFaqNo.value = null;
 }
 </script>
@@ -48,40 +44,24 @@ async function delFaq() {
         <Button label="+ FAQ 등록" class="btn-create" />
       </RouterLink>
     </div>
-    
+
     <Accordion :value="faqNo" class="faq-accordion">
-      <AccordionPanel
-        v-for="faq in faqs"
-        :key="faq.faq_no"
-        :value="faq.faq_no"
-      >
+      <AccordionPanel v-for="faq in faqs" :key="faq.faq_no" :value="faq.faq_no">
         <AccordionHeader>{{ faq.title }}</AccordionHeader>
         <AccordionContent>
           <p class="faq-content-text">{{ faq.content }}</p>
 
           <div class="faq-admin-actions" v-if="user.type === 1 || user.type === 2">
-            <RouterLink
-              :to="{ name: 'faq-update', params: { faq_no: faq.faq_no } }"
-            >
+            <RouterLink :to="{ name: 'faq-update', params: { faq_no: faq.faq_no } }">
               <Button label="수정" class="btn-action" />
             </RouterLink>
-            <Button
-              label="삭제"
-              severity="danger"
-              @click="openDelConfirm(faq.faq_no)"
-              class="btn-action"
-            />
+            <Button label="삭제" severity="danger" @click="openDelConfirm(faq.faq_no)" class="btn-action" />
           </div>
         </AccordionContent>
       </AccordionPanel>
     </Accordion>
 
-    <ConfirmDialog
-      v-model:visible="visible"
-      @confirm="delFaq"
-    >
-      정말로 삭제하시겠습니까?
-    </ConfirmDialog>
+    <ConfirmDialog v-model:visible="visible" @confirm="delFaq"> 정말로 삭제하시겠습니까? </ConfirmDialog>
   </div>
 </template>
 

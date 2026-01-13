@@ -52,14 +52,6 @@ const formatDate = (v) => {
             상담내역 {{ index + 1 }}
           </div>
 
-          <!-- 신청서 번호 -->
-          <div class="flex flex-col gap-2 mb-4 font-semibold">
-            <label>신청서 번호</label>
-            <div class="p-2 border rounded bg-gray-50">
-              {{ counsel.application_no ?? '-' }}
-            </div>
-          </div>
-
           <!-- 상담내역 제목 -->
           <div class="flex flex-col gap-2 mb-4 font-semibold">
             <label>상담내역 제목</label>
