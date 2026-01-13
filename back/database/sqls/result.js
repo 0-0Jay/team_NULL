@@ -12,9 +12,14 @@ FROM plan p JOIN result r ON p.plan_no = r.plan_no
 WHERE p.application_no = ?`;
 
 // 지원결과서 승인/반려
-const updateResult = `
+const rejectResult = `
 UPDATE result
 SET status = ?, reject = ?, reject_date = CURDATE()
+WHERE result_no = ?`;
+
+const approveResult = `
+UPDATE result
+SET status = ?, approve_date = CURDATE()
 WHERE result_no = ?`;
 
 // 지원결과서 승인, 반려, 검토, 결과 집계
@@ -30,6 +35,7 @@ const selectCountResult = `select p.application_no,
 module.exports = {
   insertResult,
   selectResult,
-  updateResult,
+  rejectResult,
+  approveResult,
   selectCountResult,
 };
