@@ -26,24 +26,21 @@ const router = createRouter({
       component: () => import('@/views/QnaLayout.vue'),
       meta: { showHeader: true },
       children: [
-        // FAQ (기본)
-        // {
-        //   path: '',
-        //   name: 'faq',
-        //   component: () => import('@/components/questions/FaqList.vue')
-        // },
-        // {
-        //   path: 'faq/create',
-        //   name: 'faq-create',
-        //   component: () => import('@/components/questions/FaqCreate.vue')
-        // },
-        // {
-        //   path: 'faq/update/:faq_no',
-        //   name: 'faq-update',
-        //   component: () => import('@/components/questions/FaqUpdate.vue')
-        // },
-
-        // 1:1 문의
+        {
+          path: '',
+          name: 'faq',
+          component: () => import('@/components/questions/FaqList.vue'),
+        },
+        {
+          path: 'faq/create',
+          name: 'faq-create',
+          component: () => import('@/components/questions/FaqCreate.vue')
+        },
+        {
+          path: 'faq/update/:faq_no',
+          name: 'faq-update',
+          component: () => import('@/components/questions/FaqUpdate.vue')
+        },
         {
           path: 'inquiry',
           name: 'inquiry',
