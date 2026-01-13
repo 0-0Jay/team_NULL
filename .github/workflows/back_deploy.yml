@@ -11,15 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - run: |
-          cd back
-          npm install
-          npm run build || true
-
       - name: Upload to Server
         uses: appleboy/scp-action@v0.1.7
         with:

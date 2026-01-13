@@ -215,7 +215,7 @@ const emailCheck = async () => {
                 <Dialog header="주소검색" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                   <VueDaumPostcode @complete="addressSearched" />
                 </Dialog>
-                <Button label="Show" style="width: auto" @click="open"></Button>
+                <Button label="주소검색" style="width: auto" @click="open"></Button>
               </div>
               <InputText id="address" type="text" placeholder="도로명주소" class="w-full md:w-[30rem]" v-model="address" disabled />
               <InputText id="addressdetail" type="text" placeholder="상세주소" class="w-full md:w-[30rem] mb-4" v-model="address_detail" />

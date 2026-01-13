@@ -9,10 +9,10 @@ const router = useRouter();
 
 const center_name = ref('');
 const center_phone = ref('');
+const user = JSON.parse(localStorage.getItem('users')).user;
 
 onMounted(async () => {
-  const result = await store.fetchCenter();
-  console.log(result);
+  const result = await store.fetchCenter(user.user_no);
   center_name.value = result.name;
   center_phone.value = result.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
 });

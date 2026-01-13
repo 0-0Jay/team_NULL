@@ -37,8 +37,10 @@ const formatDate = (v) => {
       <div v-if="filterPlan.length === 0" class="text-center card">반려된 지원계획서가 없습니다.</div>
       <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold text-center">반려된 지원계획서 {{ index + 1 }}</div>
-
+        <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
+          <Button label="반려" severity="danger" class="status" />
+          <span>지원결과서</span>
+        </div>
         <!-- 작성자 -->
         <div class="flex flex-col gap-2 mb-4 font-semibold">
           <label>작성자</label>
@@ -74,6 +76,12 @@ const formatDate = (v) => {
         <div class="flex flex-col gap-2 mb-4 font-semibold">
           <label>지원내용</label>
           <div class="p-2 border rounded bg-gray-50">{{ plan.content ?? '-' }}</div>
+        </div>
+
+        <!-- 반려 사유 -->
+        <div class="flex flex-col gap-2 mb-4 font-semibold">
+          <label>반려사유</label>
+          <div class="p-2 border rounded bg-gray-50">{{ plan.reject ?? '-' }}</div>
         </div>
       </div>
     </div>
