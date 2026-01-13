@@ -39,7 +39,7 @@ const formatDate = (v) => {
         <!-- 카드 헤더 -->
         <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
           <Button label="반려" severity="danger" class="status" />
-          <span>지원결과서</span>
+          <span>지원계획서</span>
         </div>
         <!-- 작성자 -->
         <div class="flex flex-col gap-2 mb-4 font-semibold">
