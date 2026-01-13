@@ -20,7 +20,8 @@ const deleteType = ref('');
 const deleteData = ref(null);
 
 onMounted(async () => {
-  data.value = await store.fetchSurvey();
+  const result = await store.fetchSurvey();
+  data.value = result.data;
 });
 
 watch(
