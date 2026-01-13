@@ -1,0 +1,33 @@
+name: Deploy Frontend
+
+on:
+  pull_request:
+    branches: main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: |
+          cd front
+          npm install
+          npm run build
+          ls -al dist
+
+      - name: Sync dist to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          source: "front/dist/*"
+          target: "/var/www/front/"
+          rm: true
+          strip_components: 2

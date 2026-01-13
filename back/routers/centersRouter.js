@@ -8,4 +8,44 @@ router.get("/centers", async (req, res) => {
   res.send(centerList);
 });
 
+// 기관 등록
+router.post("/centers", async (req, res) => {
+  const data = req.body;
+  let result = await centersService.addCenter(data);
+  res.send(result);
+});
+
+// 기관 검색 (자동완성용)
+router.get("/searchCenter", async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) return res.send([]);
+
+  let list = await centersService.findByNameCenter(name);
+  res.send(list);
+});
+
+// 회원 소속 기관 불러오기
+router.get(`/userCenter/:user_no`, async (req, res) => {
+  const user_no = req.params.user_no;
+  let list = await centersService.findByUsernoCenter(user_no);
+  res.send(list);
+});
+
+// 기관 주소 불러오기
+router.get(`/address`, async (req, res) => {
+  let list = await centersService.findAllAddressCenter();
+  res.send(list);
+});
+
+// 시스템관리자 - 기관 정보 수정
+router.put("/centers/:c_no", async (req, res) => {
+  console.log('① req.body:', req.body);
+  console.log('② req.params:', req.params);
+  
+  const centerInfo = req.body;
+  centerInfo.c_no = req.params.c_no;
+  let result = await centersService.modifyByCNoCenter(centerInfo);
+  res.send(result);
+});
 module.exports = router;

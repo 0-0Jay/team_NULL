@@ -1,16 +1,58 @@
 <script setup>
+import AlertModal from '@/components/AlertModal.vue';
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
+import { useUsersStore } from '@/stores/users';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const id = ref('');
+const store = useUsersStore();
+const router = useRouter();
+
+const savedId = localStorage.getItem('id');
+const id = ref(savedId ? savedId : '');
 const password = ref('');
-const saveId = ref(false);
-const autoLogin = ref(false);
+const saveId = ref(savedId ? true : false);
+const display = ref(false);
+const alertContent = ref('');
+
+const login = async () => {
+  if (!id.value) {
+    openAlert('아이디를 입력해주세요!');
+    return;
+  } else if (!password.value) {
+    openAlert('비밀번호를 입력해주세요!');
+    return;
+  }
+  const data = {
+    id: id.value,
+    pw: password.value
+  };
+  const result = await store.login(data);
+  if (result.length == 0) {
+    openAlert('아이디 또는 비밀번호가 틀렸습니다.');
+    return;
+  }
+  if (saveId.value) {
+    localStorage.setItem('id', id.value);
+  } else {
+    localStorage.removeItem('id');
+  }
+  if (result[0].status == 0) {
+    router.push({ name: 'LoginNA' });
+  } else {
+    router.push({ name: 'main' });
+  }
+};
+
+const openAlert = (content) => {
+  alertContent.value = content;
+  display.value = true;
+};
 </script>
 
 <template>
   <FloatingConfigurator />
-  <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+  <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('/login_background.png')">
     <div class="flex flex-col items-center justify-center">
       <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
         <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
@@ -32,18 +74,14 @@ const autoLogin = ref(false);
                   <Checkbox v-model="saveId" id="rememberme1" binary class="mr-2"></Checkbox>
                   <label for="rememberme1">아이디 저장</label>
                 </div>
-                <div>
-                  <Checkbox v-model="autoLogin" id="autologin" binary class="mr-2"></Checkbox>
-                  <label for="autologin">자동 로그인</label>
-                </div>
               </div>
             </div>
             <div class="flex items-center justify-center mt-2 mb-8 gap-8">
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">아이디 찾기</span>
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">비밀번호 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path: '/find/id' })">아이디 찾기</span>
+              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary" @click="router.push({ path: '/find/pw' })">비밀번호 찾기</span>
             </div>
             <div class="grid mt-2 mb-8 gap-y-4">
-              <Button label="로그인" class="w-full" as="router-link" to="/"></Button>
+              <Button label="로그인" class="w-full" @click="login"></Button>
               <Button label="회원가입" class="w-full" as="router-link" to="/signup"></Button>
             </div>
           </div>
@@ -51,6 +89,7 @@ const autoLogin = ref(false);
       </div>
     </div>
   </div>
+  <AlertModal v-model="display" :content="alertContent" />
 </template>
 
 <style scoped>
