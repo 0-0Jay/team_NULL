@@ -211,9 +211,9 @@ const openEditModal = (data) => {
         </h2>
 
         <div class="flex gap-2">
-          <Button v-if="user.type === 3" label="기관 담당자 등록" icon="pi pi-user" @click="openAddModal" />
-          <Button label="사용 승인" severity="info" :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
-          <Button label="비활성화" severity="danger" :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
+          <Button v-if="user.type === 3" label="기관 담당자 등록" raised icon="pi pi-user" @click="openAddModal" />
+          <Button label="사용 승인" severity="info" raised :disabled="selectedRows.length === 0" @click="openConfirm(1)" />
+          <Button label="비활성화" severity="danger" raised :disabled="selectedRows.length === 0" @click="openConfirm(2)" />
         </div>
       </div>
 

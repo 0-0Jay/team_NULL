@@ -2,9 +2,13 @@
 <script setup>
 import { reactive, watch, ref, computed } from 'vue';
 import { useUsersStore } from '@/stores/users';
+import { useToast } from 'primevue/usetoast';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import router from '@/router';
+
 const userStore = useUsersStore();
+const toast = useToast();
+
 const visible = ref(false);
 const user = JSON.parse(localStorage.getItem('users'))?.user?.[0] ?? null;
 const userNo = user?.user_no;
@@ -44,16 +48,11 @@ watch(
     formData.zipcode = info.zipcode ?? '';
     formData.address = info.address ?? '';
     formData.address_detail = info.address_detail ?? '';
-
-    console.log(props.myInfo);
   }
 );
 
 const close = () => emit('update:modalValue', false);
-
-const save = () => {
-  emit('save', { ...formData });
-};
+const save = () => emit('save', { ...formData });
 
 // 우편번호 검색
 const display = ref(false);
@@ -76,7 +75,6 @@ const password = reactive({
   confirmPassword: ''
 });
 
-// 각 Input별 에러 메시지
 const passwordErrors = reactive({
   currentPassword: '',
   newPassword: '',
@@ -84,58 +82,57 @@ const passwordErrors = reactive({
 });
 
 async function changePassword() {
-  // 1.초기화
   passwordErrors.currentPassword = '';
   passwordErrors.newPassword = '';
   passwordErrors.confirmPassword = '';
 
-  // 2. 빈칸 체크: 각 칸별로 메시지
-  if (!password.currentPassword) {
-    passwordErrors.currentPassword = '모든 입력란을 채워주세요.';
-  }
-  if (!password.newPassword) {
-    passwordErrors.newPassword = '모든 입력란을 채워주세요.';
-  }
-  if (!password.confirmPassword) {
-    passwordErrors.confirmPassword = '모든 입력란을 채워주세요.';
-  }
+  if (!password.currentPassword) passwordErrors.currentPassword = '모든 입력란을 채워주세요.';
+  if (!password.newPassword) passwordErrors.newPassword = '모든 입력란을 채워주세요.';
+  if (!password.confirmPassword) passwordErrors.confirmPassword = '모든 입력란을 채워주세요.';
 
-  // 빈칸이 하나라도 있으면 여기서 리턴
-  if (passwordErrors.currentPassword || passwordErrors.newPassword || passwordErrors.confirmPassword) {
-    return;
-  }
+  if (passwordErrors.currentPassword || passwordErrors.newPassword || passwordErrors.confirmPassword) return;
 
-  // 3. 현재 비밀번호 검증
   if (password.currentPassword !== props.myInfo.password) {
     passwordErrors.currentPassword = '현재 비밀번호가 일치하지 않습니다.';
     return;
   }
 
-  // 4. 새 비밀번호 길이 체크
   if (password.newPassword.length < 6) {
     passwordErrors.newPassword = '비밀번호는 6자리 이상이어야 합니다.';
     return;
   }
 
-  // 5. 새 비밀번호 확인
   if (password.newPassword !== password.confirmPassword) {
     passwordErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
     return;
   }
 
-  // API 호출
   try {
     if (!userNo) {
-      alert('로그인 정보가 없습니다.');
+      toast.add({
+        severity: 'warn',
+        summary: '오류',
+        detail: '로그인 정보가 없습니다.',
+        life: 3000,
+        closable: false
+      });
       return;
     }
+
     const res = await userStore.changePw({
       user_no: userNo,
       pw: password.newPassword
     });
 
     if (res.status === 'success') {
-      alert('비밀번호 변경 완료');
+      toast.add({
+        severity: 'success',
+        summary: '완료',
+        detail: '비밀번호 변경 완료',
+        life: 3000,
+        closable: false
+      });
+
       password.currentPassword = '';
       password.newPassword = '';
       password.confirmPassword = '';
@@ -143,34 +140,65 @@ async function changePassword() {
       passwordErrors.newPassword = '';
       passwordErrors.confirmPassword = '';
     } else {
-      alert(res.message || '비밀번호 변경 실패');
+      toast.add({
+        severity: 'error',
+        summary: '실패',
+        detail: res.message || '비밀번호 변경 실패',
+        life: 3000,
+        closable: false
+      });
     }
   } catch (err) {
-    alert('서버 오류');
+    toast.add({
+      severity: 'error',
+      summary: '서버 오류',
+      detail: '서버 오류가 발생했습니다.',
+      life: 3000,
+      closable: false
+    });
   }
 }
 
-// 회원 탈퇴 함수
+// 회원 탈퇴
 function openWithdrawConfirm() {
   visible.value = true;
 }
 async function withdrawUser() {
   if (!user) {
-    alert('로그인이 필요합니다.');
+    toast.add({
+      severity: 'warn',
+      summary: '오류',
+      detail: '로그인이 필요합니다.',
+      life: 3000,
+      closable: false
+    });
     return;
   }
+
   const result = await userStore.withdrawUser(user.user_no);
   if (result.status === 'success') {
     close();
     userStore.logout();
     router.replace('/');
-    // 토스트 추가하기
+
+    toast.add({
+      severity: 'success',
+      summary: '탈퇴 완료',
+      detail: '회원 탈퇴가 완료되었습니다.',
+      life: 3000,
+      closable: false
+    });
   } else {
-    alert(result.message);
+    toast.add({
+      severity: 'error',
+      summary: '실패',
+      detail: result.message,
+      life: 3000,
+      closable: false
+    });
   }
 }
 
-// 날짜 포맷 함수
 const formatDate = (v) => {
   if (!v) return '-';
   const d = new Date(v);
@@ -181,8 +209,10 @@ const formatDate = (v) => {
   return `${y}.${m}.${day}`;
 };
 </script>
+
 <template>
   <Dialog header="나의 정보 수정" :visible="modalValue" @update:visible="emit('update:modalValue', $event)" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+    <Toast />
     <table class="w-full border-collapse">
       <tbody>
         <tr class="border-t-4 border-b">

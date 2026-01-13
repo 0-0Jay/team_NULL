@@ -241,7 +241,7 @@ const columnData = computed(() => {
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-xl font-bold text-gray-800">지원신청내역</h2>
 
-        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="info" as="router-link" to="/application/write" />
+        <Button v-if="user.type === 0 || user.type === 1" label="지원 신청" icon="pi pi-clipboard" severity="secondary" raised as="router-link" to="/application/write" />
       </div>
 
       <div class="flex-1 overflow-auto rounded-lg border border-gray-200">

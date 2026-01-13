@@ -44,15 +44,30 @@ const router = createRouter({
         {
           path: 'inquiry',
           name: 'inquiry',
-          component: () => import('@/components/questions/InquiryList.vue')
+          component: () => import('@/components/questions/InquiryListView.vue')
         },
         {
           path: 'inquiry/create',
           name: 'inquiry-create',
-          component: () => import('@/components/questions/InquiryCreate.vue')
+          component: () => import('@/components/questions/InquiryView.vue')
         },
-      ],
+
+        // 1:1 문의 상세
+        {
+          path: 'inquiry/:inquiry_no',
+          name: 'inquiry-detail',
+          component: () => import('@/components/questions/InquiryDetailView.vue')
+        }
+
+        // (선택) 수정까지 갈 거면
+        // {
+        //   path: 'inquiry/:inquiry_no/edit',
+        //   name: 'inquiry-edit',
+        //   component: () => import('@/components/questions/InquiryEditView.vue')
+        // }
+      ]
     },
+
     {
       path: '/center',
       name: 'center',
