@@ -158,7 +158,7 @@ const findInquiryDetail = async ({ inquiryNo, userNo, type, cNo } = {}) => {
 // 문의 수정
 const modifyInquiry = async (
   inquiryNo,
-  { userNo, userType, aNo, inquiryType, title, content }
+  { userNo, aNo, userType, type, title, content }
 ) => {
   if (userType !== 0) {
     return { status: "error", message: "권한 없음" };
@@ -166,7 +166,7 @@ const modifyInquiry = async (
 
   const result = await mysql.query(
     "updateByInquiryNoInquiries",
-    [aNo, inquiryType, title, content, inquiryNo, userNo],
+    [aNo, type, title, content, inquiryNo, userNo],
     "questions"
   );
 

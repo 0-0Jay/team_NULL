@@ -33,7 +33,8 @@ const answerEditMode = ref(false);
 const errors = ref({
   inquiryTitle: '',
   inquiryContent: '',
-  answerContent: ''
+  answerContent: '',
+  inquiryType: ''
 });
 
 onBeforeMount(async () => {
@@ -70,15 +71,18 @@ const canAnswer = computed(() => {
 });
 
 // 문의 유형
-const inquiryTypes = {
-  0: '지원 문의',
-  1: '지원 대상',
-  2: '서류 관련',
-  3: '기타 문의'
-};
+const inquiryTypes = [
+  { label: '지원/신청 문의', value: 0 },
+  { label: '시스템/기술 문의', value: 1 },
+  { label: '서류/자료 문의', value: 2 },
+  { label: '개인정보/권한 문의', value: 3 },
+  { label: '불편/의견 사항', value: 4 },
+  { label: '기타 문의', value: 5 }
+];
 
 const inquiryTypeLabel = computed(() => {
-  return inquiryTypes[inquiry.value?.type] ?? '-';
+  const found = inquiryTypes.find((v) => v.value === inquiry.value?.type);
+  return found?.label ?? '-';
 });
 
 // 지원자 이름
@@ -112,8 +116,13 @@ const formatDate = (v) => {
 const openInquiryEdit = () => {
   errors.value.inquiryTitle = '';
   errors.value.inquiryContent = '';
+  errors.value.inquiryType = '';
 
   let valid = true;
+  if (editInquiry.value.type === null) {
+    errors.value.inquiryType = '문의 유형을 선택하세요.';
+    valid = false;
+  }
 
   if (!editInquiry.value.title.trim()) {
     errors.value.inquiryTitle = '제목을 입력하세요.';
@@ -153,7 +162,8 @@ const handleConfirm = async () => {
       await store.updateInquiry(inquiryNo, {
         userNo: user.user_no,
         aNo: editInquiry.value.aNo,
-        inquiryType: editInquiry.value.type,
+        userType: user.type,
+        type: editInquiry.value.type,
         title: editInquiry.value.title,
         content: editInquiry.value.content
       });
@@ -235,18 +245,19 @@ const handleConfirm = async () => {
         </div>
 
         <div class="flex flex-col gap-1">
-          <label>지원대상</label>
+          <label>지원자</label>
           <InputText :modelValue="applicantName" readonly class="bg-gray-50" />
         </div>
 
         <div class="flex flex-col gap-1">
           <label>문의 유형</label>
-          <select v-if="editMode" v-model="editInquiry.type" class="w-full rounded-md border border-gray-300 px-3 py-2">
-            <option v-for="(v, k) in inquiryTypes" :key="k" :value="Number(k)">
-              {{ v }}
-            </option>
-          </select>
+
+          <Dropdown v-if="editMode" v-model="editInquiry.type" :options="inquiryTypes" optionLabel="label" optionValue="value" placeholder="문의 유형 선택" class="w-full" />
+
           <InputText v-else :modelValue="inquiryTypeLabel" readonly class="bg-gray-50" />
+          <small v-if="errors.inquiryType" class="error">
+            {{ errors.inquiryType }}
+          </small>
         </div>
 
         <div class="flex flex-col gap-1">

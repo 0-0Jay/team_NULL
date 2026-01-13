@@ -35,10 +35,12 @@ const content = ref('');
 
 // 문의 유형
 const inquiryTypes = [
-  { label: '지원 절차', value: 0 },
-  { label: '지원 대상', value: 1 },
-  { label: '서류 관련', value: 2 },
-  { label: '기타', value: 3 }
+  { label: '지원/신청 문의', value: 0 },
+  { label: '시스템/기술 문의', value: 1 },
+  { label: '서류/자료 문의', value: 2 },
+  { label: '개인정보/권한 문의', value: 3 },
+  { label: '불편/의견 사항', value: 4 },
+  { label: '기타 문의', value: 5 }
 ];
 
 // 인라인 에러
@@ -140,7 +142,7 @@ const handleConfirm = () => {
         </div>
 
         <div class="flex flex-col">
-          <label>지원대상</label>
+          <label>지원자</label>
           <AutoComplete v-model="selectedApplicantValue" :suggestions="applicantFilteredValue" optionLabel="name" placeholder="지원자명" dropdown completeOnFocus @complete="searchApplicant" />
           <small v-if="errors.applicantNo" class="error">
             {{ errors.applicantNo }}
@@ -174,7 +176,7 @@ const handleConfirm = () => {
 
       <!-- 하단 버튼 -->
       <div class="flex justify-center pt-6 border-t border-gray-100">
-        <Button label="등록" @click="openConfirm" />
+        <Button label="문의등록" @click="openConfirm" />
       </div>
     </div>
   </div>

@@ -69,14 +69,14 @@ router.post("/inquiries/detail/:inquiry_no", async (req, res) => {
 // 문의 수정
 router.put("/inquiries/:inquiryNo", async (req, res) => {
   const inquiryNo = Number(req.params.inquiryNo);
-
-  const { userNo, type: userType, aNo, inquiryType, title, content } = req.body;
+  console.log(req.body);
+  const { userNo, aNo, userType, type, title, content } = req.body;
 
   const result = await questionsService.modifyInquiry(inquiryNo, {
     userNo,
-    userType,
     aNo,
-    inquiryType,
+    userType,
+    type,
     title,
     content,
   });
