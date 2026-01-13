@@ -14,7 +14,6 @@ export const useInquiryStore = defineStore('inquiry', {
   // actions
   actions: {
     async insertInquiry(inquiryInfo) {
-      console.log('보내는 inquiryInfo:', inquiryInfo);
       const response = await axios.post('/api/inquiries', inquiryInfo);
       return response.data;
     },
@@ -27,7 +26,6 @@ export const useInquiryStore = defineStore('inquiry', {
         type: user.type,
         cNo: user.c_no
       });
-      // console.log(response.data);
       this.inquiryList = Array.isArray(response.data) ? response.data : [];
     },
     async fetchInquiryDetail(inquiryNo) {
@@ -40,7 +38,6 @@ export const useInquiryStore = defineStore('inquiry', {
       });
 
       this.inquiryDetail = response.data;
-      console.log(this.inquiryDetail);
       return response.data;
     },
     async fetchApplicant() {
@@ -48,7 +45,6 @@ export const useInquiryStore = defineStore('inquiry', {
         const user = JSON.parse(localStorage.getItem('users'))?.user[0];
         const response = await axios.post('/api/findApplicant', { user });
 
-        // console.log(response.data);
         this.applicant = response.data;
         return response.data;
       } catch (err) {

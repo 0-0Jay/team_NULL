@@ -37,7 +37,10 @@ const formatDate = (v) => {
       <div v-if="filterPlan.length === 0" class="text-center card">승인된 지원계획서가 없습니다.</div>
       <div v-for="(plan, index) in filterPlan" :key="plan.application_no" class="card flex flex-col w-full p-6 shadow-md">
         <!-- 카드 헤더 -->
-        <div class="text-2xl font-bold text-center">승인된 지원계획서 {{ index + 1 }}</div>
+        <div class="text-2xl font-bold mb-6 items-center flex gap-4 justify-center">
+          <Button label="승인" class="status" />
+          <span>지원계획서</span>
+        </div>
 
         <!-- 작성자 -->
         <div class="flex flex-col gap-1 mb-6">

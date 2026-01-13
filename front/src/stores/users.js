@@ -55,9 +55,9 @@ export const useUsersStore = defineStore('users', {
     },
 
     // 기관번호 가져오기
-    async fetchCenter() {
+    async fetchCenter(userNo) {
       try {
-        const response = await axios.get(`/api/userCenter/${13}`);
+        const response = await axios.get(`/api/userCenter/${userNo}`);
         return response.data[0];
       } catch (err) {
         console.log(err);

@@ -102,7 +102,7 @@ const roleSeverity = computed(() => {
     <div class="layout-topbar-actions shrink-0">
       <div class="content-center">{{ usertype }} {{ user.u_name }}님 환영합니다.</div>
 
-      <div class="layout-config-menu">
+      <!-- <div class="layout-config-menu">
         <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
           <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
         </button>
@@ -124,7 +124,7 @@ const roleSeverity = computed(() => {
           </button>
           <AppConfigurator />
         </div>
-      </div>
+      </div> -->
 
       <div class="layout-topbar-menu hidden lg:block content-center">
         <div class="layout-topbar-menu-content">
