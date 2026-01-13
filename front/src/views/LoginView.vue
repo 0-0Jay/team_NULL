@@ -48,12 +48,18 @@ const openAlert = (content) => {
   alertContent.value = content;
   display.value = true;
 };
+
+const sampleData = [
+  { name: '시스템관리자', ID: 'admin', PW: 'admin1234*' },
+  { name: '기관관리자', ID: 'mslee_mgr', PW: 'test1234*' },
+  { name: '기관담당자', ID: 'staff_test1', PW: 'test5678*' },
+  { name: '일반이용자(보호자)', ID: 'test0001', PW: 'test0001*' }
+];
 </script>
 
 <template>
-  <FloatingConfigurator />
   <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('/login_background.png')">
-    <div class="flex flex-col items-center justify-center">
+    <div class="flex items-center justify-center gap-4">
       <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
         <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
           <div class="text-center mb-8">
@@ -83,6 +89,22 @@ const openAlert = (content) => {
             <div class="grid mt-2 mb-8 gap-y-4">
               <Button label="로그인" class="w-full" @click="login"></Button>
               <Button label="회원가입" class="w-full" as="router-link" to="/signup"></Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 시연용 ID/PW  -->
+      <div class="max-w-md mx-auto bg-yellow-100 border border-yellow-300 rounded-lg p-5 space-y-4 text-sm">
+        <div class="font-bold text-yellow-700 mb-2 text-center text-xl">샘플 계정</div>
+        <div v-for="(data, idx) in sampleData" :key="idx" class="bg-white border-l-4 border-yellow-400 rounded p-4">
+          <div class="font-semibold text-yellow-700 mb-1">{{ data.name }}</div>
+          <div class="text-gray-700 leading-relaxed">
+            <div>
+              ID : <span class="font-mono">{{ data.ID }}</span>
+            </div>
+            <div>
+              PW : <span class="font-mono">{{ data.PW }}</span>
             </div>
           </div>
         </div>
