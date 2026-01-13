@@ -33,9 +33,9 @@ const selectAllApplication = `select distinct a1.application_no,
                               from application a1
                               join applicant a2 on a1.a_no = a2.a_no
                               join users u1 on a2.user_no = u1.user_no
+                              join center c on u1.c_no = c.c_no
                               left join manager m on a1.application_no = m.application_no and m.unassign is null
                               left join users u2 on m.user_no = u2.user_no
-                              left join center c on u2.c_no = c.c_no
                               order by a1.application_no`;
 
 // 기관 관리자용 조회
