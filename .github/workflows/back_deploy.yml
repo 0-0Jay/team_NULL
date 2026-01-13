@@ -1,9 +1,8 @@
 name: Backend Deploy
 
 on:
-  push:
-    paths:
-      - "backapp/**"
+  pull_request:
+    branches: main
 
 jobs:
   deploy:
@@ -17,7 +16,7 @@ jobs:
           node-version: 24
 
       - run: |
-          cd backapp
+          cd back
           npm install
           npm run build || true
 
@@ -27,8 +26,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
-          source: "backapp/*"
-          target: "/app/backapp/"
+          source: "back/*"
+          target: "/app/back/"
           rm: true
           strip_components: 1
 
@@ -41,6 +40,7 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd ${{ secrets.BACK_PATH }}
+            cd /app/back/
+            cp /app/.env /app/back/
             npm install  --omit=dev
             pm2 reload app || pm2 start app.js --name app

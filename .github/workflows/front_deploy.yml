@@ -1,9 +1,8 @@
 name: Deploy Frontend
 
 on:
-  push:
-    paths:
-      - "frontapp/**"
+  pull_request:
+    branches: main
 
 jobs:
   deploy:
@@ -17,7 +16,7 @@ jobs:
           node-version: 24
 
       - run: |
-          cd frontapp
+          cd front
           npm install
           npm run build
           ls -al dist
@@ -28,7 +27,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
-          source: "frontapp/dist/*"
-          target: "/var/www/frontapp/"
+          source: "front/dist/*"
+          target: "/var/www/front/"
           rm: true
           strip_components: 2
