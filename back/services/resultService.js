@@ -48,11 +48,20 @@ const findResult = async (applicationNo) => {
 const modifyResult = async (data) => {
   const { result_no, status, reason } = data;
   console.log(result_no, status, reason);
-  let result = await mysql.query(
-    "updateResult",
-    [status, reason, result_no],
-    "result"
-  );
+  let result = {}
+  if (reason != null) {
+    result = await mysql.query(
+      "rejectResult",
+      [status, reason, result_no],
+      "result"
+    );
+  } else {
+    result = await mysql.query(
+      "approveResult",
+      [status, result_no],
+      "result"
+    );
+  }
   let resObj = {};
   if (result.affectedRows > 0) {
     resObj = { status: "success", userNo: userNo };
