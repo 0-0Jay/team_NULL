@@ -1,12 +1,14 @@
 <!-- 지원계획서 입력 창입니다 -->
 <script setup>
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; //페이지 이동을 위함
-import { usePlanStore } from '@/stores/plan'; // pinia작업을 위함
+import { onBeforeMount, onMounted, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { usePlanStore } from '@/stores/plan';
+import { useCounselStore } from '@/stores/counsel';
 import { useToast } from 'primevue/usetoast';
 // import ConfirmDialog from '@/components/ConfirmDialog.vue'; //입력 메세지 뜨게 하기 위함
 
-const store = usePlanStore(); //pinia작업 위함
+const pStore = usePlanStore();
+const cStore = useCounselStore();
 const router = useRouter(); // 페이지 이동용
 const route = useRoute(); // 현재 경로 확인용
 const toast = useToast();
@@ -20,6 +22,20 @@ const title = ref('');
 const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
+
+onMounted(async () => {
+  const doCounsel = await cStore.fetchCounselList(applicationNo);
+  if (doCounsel.length > 0) {
+    toast.add({
+      severity: 'warn',
+      summary: '계획서 작성 조건',
+      detail: '상담내역을 먼저 작성해야 합니다.',
+      closable: false,
+      life: 2000
+    });
+    router.push({ path: `/application/counselInsert/${applicationNo}` });
+  }
+});
 
 const errorMessage = ref('');
 
@@ -70,7 +86,7 @@ const submitPlan = async () => {
   }
 
   try {
-    await store.createPlan(data);
+    await pStore.createPlan(data);
     toast.add({
       severity: 'success',
       summary: '승인 신청 완료',

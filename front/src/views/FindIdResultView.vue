@@ -6,8 +6,7 @@ const blindId = user.id.slice(0, 4) + '*'.repeat(user.id.length - 4);
 </script>
 
 <template>
-  <FloatingConfigurator />
-  <div class="flex items-center justify-center min-h-screen overflow-hidden">
+  <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('/login_background.png')">
     <div class="flex flex-col items-center justify-center">
       <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color), transparent 60%) 10%, var(--surface-ground) 30%)">
         <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20 flex flex-col items-center" style="border-radius: 53px">

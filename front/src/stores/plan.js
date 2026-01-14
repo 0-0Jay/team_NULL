@@ -27,7 +27,6 @@ export const usePlanStore = defineStore('plan', {
     async createPlan(data) {
       try {
         const res = await axios.post(`/api/plan/`, data);
-        console.log(res.data);
         return res.data;
       } catch (err) {
         throw err;
@@ -52,7 +51,6 @@ export const usePlanStore = defineStore('plan', {
           params: { status: 0 } // 0 = 승인대기
         });
         this.planList = Array.isArray(res.data) ? res.data : [res.data];
-        console.log(this.planList);
       } catch (err) {
         console.error('지원계획서 조회 실패', err);
       }
