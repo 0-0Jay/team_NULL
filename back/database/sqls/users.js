@@ -142,14 +142,6 @@ const updateUserWithoutPw = `
   where user_no = ?
 `;
 
-// 시스템 및 기관 관리자 - 기관담당자 센터 변경 시 주소 업데이트
-const updateStaffCenterByAdmin = `UPDATE users u
-                                  JOIN center c ON u.c_no = c.c_no
-                                  SET u.zipcode = c.zipcode,
-                                      u.address = CONCAT(c.sido, ' ', c.sigungu, ' ', c.address),
-                                      u.address_detail = c.address_detail
-                                  WHERE u.user_no = ?`;
-
 // 회원탈퇴
 const updateStatusByUsernoUsers = `
 UPDATE users
@@ -311,7 +303,6 @@ module.exports = {
   selectByUserNoStaffUsers,
   updateUserWithPw,
   updateUserWithoutPw,
-  updateStaffCenterByAdmin,
   selectByUserNoApplicant,
   selectByANoApplicant,
   updateByANoApplicant,

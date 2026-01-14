@@ -434,14 +434,7 @@ const modifyCenterByManager = async ({
       "users"
     );
 
-    // 2. 센터 소속 사용자 주소 업데이트
-    const result2 = await mysql.query(
-      "updateUserCenterByManager", // users 테이블 주소 업데이트 쿼리
-      [user_no],
-      "users"
-    );
-
-    if (result1.affectedRows > 0 || result2.affectedRows > 0) {
+    if (result1.affectedRows > 0) {
       resObj = { status: "success", user_no: user_no };
     } else {
       resObj = { status: "fail" };

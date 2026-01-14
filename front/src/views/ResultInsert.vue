@@ -22,12 +22,29 @@ const startDate = ref(null);
 const endDate = ref(null);
 const content = ref('');
 
-
 const plan = ref([]);
 const selectedPlanValue = ref(null);
 const planFilteredValue = ref([]);
+const errorMessage = ref('');
 
 const submitResult = async () => {
+  errorMessage.value = '';
+  if (!selectedPlanValue.value) {
+    errorMessage.value = '지원계획서를 선택해주세요.';
+    return;
+  }
+  if (!title.value.trim()) {
+    errorMessage.value = '지원결과를 입력해주세요.';
+    return;
+  }
+  if (!content.value.trim()) {
+    errorMessage.value = '내용을 입력해주세요.';
+    return;
+  }
+  if (new Date(startDate.value) > new Date(endDate.value)) {
+    errorMessage.value = '지원종료일은 시작일 이후여야 합니다.';
+    return;
+  }
   const data = {
     plan_no: selectedPlanValue.value.plan_no,
     author_no: user.user_no,
@@ -39,7 +56,7 @@ const submitResult = async () => {
   };
   const result = await rStore.createResult(data);
   if (result.status == 'success') {
-    router.push({ path: `/application/pendingResult/${applicationNo}` })
+    router.push({ path: `/application/pendingResult/${applicationNo}` });
   }
 };
 
@@ -103,6 +120,9 @@ watch(selectedPlanValue, (val) => {
       <div class="col-span-full lg:col-span-6 mb-2.5">
         <!-- <div class="font-semibold text-xl mt-3">첨부파일</div> 
         <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" /> -->
+        <div v-if="errorMessage" class="text-red-500 text-center mt-5">
+          {{ errorMessage }}
+        </div>
 
         <div class="flex flex-wrap gap-2 justify-center mt-5">
           <Button label="승인신청" style="width: auto" @click="submitResult" />
