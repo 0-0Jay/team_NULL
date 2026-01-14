@@ -218,94 +218,95 @@ const handleConfirm = async () => {
 </script>
 
 <template>
-  <div class="pt-3 w-full h-[calc(100vh-260px)] overflow-hidden">
-    <div class="w-full h-full bg-white rounded-xl shadow-md border border-gray-200 p-5 flex flex-col gap-6">
-      <Toast />
+  <div class="inquiry-detail">
+    <Toast />
 
-      <!-- 제목 -->
-      <div class="flex justify-center items-center gap-3 border-b pb-3">
-        <h2 class="text-2xl font-bold text-gray-800">1:1 문의 상세</h2>
-        <span class="px-3 py-1 font-semibold rounded-full" :class="statusBadge.class">
-          {{ statusBadge.label }}
-        </span>
+    <!-- 제목 -->
+    <div class="detail-header">
+      <h3 class="form-title">1:1 문의 상세</h3>
+      <span class="px-3 py-1 font-semibold rounded-full" :class="statusBadge.class">
+        {{ statusBadge.label }}
+      </span>
+    </div>
+
+    <!-- 본문 -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <div class="form-group">
+        <label class="form-label">작성자</label>
+        <InputText :modelValue="inquiry?.writer_name" readonly class="form-input" />
       </div>
 
-      <!-- 스크롤 -->
-      <div class="flex-1 overflow-auto flex flex-col gap-6 pr-1">
-        <div class="grid grid-cols-2 gap-6">
-          <div class="flex flex-col gap-1">
-            <label>작성자</label>
-            <InputText :modelValue="inquiry?.writer_name" readonly class="bg-gray-50" />
-          </div>
+      <div class="form-group">
+        <label class="form-label">작성일</label>
+        <InputText :modelValue="formatDate(inquiry?.inquiry_date)" readonly class="form-input" />
+      </div>
+    </div>
 
-          <div class="flex flex-col gap-1">
-            <label>작성일</label>
-            <InputText :modelValue="formatDate(inquiry?.inquiry_date)" readonly class="bg-gray-50" />
-          </div>
-        </div>
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <div class="form-group">
+        <label class="form-label">지원자</label>
+        <InputText :modelValue="applicantName" readonly class="form-input" />
+      </div>
 
-        <div class="flex flex-col gap-1">
-          <label>지원자</label>
-          <InputText :modelValue="applicantName" readonly class="bg-gray-50" />
-        </div>
+      <div class="form-group">
+        <label class="form-label">문의 유형</label>
 
-        <div class="flex flex-col gap-1">
-          <label>문의 유형</label>
+        <Dropdown v-if="editMode" v-model="editInquiry.type" :options="inquiryTypes" optionLabel="label" optionValue="value" placeholder="문의 유형 선택" class="w-full" />
 
-          <Dropdown v-if="editMode" v-model="editInquiry.type" :options="inquiryTypes" optionLabel="label" optionValue="value" placeholder="문의 유형 선택" class="w-full" />
+        <InputText v-else :modelValue="inquiryTypeLabel" readonly class="form-input" />
+        <small v-if="errors.inquiryType" class="error">
+          {{ errors.inquiryType }}
+        </small>
+      </div>
+    </div>
 
-          <InputText v-else :modelValue="inquiryTypeLabel" readonly class="bg-gray-50" />
-          <small v-if="errors.inquiryType" class="error">
-            {{ errors.inquiryType }}
-          </small>
-        </div>
+    <div class="form-group mb-6">
+      <label class="form-label">제목</label>
+      <InputText v-if="editMode" v-model="editInquiry.title" class="form-input" />
+      <InputText v-else :modelValue="inquiry?.title" readonly class="form-input" />
+      <small v-if="errors.inquiryTitle" class="error">{{ errors.inquiryTitle }}</small>
+    </div>
 
-        <div class="flex flex-col gap-1">
-          <label>제목</label>
-          <InputText v-if="editMode" v-model="editInquiry.title" />
-          <InputText v-else :modelValue="inquiry?.title" readonly class="bg-gray-50" />
-          <small v-if="errors.inquiryTitle" class="error">{{ errors.inquiryTitle }}</small>
-        </div>
+    <div class="form-group">
+      <label class="form-label">내용</label>
+      <Textarea v-if="editMode" v-model="editInquiry.content" rows="5" class="form-textarea" />
+      <Textarea v-else :modelValue="inquiry?.content" rows="5" readonly class="form-textarea" />
+      <small v-if="errors.inquiryContent" class="error">{{ errors.inquiryContent }}</small>
+    </div>
 
-        <div class="flex flex-col gap-1">
-          <label>내용</label>
-          <Textarea v-if="editMode" v-model="editInquiry.content" rows="6" />
-          <Textarea v-else :modelValue="inquiry?.content" rows="6" readonly class="bg-gray-50" />
-          <small v-if="errors.inquiryContent" class="error">{{ errors.inquiryContent }}</small>
-        </div>
+    <div v-if="canEditInquiry" class="button-group">
+      <Button v-if="!editMode" label="문의 수정" @click="editMode = true" class="btn-submit" />
+      <Button v-else label="수정 완료" @click="openInquiryEdit" class="btn-submit" />
+      <Button v-if="editMode" label="취소" severity="secondary" outlined @click="editMode = false" class="btn-cancel" />
+      <RouterLink v-if="!editMode" :to="{ name: 'inquiry' }">
+        <Button label="목록" severity="secondary" outlined class="btn-cancel" />
+      </RouterLink>
+    </div>
 
-        <div v-if="canEditInquiry" class="flex justify-end gap-3 pt-4">
-          <Button v-if="!editMode" label="문의 수정" @click="editMode = true" />
-          <Button v-else label="수정 완료" @click="openInquiryEdit" />
-          <Button v-if="editMode" label="취소" severity="secondary" @click="editMode = false" />
-        </div>
+    <!-- 답변 영역 -->
+    <!-- 미답변 -->
+    <div v-if="canAnswer && inquiry?.status === 0" class="answer-section">
+      <h4 class="answer-title">답변 작성</h4>
+      <Textarea v-model="answerContent" rows="6" class="form-textarea" />
+      <small v-if="errors.answerContent" class="error">{{ errors.answerContent }}</small>
+      <div class="button-group">
+        <Button label="저장" @click="openAnswer" class="btn-submit" />
+      </div>
+    </div>
 
-        <!-- 답변 영역 -->
-        <!-- 미답변 -->
-        <div v-if="canAnswer && inquiry?.status === 0" class="border rounded-lg p-6 flex flex-col gap-3">
-          <h3 class="font-semibold">답변 작성</h3>
-          <Textarea v-model="answerContent" rows="4" />
-          <small v-if="errors.answerContent" class="error">{{ errors.answerContent }}</small>
-          <div class="flex justify-end">
-            <Button label="저장" @click="openAnswer" />
-          </div>
-        </div>
+    <!-- 답변 완료 -->
+    <div v-if="inquiry?.status === 1" class="answer-section">
+      <h4 class="answer-title">답변</h4>
 
-        <!-- 답변 완료 -->
-        <div v-if="inquiry?.status === 1" class="border rounded-lg p-6 flex flex-col gap-3">
-          <h3 class="font-semibold">답변 내용</h3>
+      <Textarea v-if="answerEditMode" v-model="answerContent" rows="4" class="form-textarea" />
+      <Textarea v-else :modelValue="inquiry?.answer_content" rows="4" readonly class="form-textarea" />
 
-          <Textarea v-if="answerEditMode" v-model="answerContent" rows="4" />
-          <Textarea v-else :modelValue="inquiry?.answer_content" rows="4" readonly />
+      <small v-if="errors.answerContent" class="error">{{ errors.answerContent }}</small>
 
-          <small v-if="errors.answerContent" class="error">{{ errors.answerContent }}</small>
-
-          <div class="flex justify-end gap-3">
-            <Button v-if="!answerEditMode" label="답변 수정" @click="answerEditMode = true" />
-            <Button v-else label="수정 완료" @click="openAnswer" />
-            <Button v-if="answerEditMode" label="취소" severity="secondary" @click="answerEditMode = false" />
-          </div>
-        </div>
+      <div v-if="user?.type === 1 || user?.type === 2" class="button-group">
+        <Button v-if="!answerEditMode" label="답변 수정" @click="answerEditMode = true" class="btn-submit" />
+        <Button v-else label="수정 완료" @click="openAnswer" class="btn-submit" />
+        <Button v-if="answerEditMode" label="취소" severity="secondary" outlined @click="answerEditMode = false" class="btn-cancel" />
       </div>
     </div>
   </div>
@@ -316,16 +317,82 @@ const handleConfirm = async () => {
 </template>
 
 <style scoped>
-:deep(input[readonly]),
-:deep(textarea[readonly]) {
+.inquiry-detail {
+  max-width: 100%;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.form-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  font-size: 15px;
+}
+
+.form-input[readonly],
+.form-textarea[readonly] {
   background-color: #f9fafb;
   color: #1f2937;
   opacity: 1 !important;
 }
 
+.form-textarea {
+  resize: vertical;
+}
+
 .error {
+  display: block;
   margin-top: 4px;
   font-size: 12px;
   color: #ef4444;
+}
+
+.answer-section {
+  padding-top: 20px;
+  border-top: 2px solid #f3f4f6;
+  margin-top: 15px;
+}
+
+.answer-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+.btn-submit,
+.btn-cancel {
+  min-width: 120px;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 15px;
 }
 </style>
