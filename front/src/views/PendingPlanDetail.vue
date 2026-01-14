@@ -169,7 +169,7 @@ const formatDate = (v) => {
           </div>
 
           <div class="flex flex-col gap-2">
-            <label>승인날짜</label>
+            <label>승인요청 날짜</label>
             <div class="p-2 border rounded bg-gray-50 font-bold">
               {{ formatDate(plan.plan_date) ?? '-' }}
             </div>

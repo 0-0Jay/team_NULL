@@ -66,16 +66,15 @@ const createCounsel = async () => {
     console.error(err);
   }
   setTimeout(() => {
-    // 작성 성공 알림 뜨고 1초뒤 페이지 변경 해 놓음
     router.push(`/application/counselDetail/${applicationNo}`);
-  }, 1000);
+  });
 };
 </script>
 
 <template>
   <div class="flex">
+    <Toast />
     <div class="card flex flex-col w-full h-175">
-      <Toast />
       <div class="text-2xl font-bold text-center">상담내역 작성</div>
       <div class="flex flex-wrap gap-6 font-semibold">
         <!-- 작성자 -->

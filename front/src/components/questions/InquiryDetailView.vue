@@ -292,7 +292,7 @@ const handleConfirm = async () => {
         </div>
 
         <!-- 답변 완료 -->
-        <div v-if="canAnswer && inquiry?.status === 1" class="border rounded-lg p-6 flex flex-col gap-3">
+        <div v-if="inquiry?.status === 1" class="border rounded-lg p-6 flex flex-col gap-3">
           <h3 class="font-semibold">답변 내용</h3>
 
           <Textarea v-if="answerEditMode" v-model="answerContent" rows="4" />
