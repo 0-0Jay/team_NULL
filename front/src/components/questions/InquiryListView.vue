@@ -60,11 +60,10 @@ const goDetail = (row) => {
 </script>
 
 <template>
-  <div class="flex gap-6 pt-3 overflow-hidden h-[calc(100vh-260px)]">
+  <div class="inquiry-container">
     <!-- 검색 -->
-    <aside class="w-[260px] bg-white px-6 pt-15 pb-6 rounded-xl shadow-sm border border-gray-200">
-      <h3 class="font-bold mb-4 text-gray-700">검색</h3>
-
+    <aside class="search-sidebar">
+      <h3 class="search-title">검색</h3>
       <IconField iconPosition="left">
         <InputIcon class="pi pi-search text-gray-400" />
         <InputText v-model="filters.global.value" class="w-full" placeholder="제목 검색" />
@@ -72,71 +71,144 @@ const goDetail = (row) => {
     </aside>
 
     <!-- 메인 -->
-    <section class="flex-1 bg-white px-6 pt-10 pb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col">
-      <div class="flex justify-between items-center mb-5">
-        <!-- <h2 class="text-xl font-bold text-gray-800">1:1 문의 목록</h2> -->
-
-        <!-- <Button label="문의하기" icon="pi pi-pencil" @click="router.push({ name: 'inquiryCreate' })" /> -->
+    <section class="table-card">
+      <!-- 제목 -->
+      <div class="inquiry-header">
+        <h3 class="inquiry-title">1:1 문의 내역</h3>
+        <RouterLink v-if="user?.type === 0" :to="{ name: 'inquiry-create' }">
+          <Button label="1:1 문의 작성" class="btn-create" />
+        </RouterLink>
       </div>
+      <DataTable
+        :value="Array.isArray(store.inquiryList) ? store.inquiryList : []"
+        v-model:selection="selectedRows"
+        v-model:filters="filters"
+        :globalFilterFields="['title', 'writer_name']"
+        dataKey="inquiry_no"
+        :paginator="true"
+        :rows="rows"
+        :rowHover="true"
+        showGridlines
+        tableLayout="fixed"
+        @page="onPageChange"
+        :selectionPageOnly="true"
+      >
+        <template #empty>
+          <div class="text-center py-6 text-gray-400">문의 내역이 없습니다.</div>
+        </template>
 
-      <div class="flex-1 overflow-auto rounded-lg border border-gray-200">
-        <DataTable
-          :value="Array.isArray(store.inquiryList) ? store.inquiryList : []"
-          v-model:selection="selectedRows"
-          v-model:filters="filters"
-          :globalFilterFields="['title', 'writer_name']"
-          dataKey="inquiry_no"
-          :paginator="true"
-          :rows="rows"
-          :rowHover="true"
-          showGridlines
-          tableLayout="fixed"
-          @page="onPageChange"
-          :selectionPageOnly="true"
-        >
-          <template #empty>
-            <div class="text-center py-6 text-gray-400">문의 내역이 없습니다.</div>
+        <!-- 번호 -->
+        <Column header="번호" style="width: 80px">
+          <template #body="{ index }">
+            {{ rowNumber(index) }}
           </template>
+        </Column>
 
-          <!-- 번호 -->
-          <Column header="번호" style="width: 80px">
-            <template #body="{ index }">
-              {{ rowNumber(index) }}
-            </template>
-          </Column>
+        <!-- 제목 -->
+        <Column field="title" header="제목" sortable>
+          <template #body="{ data }">
+            <span class="cursor-pointer hover:text-blue-600 hover:underline" @click="goDetail(data)">
+              {{ data.title }}
+            </span>
+          </template>
+        </Column>
 
-          <!-- 제목 -->
-          <Column field="title" header="제목" sortable>
-            <template #body="{ data }">
-              <span class="cursor-pointer" @click="goDetail(data)">
-                {{ data.title }}
-              </span>
-            </template>
-          </Column>
+        <!-- 작성자 -->
+        <Column field="writer_name" header="작성자" style="width: 120px" />
 
-          <!-- 작성자 -->
-          <Column field="writer_name" header="작성자" style="width: 120px" />
+        <!-- 작성일 -->
+        <Column header="작성일" style="width: 130px">
+          <template #body="{ data }">
+            {{ formatDate(data.inquiry_date) }}
+          </template>
+        </Column>
 
-          <!-- 작성일 -->
-          <Column header="작성일" style="width: 130px">
-            <template #body="{ data }">
-              {{ formatDate(data.inquiry_date) }}
-            </template>
-          </Column>
-
-          <!-- 답변 상태 -->
-          <Column header="답변 상태" style="width: 120px">
-            <template #body="{ data }">
-              <Tag :value="data.status === 0 ? '미답변' : '답변완료'" :severity="data.status === 0 ? 'secondary' : 'success'" rounded class="status-tag" />
-            </template>
-          </Column>
-        </DataTable>
-      </div>
+        <!-- 답변 상태 -->
+        <Column header="답변 상태" style="width: 120px">
+          <template #body="{ data }">
+            <Tag :value="data.status === 0 ? '미답변' : '답변완료'" :severity="data.status === 0 ? 'secondary' : 'success'" rounded class="status-tag" />
+          </template>
+        </Column>
+      </DataTable>
     </section>
   </div>
 </template>
 
 <style scoped>
+.inquiry-container {
+  display: flex;
+  gap: 24px;
+  padding-top: 12px;
+  height: calc(100vh - 260px);
+  overflow: hidden;
+}
+
+.search-sidebar {
+  width: 260px;
+  background-color: white;
+  padding: 60px 24px 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.search-title {
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #374151;
+}
+
+.inquiry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  /* margin-bottom: 28px; */
+  /* padding-bottom: 16px; */
+  /* border-bottom: 2px solid #f3f4f6; */
+}
+
+.faq-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-create {
+  min-width: 100px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.table-card {
+  flex: 1;
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+:deep(.p-datatable) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* margin-top: 20px; */
+}
+
+:deep(.p-datatable-wrapper) {
+  flex: 1;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
 :deep(.p-datatable-thead > tr > th) {
   background-color: #f9fafb;
   font-weight: 600;
@@ -150,5 +222,10 @@ const goDetail = (row) => {
 :deep(.status-tag) {
   font-size: 0.8rem;
   padding: 0.35rem 0.75rem;
+}
+
+:deep(.p-paginator) {
+  margin-top: auto;
+  padding-top: 16px;
 }
 </style>
