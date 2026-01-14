@@ -25,7 +25,6 @@ const filters = ref({
 // 목록 조회
 onBeforeMount(async () => {
   await store.fetchInquiryList(user);
-  // console.log(store.inquiryList);
 });
 
 // 날짜 포맷

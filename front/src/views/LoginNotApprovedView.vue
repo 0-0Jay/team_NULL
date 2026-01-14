@@ -9,12 +9,26 @@ const router = useRouter();
 
 const center_name = ref('');
 const center_phone = ref('');
-const user = JSON.parse(localStorage.getItem('users')).user;
+const user = JSON.parse(localStorage.getItem('users')).user[0];
+
+function formatPhone(phone) {
+  if (!phone) return '';
+  const num = String(phone).replace(/\D/g, '');
+  // 휴대폰
+  if (num.length === 11) return num.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  // 서울 (02)
+  if (num.startsWith('02') && num.length === 10) return num.replace(/(\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  if (num.startsWith('02') && num.length === 9) return num.replace(/(\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  // 기타 지역번호
+  if (num.length === 10) return num.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  return phone;
+}
 
 onMounted(async () => {
   const result = await store.fetchCenter(user.user_no);
   center_name.value = result.name;
-  center_phone.value = result.phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  // console.log(formatPhone(result.phone));
+  center_phone.value = formatPhone(result.phone);
 });
 
 const logout = async () => {
@@ -24,8 +38,7 @@ const logout = async () => {
 </script>
 
 <template>
-  <FloatingConfigurator />
-  <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+  <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('/login_background.png')">
     <div class="flex flex-col items-center justify-center">
       <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, rgba(247, 149, 48, 0.4) 10%, rgba(247, 149, 48, 0) 30%)">
         <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20 flex flex-col items-center" style="border-radius: 53px">

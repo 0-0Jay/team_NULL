@@ -109,7 +109,7 @@ const openEditCenter = (center) => {
             <div class="text-center py-6 text-gray-400">데이터 없음</div>
           </template>
 
-          <Column selectionMode="multiple" headerStyle="width:48px" />
+          <!-- <Column selectionMode="multiple" headerStyle="width:48px" /> -->
 
           <Column header="번호" headerClass="table-header" bodyClass="table-body" style="width: 80px">
             <template #body="{ index }">

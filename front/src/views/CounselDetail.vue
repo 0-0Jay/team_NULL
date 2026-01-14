@@ -3,17 +3,15 @@
 <script setup>
 import { useCounselStore } from '@/stores/counsel';
 import { onBeforeMount, computed, ref } from 'vue';
-import {  useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
-
-const user =JSON.parse(localStorage.getItem("users")).user[0];
 const store = useCounselStore();
 const route = useRoute();
 const counselList = ref([]);
 
 const filtercounsel = computed(() => store.counselList); // 화면에 보여질 테이터
 
-onBeforeMount(async() => {
+onBeforeMount(async () => {
   const application_no = Number(route.params.application_no);
 
   if (!application_no) {
@@ -21,7 +19,6 @@ onBeforeMount(async() => {
     return;
   }
   counselList.value = await store.fetchCounselList(Number(route.params.application_no), 1); // 1 = 저장
-  console.log(user);
 });
 
 const formatDate = (v) => {
@@ -39,18 +36,11 @@ const formatDate = (v) => {
 <template>
   <div class="flex flex-col w-full h-175 gap-6">
     <div class="flex-1 overflow-auto rounded-lg flex flex-col gap-6">
-
       <!--  상담내역이 있을 때 -->
       <template v-if="filtercounsel.length > 0">
-        <div
-          v-for="(counsel, index) in filtercounsel"
-          :key="counsel.application_no + '-' + index"
-          class="card flex flex-col w-full p-6 shadow-md"
-        >
+        <div v-for="(counsel, index) in filtercounsel" :key="counsel.application_no + '-' + index" class="card flex flex-col w-full p-6 shadow-md">
           <!-- 카드 헤더 -->
-          <div class="text-2xl font-bold text-center mb-6">
-            상담내역 {{ index + 1 }}
-          </div>
+          <div class="text-2xl font-bold text-center mb-6">상담내역 {{ index + 1 }}</div>
 
           <!-- 상담내역 제목 -->
           <div class="flex flex-col gap-2 mb-4 font-semibold">
@@ -79,10 +69,7 @@ const formatDate = (v) => {
       </template>
 
       <!-- 상담내역이 없을 때 -->
-      <div
-      <div v-else class="card text-center">        작성된 상담내역이 없습니다.
-      </div>
-
+      <div v-else class="card text-center">작성된 상담내역이 없습니다.</div>
     </div>
   </div>
 </template>
