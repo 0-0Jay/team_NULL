@@ -100,17 +100,17 @@ const createCounsel = async () => {
       </div>
 
       <!-- 상담내용 -->
-      <div class="flex flex-col gap-2 mb-6 font-semibold">
+      <div class="flex flex-col gap-2 font-semibold">
         <label for="content">상담내용</label>
         <Textarea v-model="content" placeholder="구체적인 상담 내용을 적어주세요." :autoResize="true" rows="9" cols="30" />
       </div>
 
-      <div v-if="errorMessage" class="text-red-500 text-center mt-2">
+      <div v-if="errorMessage" class="text-red-500 text-center mt-5">
         {{ errorMessage }}
       </div>
 
       <!-- 등록, 목록 버튼 -->
-      <div class="flex flex-wrap gap-2 justify-center">
+      <div class="flex flex-wrap gap-2 justify-center mt-5">
         <Button label="등록" style="width: auto" @click="createCounsel" />
       </div>
 
