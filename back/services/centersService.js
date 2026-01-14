@@ -107,13 +107,7 @@ const modifyByCNoCenter = async (data) => {
       ],
       "center"
     );
-    // 2. 소속 사용자 주소 업데이트
-    const result2 = await mysql.query(
-      "updateUserCenterByAdmin",
-      [c_no],
-      "center"
-    );
-    if (result1.affectedRows > 0 || result2.affectedRows > 0) {
+    if (result1.affectedRows > 0) {
       resObj = { status: "success", c_no };
     } else {
       resObj = { status: "fail" };

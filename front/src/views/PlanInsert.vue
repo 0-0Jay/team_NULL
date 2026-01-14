@@ -25,7 +25,7 @@ const content = ref('');
 
 onMounted(async () => {
   const doCounsel = await cStore.fetchCounselList(applicationNo);
-  if (doCounsel.length > 0) {
+  if (doCounsel.length == 0) {
     toast.add({
       severity: 'warn',
       summary: '계획서 작성 조건',
@@ -33,6 +33,7 @@ onMounted(async () => {
       closable: false,
       life: 2000
     });
+    console.log(doCounsel);
     router.push({ path: `/application/counselInsert/${applicationNo}` });
   }
 });
@@ -151,12 +152,12 @@ const submitPlan = async () => {
         <Toast />
         <FileUpload name="demo[]" @uploader="Upload" :multiple="true" accept="image/*" :maxFileSize="1000000" customUpload chooseLabel="파일 선택" uploadLabel="업로드" cancelLabel="취소" /> -->
 
-      <div v-if="errorMessage" class="text-red-500 text-center mt-2">
+      <div v-if="errorMessage" class="text-red-500 text-center mt-5">
         {{ errorMessage }}
       </div>
 
       <!-- 승인 신청 버튼 -->
-      <div class="flex flex-wrap gap-2 justify-center mt-5">
+      <div class="flex flex-wrap justify-center mt-5">
         <Button label="승인신청" style="width: auto" @click="submitPlan" />
       </div>
     </div>

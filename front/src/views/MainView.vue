@@ -150,7 +150,7 @@ const columnData = computed(() => {
       approve_count: toNumber(plan.approve_count) + toNumber(result.approve_count),
       reject_count: toNumber(plan.reject_count) + toNumber(result.reject_count),
       result_count: toNumber(result.approve_count),
-      plan_count: toNumber(plan.plan_count),
+      plan_count: toNumber(plan.approve_count),
       counsel_count: toNumber(counselCount)
     };
   });
