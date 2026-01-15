@@ -5,7 +5,6 @@ const usersService = require("../services/usersService");
 // 로그인
 router.post("/login", async (req, res) => {
   const { id, pw } = req.body;
-  console.log(id, pw);
   let list = await usersService.findByIdAndPwUsers(id, pw);
   res.send(list);
 });
@@ -13,8 +12,8 @@ router.post("/login", async (req, res) => {
 // 회원가입
 router.post("/signUp", async (req, res) => {
   const data = req.body;
-  let result = await usersService.addUsers(data);
-  res.send(result);
+  let list = await usersService.addUsers(data);
+  res.send(list);
 });
 
 // 아이디 중복 확인

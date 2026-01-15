@@ -40,7 +40,7 @@ const formatDate = (v) => {
       <template v-if="filtercounsel.length > 0">
         <div v-for="(counsel, index) in filtercounsel" :key="counsel.application_no + '-' + index" class="card flex flex-col w-full p-6 shadow-md">
           <!-- 카드 헤더 -->
-          <div class="text-2xl font-bold text-center mb-6">상담내역 {{ index + 1 }}</div>
+          <div class="text-2xl font-bold text-center mb-6">상담내역</div>
 
           <!-- 상담내역 제목 -->
           <div class="flex flex-col gap-2 mb-4 font-semibold">
