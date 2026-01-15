@@ -33,7 +33,7 @@ const addUsers = async (data) => {
     type,
     center,
   } = data;
-  let result = await mysql.query(
+  let list = await mysql.query(
     "insertUsers",
     [
       id,
@@ -49,13 +49,7 @@ const addUsers = async (data) => {
     ],
     "users"
   );
-  let resObj = {};
-  if (result.insertId > 0) {
-    resObj = { status: "success", user_no: result.insertId };
-  } else {
-    resObj = { status: "fail" };
-  }
-  return resObj;
+  return list;
 };
 // 아이디 중복 확인
 const findByIdUsers = async (id) => {
